@@ -46,7 +46,11 @@
       if (v) next.set(k, v);
     });
     var qs = next.toString();
-    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+    try {
+      history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+    } catch (e) {
+      // Some embedded viewers refuse address changes; filtering still works.
+    }
   }
 
   form.addEventListener('input', apply);
