@@ -518,7 +518,14 @@ async function main() {
     body: `<section class="page-head"><h1>That signing is over or moved</h1><p class="lede">Past signings come off the calendar. <a href="${esc(link('/events/'))}">See what is coming up.</a></p></section>`,
   }));
   await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');
-  await put('.nojekyll', '');
+  // Apache (Bluehost): serve our index.html ahead of any WordPress index.php,
+  // use our 404 page, and stop a parent WordPress .htaccess from rewriting our URLs.
+  await put('.htaccess', [
+    'DirectoryIndex index.html',
+    `ErrorDocument 404 ${BASE}/404.html`,
+    'RewriteEngine On',
+    '',
+  ].join('\n'));
 
   console.log(`Built ${list.length} upcoming signings (of ${rows.length} published rows) into dist/`);
 }
