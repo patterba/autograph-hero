@@ -326,9 +326,9 @@ ${PHOTO_SCRIPT}
 <header class="site-header">
   <a class="brand" href="${esc(link('/'))}">${ICON.logo}<span>AUTOGRAPH HERO</span></a>
   <nav aria-label="Main">
-    <a href="${esc(link('/events/'))}"${pathname === '/events/' ? ' aria-current="page"' : ''}>All signings</a>
-    <a href="${esc(link('/events/?type=public'))}">In person</a>
-    <a href="${esc(link('/events/?type=mail-in'))}">Mail-in</a>
+    <a href="${esc(link('/events/'))}"${pathname === '/events/' ? ' aria-current="page"' : ''}>All Signings</a>
+    <a href="${esc(link('/events/?type=public'))}">In Person</a>
+    <a href="${esc(link('/events/?type=mail-in'))}">Mail-In</a>
   </nav>
   <div class="header-actions">
     <a class="btn btn-accent btn-sm btn-pop" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Submit A Signing</a>
