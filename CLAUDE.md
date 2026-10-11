@@ -7,3 +7,4 @@
 - Internal links go through `link()` so the site works in a sub-folder (e.g. /new on Bluehost) and at the domain root.
 - Hosting is Bluehost (Apache). The workflow uploads over FTP; the build writes an .htaccess.
 - Design tokens are CSS variables at the top of `assets/site.css`.
+- Forms: "Add a listing" (/add/) and "Get alerts" (/signup/) post to the Supabase function `site-forms` (assets/forms.js). Listings land in `public.submissions` as pending; `admin.approve_submission(id, note)` / `admin.reject_submission(id, note)` decide them (the private approval artifact calls these). Sign-ups land in `public.subscribers`. Both tables are private (RLS, no policies). The site rebuilds hourly.

@@ -16,6 +16,10 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY || 'sb_publishable_a6auUU4qDwaY0vc
 const BASE = (process.env.BASE_PATH || '').replace(/\/$/, '');
 const NOINDEX = process.env.SITE_NOINDEX === '1';
 const SITE_NAME = 'Autograph Hero';
+// Public endpoint for the "Add a listing" and sign-up forms (Supabase function site-forms).
+const FORMS_URL = process.env.FORMS_URL || `${SUPABASE_URL}/functions/v1/site-forms`;
+const US_STATES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ');
+const SPORT_CHOICES = ['Football', 'Baseball', 'Basketball', 'Hockey', 'Soccer', 'Wrestling', 'MMA', 'Golf', 'Racing', 'Entertainment', 'Other'];
 
 const COLUMNS = [
   'id', 'title', 'athlete_names', 'signing_type', 'event_date', 'event_date_text',
@@ -218,6 +222,8 @@ const ICON = {
   out: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>',
   cal: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>',
   pin: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  bell: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
   logo: '<svg width="34" height="34" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="18" r="16"/><path d="M9 23c3-1 5-9 8-9s1 7 4 7 3-5 6-6" stroke-linecap="round"/></svg>',
 };
 
@@ -272,7 +278,7 @@ function card(s) {
 </a>`;
 }
 
-function page({ title, description, pathname, body, script = false }) {
+function page({ title, description, pathname, body, script = false, forms = false }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: autograph signings and meet & greets`;
   return `<!doctype html>
 <html lang="en">
@@ -300,6 +306,10 @@ ${PHOTO_SCRIPT}
     <a href="${esc(link('/events/?type=public'))}">In person</a>
     <a href="${esc(link('/events/?type=mail-in'))}">Mail-in</a>
   </nav>
+  <div class="header-actions">
+    <a class="btn btn-accent btn-sm" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Add a listing</a>
+    <a class="btn btn-ink btn-sm" href="${esc(link('/signup/'))}"${pathname === '/signup/' ? ' aria-current="page"' : ''}>Get alerts</a>
+  </div>
 </header>
 <main id="main">
 ${body}
@@ -311,6 +321,7 @@ ${body}
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(link('/assets/site.js'))}" defer></script>` : ''}
+${forms ? `<script src="${esc(link('/assets/forms.js'))}" defer></script>` : ''}
 </body>
 </html>
 `;
@@ -389,6 +400,23 @@ ${sports.length ? `<section class="band band-alt">
     ${sports.map(([sp, n]) => `<a class="tile" href="${esc(link(`/events/?sport=${encodeURIComponent(sp)}`))}"><span class="tile-name">${esc(sp)}</span><span class="mono">${n} signing${n === 1 ? '' : 's'} ${ICON.arrow}</span></a>`).join('\n    ')}
   </div>
 </section>` : ''}
+
+<section class="band">
+  <div class="cta-pair">
+    <div class="cta cta-dark">
+      <div class="eyebrow">Alerts</div>
+      <h2>Never miss your favorites</h2>
+      <p>Tell us your favorite teams, players and people. We'll email you when one of them has a signing.</p>
+      <a class="btn btn-accent" href="${esc(link('/signup/'))}">${ICON.bell}Get alerts</a>
+    </div>
+    <div class="cta">
+      <div class="eyebrow">Built by fans</div>
+      <h2>Know about one we missed?</h2>
+      <p>Send us a signing or meet &amp; greet. We check every listing before it goes on the calendar.</p>
+      <a class="btn btn-ink" href="${esc(link('/add/'))}">${ICON.plus}Add a listing</a>
+    </div>
+  </div>
+</section>
 
 <section class="band">
   <div class="section-head"><h2>Three ways to get it signed</h2></div>
@@ -545,6 +573,7 @@ function signingPage(s, list) {
         </div>
       </div>` : ''}
       ${mapUrl ? `<a class="maplink" href="${esc(mapUrl)}" rel="noopener" target="_blank">${ICON.pin}Open in Google Maps</a>` : ''}
+      ${s.names.length ? `<a class="maplink" href="${esc(link(`/signup/?fav=${encodeURIComponent(s.names[0])}`))}">${ICON.bell}Email me when ${esc(s.names[0])} signs again</a>` : ''}
       <p class="muted small">Details can change. Confirm with the organizer before you order or travel.</p>
     </div>
   </aside>
@@ -565,6 +594,114 @@ ${more.length ? `<section class="band band-alt">
     }),
     ics: cal ? cal.file : null,
   };
+}
+
+const field = (id, label, input, hint = '') =>
+  `<div class="f-field"><label for="${id}">${label}</label>${input}${hint ? `<p class="f-hint" id="${id}-hint">${hint}</p>` : ''}</div>`;
+const honeypot = '<div class="hp" aria-hidden="true"><label for="f-website">Leave this empty</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>';
+const formStatus = '<p class="f-status" role="status" aria-live="polite" hidden></p><noscript><p class="notice">This form needs JavaScript turned on.</p></noscript>';
+
+function addPage() {
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">Add a listing</div>
+  <h1>Add a signing to the calendar</h1>
+  <p class="lede">Know about an autograph signing, meet &amp; greet or mail-in we don't have yet? Send it in. We check every listing against its source before it goes live.</p>
+</section>
+<section class="band band-tight">
+  <form class="f-form" data-form="listing" data-endpoint="${esc(FORMS_URL)}" novalidate>
+    <fieldset>
+      <legend><span class="f-n">01</span>The signing</legend>
+      ${field('f-names', 'Who is signing? <span class="req">Required</span>', '<input id="f-names" name="athlete_names" type="text" required maxlength="300" autocomplete="off" aria-describedby="f-names-hint">', 'For a group signing, separate names with commas.')}
+      <div class="f-row">
+        ${field('f-sport', 'Sport', `<select id="f-sport" name="sport"><option value="">Choose one</option>${SPORT_CHOICES.map((x) => `<option>${x}</option>`).join('')}</select>`)}
+        <div class="f-field"><span class="f-label" id="f-type-label">How does it work? <span class="req">Required</span></span>
+          <div class="f-choices" role="radiogroup" aria-labelledby="f-type-label">
+            <label><input type="radio" name="signing_type" value="public" required> In person</label>
+            <label><input type="radio" name="signing_type" value="private"> Private signing</label>
+            <label><input type="radio" name="signing_type" value="mail-in"> Mail-in</label>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend><span class="f-n">02</span>When and where</legend>
+      <div class="f-row">
+        ${field('f-date', 'Signing date', '<input id="f-date" name="event_date" type="date">')}
+        ${field('f-time', 'Time', '<input id="f-time" name="event_time_text" type="text" maxlength="120" placeholder="e.g. 1pm to 3pm">')}
+        ${field('f-deadline', 'Order deadline', '<input id="f-deadline" name="order_deadline" type="date" aria-describedby="f-deadline-hint">', 'For mail-in and private signings. Enter a signing date, a deadline, or both.')}
+      </div>
+      ${field('f-venue', 'Venue', '<input id="f-venue" name="venue" type="text" maxlength="200" placeholder="Card shop, convention center, stadium…">')}
+      <div class="f-row">
+        ${field('f-city', 'City', '<input id="f-city" name="city" type="text" maxlength="100">')}
+        ${field('f-state', 'State', `<select id="f-state" name="state"><option value="">Choose one</option>${US_STATES.map((x) => `<option>${x}</option>`).join('')}</select>`)}
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend><span class="f-n">03</span>Details</legend>
+      ${field('f-url', 'Link to the official announcement or order page <span class="req">Required</span>', '<input id="f-url" name="source_url" type="url" required maxlength="1000" placeholder="https://" aria-describedby="f-url-hint">', 'A post or page from the promoter, venue, team or the person signing. This is how we confirm it.')}
+      ${field('f-prices', 'Prices', '<textarea id="f-prices" name="price_text" rows="3" maxlength="1000" placeholder="Autograph $40, photo op $50…"></textarea>')}
+      ${field('f-notes', 'Anything else we should know?', '<textarea id="f-notes" name="notes" rows="3" maxlength="2000"></textarea>')}
+    </fieldset>
+    <fieldset>
+      <legend><span class="f-n">04</span>About you</legend>
+      <div class="f-row">
+        ${field('f-name', 'Your name', '<input id="f-name" name="submitter_name" type="text" maxlength="120" autocomplete="name">')}
+        ${field('f-email', 'Your email <span class="req">Required</span>', '<input id="f-email" name="submitter_email" type="email" required maxlength="254" autocomplete="email" aria-describedby="f-email-hint">', 'Only used if we have a question about this listing.')}
+      </div>
+    </fieldset>
+    ${honeypot}
+    <div class="f-actions"><button class="btn btn-accent" type="submit">Send for review</button></div>
+    ${formStatus}
+  </form>
+</section>`;
+  return page({ title: 'Add a listing', description: 'Send us an autograph signing or meet & greet we are missing. Every listing is checked before it goes live.', pathname: '/add/', body, forms: true });
+}
+
+function signupPage(list, athletes) {
+  // Suggestions for the favorites box: every team and every signer we know of.
+  const options = new Set();
+  for (const rows of athletes.values()) for (const a of rows) {
+    if (a.name) options.add(a.name);
+    for (const t of Array.isArray(a.teams) ? a.teams : []) if (t?.team) options.add(t.team);
+  }
+  for (const s of list) for (const n of s.names) options.add(n);
+  const sorted = [...options].filter((o) => typeof o === 'string' && o.trim()).sort((a, b) => a.localeCompare(b));
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">Get alerts</div>
+  <h1>Never miss your favorites</h1>
+  <p class="lede">Tell us who you follow. When one of your favorite teams, players or people has a signing, we'll send you an email.</p>
+</section>
+<section class="band band-tight">
+  <form class="f-form f-narrow" data-form="signup" data-endpoint="${esc(FORMS_URL)}" novalidate>
+    <fieldset>
+      <legend><span class="f-n">01</span>Your details</legend>
+      <div class="f-row">
+        ${field('s-name', 'Name <span class="req">Required</span>', '<input id="s-name" name="name" type="text" required maxlength="120" autocomplete="name">')}
+        ${field('s-email', 'Email <span class="req">Required</span>', '<input id="s-email" name="email" type="email" required maxlength="254" autocomplete="email">')}
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend><span class="f-n">02</span>Your favorites</legend>
+      <div class="f-field">
+        <label for="s-fav">Add a team, player or person <span class="req">At least one</span></label>
+        <div class="fav-entry">
+          <input id="s-fav" type="text" list="fav-options" maxlength="80" autocomplete="off" placeholder="e.g. Denver Broncos or John Elway" aria-describedby="s-fav-hint">
+          <button class="btn btn-ghost" type="button" data-fav-add>Add</button>
+        </div>
+        <p class="f-hint" id="s-fav-hint">Pick from the list or type your own, then press Add. You can add up to 25.</p>
+        <datalist id="fav-options">${sorted.map((o) => `<option value="${esc(o)}"></option>`).join('')}</datalist>
+        <ul class="fav-list" aria-label="Your favorites" data-fav-list></ul>
+      </div>
+    </fieldset>
+    <label class="f-check"><input type="checkbox" name="consent" required> Email me when my favorites have a signing. I can unsubscribe at any time.</label>
+    ${honeypot}
+    <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.bell}Sign up for alerts</button></div>
+    ${formStatus}
+  </form>
+</section>`;
+  return page({ title: 'Get alerts', description: 'Sign up to get an email when your favorite teams, players and people have an autograph signing.', pathname: '/signup/', body, forms: true });
 }
 
 function creditsPage(list) {
@@ -614,6 +751,8 @@ async function main() {
     if (ics) await put(`signing/${s.slug}/event.ics`, ics);
   }
   await put('photo-credits/index.html', creditsPage(list));
+  await put('add/index.html', addPage());
+  await put('signup/index.html', signupPage(list, athletes));
   await put('404.html', page({
     title: 'Page not found',
     description: 'That page is not here.',

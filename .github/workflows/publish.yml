@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
   schedule:
-    # Every day at 14:17 UTC (about 7am Pacific), after the Monday and Friday crawls.
-    - cron: '17 14 * * *'
+    # Every hour at :17, so approved listings and crawl results show up within the hour.
+    - cron: '17 * * * *'
   workflow_dispatch:
 
 permissions:

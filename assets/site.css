@@ -170,3 +170,56 @@ h1, h2, h3, p { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   .card, .feature { transition: none; }
 }
+
+/* Header actions: "Add a listing" and "Get alerts" on every page */
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-sm { min-height: 44px; padding: 10px 18px; font-size: 15px; }
+.btn-ink { background: var(--ink); color: var(--paper); }
+.btn-ink:hover { background: #33363E; color: var(--paper); }
+.header-actions .btn[aria-current='page'] { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* Home: alerts and add-a-listing side by side */
+.cta-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.cta { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: clamp(28px, 4vw, 48px); background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; }
+.cta h2 { font-family: var(--display); font-weight: 400; font-size: clamp(34px, 3.6vw, 48px); line-height: 1; text-transform: uppercase; }
+.cta p { color: var(--ink-2); max-width: 46ch; }
+.cta-dark { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.cta-dark p, .cta-dark .eyebrow { color: #D9D3C6; }
+
+/* Forms */
+.f-form { display: flex; flex-direction: column; gap: 24px; max-width: 860px; }
+.f-narrow { max-width: 720px; }
+.f-form fieldset { margin: 0; padding: clamp(20px, 3vw, 32px); border: 1.5px solid var(--ink); border-radius: 18px; background: var(--card); display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.f-form legend { float: left; width: 100%; padding: 0; display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 700; }
+.f-n { font-family: var(--display); font-weight: 400; font-size: 28px; color: var(--accent); }
+.f-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+.f-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.f-field label, .f-label { font-size: 15px; font-weight: 600; }
+.req { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-left: 6px; }
+.f-form input[type='text'], .f-form input[type='email'], .f-form input[type='url'], .f-form input[type='date'], .f-form select, .f-form textarea {
+  width: 100%; border: 1.5px solid var(--ink); background: #FFFFFF; color: var(--ink); font: 500 17px var(--body); padding: 12px 14px; border-radius: 12px; min-height: 48px;
+}
+.f-form textarea { resize: vertical; }
+.f-form [aria-invalid='true'] { border-color: #B91C1C; box-shadow: 0 0 0 2px rgba(185, 28, 28, 0.2); }
+.f-hint { font-size: 14px; color: var(--muted); }
+.f-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.f-choices label { display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border: 1.5px solid var(--ink); border-radius: 999px; font-weight: 600; cursor: pointer; min-height: 44px; }
+.f-choices label:has(input:checked) { background: var(--ink); color: var(--paper); }
+.f-choices input { accent-color: var(--accent); margin: 0; }
+.f-check { display: flex; align-items: flex-start; gap: 12px; font-size: 16px; cursor: pointer; }
+.f-check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex-shrink: 0; }
+.f-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.f-actions .btn[disabled] { opacity: 0.6; cursor: progress; }
+.f-status { padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--ink); background: var(--card); font-weight: 600; }
+.f-status.is-success { background: #DCEFE0; border-color: #14532D; color: #14532D; }
+.f-status.is-error { background: #FBE3DF; border-color: #8A1C12; color: #8A1C12; }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.fav-entry { display: flex; gap: 8px; }
+.fav-entry input { flex: 1; min-width: 0; }
+.fav-list { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.fav-list li { display: inline-flex; align-items: center; gap: 4px; padding: 4px 4px 4px 14px; background: var(--ink); color: var(--paper); border-radius: 999px; font-weight: 600; font-size: 15px; }
+.fav-list button { width: 36px; height: 36px; border: none; border-radius: 50%; background: transparent; color: var(--paper); font-size: 20px; line-height: 1; cursor: pointer; }
+.fav-list button:hover { background: rgba(255, 255, 255, 0.15); }
+@media (max-width: 900px) {
+  .site-header { align-items: flex-start; }
+}
