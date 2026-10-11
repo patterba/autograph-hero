@@ -36,6 +36,14 @@ jobs:
         env:
           BASE_PATH: ${{ env.SITE_PATH }}
 
+      # Keeps a copy of the built site for 7 days, for previews and checks.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist
+          include-hidden-files: true
+          retention-days: 7
+
       - name: Check for Bluehost login
         id: login
         env:

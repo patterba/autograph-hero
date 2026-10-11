@@ -88,7 +88,57 @@ async function loadSignings() {
   return rows;
 }
 
-function shape(row) {
+// Teams come from public.athletes, which the weekly crawl fills from Wikipedia.
+// The public key only sees rows marked 'confirmed'. If this fails, the site
+// still builds, just without team names.
+async function loadAthletes() {
+  const byName = new Map();
+  try {
+    const qs = new URLSearchParams({ select: 'name,sport,teams', limit: '5000' });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/athletes?${qs}`, { headers: { apikey: SUPABASE_KEY } });
+    if (!res.ok) throw new Error(`Supabase returned ${res.status}`);
+    const rows = await res.json();
+    for (const a of Array.isArray(rows) ? rows : []) {
+      if (typeof a?.name !== 'string' || !Array.isArray(a.teams)) continue;
+      const key = a.name.trim().toLowerCase();
+      byName.set(key, [...(byName.get(key) || []), a]);
+    }
+  } catch (err) {
+    console.warn(`Could not load athlete teams (${err.message}); building without them.`);
+  }
+  return byName;
+}
+
+const THIS_YEAR = Number(TODAY.slice(0, 4));
+
+// All teams for the signers, in career order, plus the one they are best known for
+// (the most years across all stints).
+function teamsFor(names, sport, athletes) {
+  const years = new Map();
+  let anyYears = false;
+  let current = null;
+  for (const n of names) {
+    const rows = athletes.get(n.trim().toLowerCase()) || [];
+    const row = rows.find((a) => a.sport === sport) || rows[0];
+    const stints = (row?.teams || []).filter((t) => t && typeof t.team === 'string' && t.team.trim());
+    stints.forEach((t, i) => {
+      const from = Number.isInteger(t.from_year) ? t.from_year : null;
+      // A missing end year means "current" only on the last stint; otherwise count one season.
+      const to = Number.isInteger(t.to_year) ? t.to_year : i === stints.length - 1 ? THIS_YEAR : from;
+      const span = from && to ? Math.max(1, to - from + 1) : 0;
+      if (span) anyYears = true;
+      years.set(t.team, (years.get(t.team) || 0) + span);
+      // An active player (last stint has a start year and no end year) is shown with today's team.
+      if (i === stints.length - 1 && from && !Number.isInteger(t.to_year) && names.length === 1) current = t.team;
+    });
+  }
+  const teams = [...years.keys()];
+  // Without any years we can't tell which team they're known for, so don't pick one.
+  const primary = current || anyYears && teams.reduce((best, t) => (best === null || years.get(t) > years.get(best) ? t : best), null) || null;
+  return { teams, primary };
+}
+
+function shape(row, athletes) {
   const names = Array.isArray(row.athlete_names) ? row.athlete_names.filter((n) => typeof n === 'string' && n.trim()) : [];
   const name = joinNames(names) || row.title || 'Autograph signing';
   const eventDate = isDate(row.event_date) ? row.event_date : null;
@@ -101,6 +151,7 @@ function shape(row) {
   const place = [row.city, row.state].filter(Boolean).join(', ');
   const priceMin = money(row.price_min);
   const priceMax = money(row.price_max);
+  const { teams, primary } = teamsFor(names, row.sport, athletes);
   const prices = Array.isArray(row.prices)
     ? row.prices.filter((p) => p && typeof p.item === 'string' && money(p.price)).map((p) => ({ item: p.item, price: money(p.price) }))
     : [];
@@ -127,6 +178,8 @@ function shape(row) {
     prices,
     sport: row.sport || null,
     teamCity: row.team_city || null,
+    teams,
+    primaryTeam: primary,
     listingUrl,
     host,
     source,
@@ -176,11 +229,11 @@ function priceLine(s) {
 }
 
 function card(s) {
-  const q = [s.name, s.title, s.venue, s.city, s.state, s.sport, s.teamCity, s.source].filter(Boolean).join(' ').toLowerCase();
+  const q = [s.name, s.title, s.venue, s.city, s.state, s.sport, s.teamCity, ...s.teams, s.source].filter(Boolean).join(' ').toLowerCase();
   return `<a class="card" href="${esc(link(`/signing/${s.slug}/`))}" data-q="${esc(q)}" data-sport="${esc(s.sport || '')}" data-type="${esc(s.type)}" data-state="${esc(s.state || '')}">
   <div class="card-photo">${photo(s)}${badge(s)}</div>
   <div class="card-body">
-    <div class="eyebrow">${esc([s.sport, s.teamCity].filter(Boolean).join(' · ') || 'Autographs')}</div>
+    <div class="eyebrow">${esc([s.sport, s.primaryTeam].filter(Boolean).join(' · ') || 'Autographs')}</div>
     <h3>${esc(s.name)}</h3>
     <p class="where">${ICON.pin}<span>${esc(whereLine(s))}</span></p>
   </div>
@@ -246,7 +299,7 @@ function homePage(list) {
       <div class="feature-photo">${photo(featured)}<span class="badge badge-dark">Next up</span></div>
       <div class="tear"></div>
       <div class="feature-body">
-        <div class="eyebrow accent">${esc([TYPE_LABEL[featured.type], featured.sport].filter(Boolean).join(' · '))}</div>
+        <div class="eyebrow accent">${esc([TYPE_LABEL[featured.type], featured.primaryTeam || featured.sport].filter(Boolean).join(' · '))}</div>
         <div class="feature-name">${esc(featured.name)}</div>
         <div class="muted">${esc(whereLine(featured))}</div>
         <div class="feature-foot"><span class="mono">${esc(whenLine(featured))}${featured.timeText && featured.timeText.length < 24 ? ` · ${esc(featured.timeText)}` : ''}</span><span class="btn btn-accent">View signing</span></div>
@@ -267,7 +320,7 @@ function homePage(list) {
   <form class="search" role="search" action="${esc(link('/events/'))}" method="get">
     <div class="field grow">
       <label for="h-q">Who</label>
-      <input id="h-q" name="q" type="search" placeholder="Athlete, team or city" autocomplete="off">
+      <input id="h-q" name="q" type="search" placeholder="Player, team or city" autocomplete="off">
     </div>
     <div class="field">
       <label for="h-type">How</label>
@@ -346,7 +399,7 @@ function eventsPage(list) {
   <form class="filters" id="filters" role="search">
     <div class="field grow">
       <label for="f-q">Search</label>
-      <input id="f-q" name="q" type="search" placeholder="Athlete, team or city" autocomplete="off">
+      <input id="f-q" name="q" type="search" placeholder="Player, team or city" autocomplete="off">
     </div>
     <div class="field">
       <label for="f-type">Type</label>
@@ -425,6 +478,7 @@ function signingPage(s, list) {
     s.deadline ? ['Order by', `${longDate(s.deadline)}${s.deadlinePassed ? ' (passed)' : ''}`] : null,
     s.venue ? ['Venue', s.venue] : null,
     s.place ? ['City', s.place] : null,
+    s.teams.length ? [s.teams.length === 1 ? 'Team' : 'Teams', s.teams.join(', '), 'wide'] : null,
   ].filter(Boolean);
 
   const body = `
@@ -452,7 +506,7 @@ function signingPage(s, list) {
     <div class="tear"></div>
     <div class="ticket-body">
       ${s.deadlinePassed ? '<p class="notice">The order deadline listed for this signing has passed. Check with the organizer for late availability.</p>' : ''}
-      <dl>${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+      <dl>${rows.map(([k, v, wide]) => `<div${wide ? ' class="wide"' : ''}><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
       ${s.priceMin ? `<div class="from"><span class="eyebrow">Price</span><span class="from-n">${esc(s.priceMax && s.priceMax !== s.priceMin ? `${s.priceMin} to ${s.priceMax}` : s.priceMin)}</span></div>` : ''}
       ${s.listingUrl ? `<a class="btn btn-accent btn-block" href="${esc(s.listingUrl)}" rel="noopener" target="_blank">${s.type === 'public' ? 'Get tickets' : 'Order'} at ${esc(s.host)} ${ICON.out}</a>` : ''}
       ${cal ? `<div class="cal">
@@ -494,9 +548,9 @@ async function put(rel, content) {
 }
 
 async function main() {
-  const rows = await loadSignings();
+  const [rows, athletes] = await Promise.all([loadSignings(), loadAthletes()]);
   const list = rows
-    .map(shape)
+    .map((row) => shape(row, athletes))
     .filter((s) => s.sortDate && s.sortDate >= TODAY)
     .sort((a, b) => a.sortDate.localeCompare(b.sortDate) || a.id - b.id);
 

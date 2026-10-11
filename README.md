@@ -5,7 +5,7 @@ The Autograph Hero website. It lists upcoming autograph signings that are stored
 ## How it works
 
 1. A scheduled task crawls the source pages every Monday and Friday and saves signings to the `signings` table in Supabase.
-2. `build.mjs` reads every signing whose status is `published`, drops the ones that are over, and writes a plain HTML site into `dist/`.
+2. `build.mjs` reads every signing whose status is `published` and each signer's teams from the `athletes` table, drops the signings that are over, and writes a plain HTML site into `dist/`. Searching a team ("Broncos") finds its players.
 3. GitHub Actions (`.github/workflows/publish.yml`) runs that build on every push to `main` and once a day, then uploads `dist/` to Bluehost over FTP.
 
 The upload needs three repository secrets (Settings → Secrets and variables → Actions): `FTP_SERVER`, `FTP_USERNAME` and `FTP_PASSWORD`. Use a Bluehost FTP account whose directory is the site folder (for testing, `public_html/new`), so the upload cannot reach anything else.
