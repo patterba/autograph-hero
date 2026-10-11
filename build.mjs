@@ -227,8 +227,9 @@ const ICON = {
   pin: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
   bell: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
-  // Shield with the A over a black-bordered H and a shooting star; same drawing as assets/logo.svg (also the favicon).
-  logo: '<svg class="logo-mark" width="44" height="44" viewBox="0 0 120 120" aria-hidden="true"><path d="M60 5 L103 18 V56 C103 85 83 103 60 114 C37 103 17 85 17 56 V18 Z" fill="#C2410C" stroke="#16181D" stroke-width="5" stroke-linejoin="round"/><path d="M60 14.5 L94.5 25 V56 C94.5 79 79 94 60 103.5 C41 94 25.5 79 25.5 56 V25 Z" fill="none" stroke="#F6F1E7" stroke-width="3"/><path d="M6 96 C 34 92, 60 76, 75 45 L 82 49 C 66 80, 38 96, 6 96 Z" fill="#16181D"/><path d="M38 40 H49 V62 H71 V40 H82 V88 H71 V71 H49 V88 H38 Z" fill="#F6F1E7" stroke="#16181D" stroke-width="3" stroke-linejoin="miter"/><path d="M60 28 L84 90 H73.5 L60 54 L46.5 90 H36 Z" fill="#16181D" stroke="#F6F1E7" stroke-width="2.5" stroke-linejoin="round"/><path d="M86 19.8 L89.2 27.3 L97.3 28.1 L91.2 33.4 L93 41.4 L86 37.2 L79 41.4 L80.8 33.4 L74.7 28.1 L82.8 27.3 Z" fill="#F6F1E7" stroke="#16181D" stroke-width="3" stroke-linejoin="round"/></svg>',
+  // Full logo: "Autograph" in brush script over block-letter HERO, with a cape on the H. The script is live text in
+  // Yellowtail (loaded with the other fonts); its outline color comes from site.css. The favicon (assets/logo.svg) is the caped H alone.
+  logo: '<svg class="logo-lockup" viewBox="-170 -128 566 334" role="img" aria-label="Autograph Hero"><path d="M34 0 H8 C-50 -4 -110 24 -164 76 Q-138 84 -146 112 Q-118 114 -124 146 Q-96 142 -98 184 C-84 130 -44 70 0 44 H34 Z" fill="#FF6A00"/><path d="M0 0 H34 V83 H58 V0 H92 V200 H58 V117 H34 V200 H0 Z" fill="#0A0A0A"/><path d="M102 0 H180 V32 H136 V84 H172 V116 H136 V168 H180 V200 H102 Z" fill="#0A0A0A"/><path fill-rule="evenodd" d="M190 0 H250 A34 34 0 0 1 284 34 V82 A34 34 0 0 1 250 116 H190 Z M224 30 H244 A8 8 0 0 1 252 38 V78 A8 8 0 0 1 244 86 H224 Z" fill="#0A0A0A"/><path d="M190 0 H224 V200 H190 Z M230 110 H262 L286 200 H252 Z" fill="#0A0A0A"/><path fill-rule="evenodd" d="M330 0 H354 A34 34 0 0 1 388 34 V166 A34 34 0 0 1 354 200 H330 A34 34 0 0 1 296 166 V34 A34 34 0 0 1 330 0 Z M338 32 H346 A8 8 0 0 1 354 40 V160 A8 8 0 0 1 346 168 H338 A8 8 0 0 1 330 160 V40 A8 8 0 0 1 338 32 Z" fill="#0A0A0A"/><text x="-7" y="0" transform="rotate(-6 -7 21)">Autograph</text></svg>',
 };
 
 const badge = (s) => `<span class="badge badge-${esc(s.type)}">${esc(TYPE_LABEL[s.type])}</span>`;
@@ -318,7 +319,7 @@ ${NOINDEX ? '<meta name="robots" content="noindex, nofollow">' : ''}
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Yellowtail&family=IBM+Plex+Mono:wght@500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="${esc(link('/assets/site.css'))}">
 <link rel="icon" type="image/svg+xml" href="${esc(link('/assets/logo.svg'))}">
 ${PHOTO_SCRIPT}
@@ -326,7 +327,7 @@ ${PHOTO_SCRIPT}
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
-  <a class="brand" href="${esc(link('/'))}">${ICON.logo}<span>AUTOGRAPH HERO</span></a>
+  <a class="brand" href="${esc(link('/'))}">${ICON.logo}</a>
   <nav aria-label="Main">
     <a href="${esc(link('/events/'))}"${pathname === '/events/' ? ' aria-current="page"' : ''}>All Signings</a>
     <a href="${esc(link('/events/?type=public'))}">In Person</a>
@@ -346,7 +347,7 @@ ${pathname === '/add/' ? '' : `<div class="submit-bar" hidden>
 </div>
 <script>(function(){var bar=document.querySelector('.submit-bar'),top=document.querySelector('.header-actions');if(!bar||!top||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){bar.hidden=e[0].isIntersecting}).observe(top)})();</script>`}
 <footer class="site-footer">
-  <div class="brand">${ICON.logo}<span>AUTOGRAPH HERO</span></div>
+  <div class="brand">${ICON.logo}</div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
   <p class="small"><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
