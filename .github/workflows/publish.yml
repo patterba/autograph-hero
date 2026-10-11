@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: publish
@@ -36,13 +36,19 @@ jobs:
         env:
           BASE_PATH: ${{ env.SITE_PATH }}
 
-      # Keeps a copy of the built site for 7 days, for previews and checks.
-      - uses: actions/upload-artifact@v4
-        with:
-          name: site
-          path: dist
-          include-hidden-files: true
-          retention-days: 7
+      # Keeps the latest built site on the "built-site" branch (one commit, replaced
+      # each run). Useful for previews, or to upload to Bluehost by hand.
+      - name: Save the built site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd dist
+          git init -q -b built-site
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Site built from Supabase on $(date -u +%F)"
+          git push -q --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" built-site
 
       - name: Check for Bluehost login
         id: login
