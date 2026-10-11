@@ -1,7 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Autograph Hero">
   <path d="M60 5 L103 18 V56 C103 85 83 103 60 114 C37 103 17 85 17 56 V18 Z" fill="#C2410C" stroke="#16181D" stroke-width="5" stroke-linejoin="round"/>
   <path d="M60 14.5 L94.5 25 V56 C94.5 79 79 94 60 103.5 C41 94 25.5 79 25.5 56 V25 Z" fill="none" stroke="#F6F1E7" stroke-width="3"/>
-  <path d="M40 37 H51.5 V55 H66.5 V45 H78 V85 H66.5 V65.5 H51.5 V85 H40 Z" fill="#F6F1E7"/>
-  <path d="M6 96 C 34 92, 60 76, 75 45 L 82 49 C 66 80, 38 96, 6 96 Z" fill="#16181D"/>
-  <path d="M83 20 L86.4 29 L96 29.3 L88.5 35.2 L91.2 44.4 L83 39 L74.8 44.4 L77.5 35.2 L70 29.3 L79.6 29 Z" fill="#F6F1E7" stroke="#16181D" stroke-width="3" stroke-linejoin="round"/>
+  <!-- AH monogram: the A's right leg is the H's left stem; one crossbar runs through both -->
+  <g fill="#F6F1E7" transform="translate(59 66) scale(0.82) translate(-61 -62)">
+    <path d="M32 87 L44 87 L56 52 L56 37 Z"/>
+    <path d="M56 37 H67.5 V87 H56 Z"/>
+    <path d="M46 60 H79 V69.5 H46 Z"/>
+    <path d="M79 37 H90.5 V87 H79 Z"/>
+  </g>
+  <!-- shooting-star trail across the top, thin at the left and widening to the star -->
+  <path d="M2 50 C 26 37, 52 31, 76 32 L 76 39 C 52 38, 26 42, 2 50 Z" fill="#16181D"/>
+  <path d="M85 22 L88.4 31 L98 31.3 L90.5 37.2 L93.2 46.4 L85 41 L76.8 46.4 L79.5 37.2 L72 31.3 L81.6 31 Z" fill="#F6F1E7" stroke="#16181D" stroke-width="3" stroke-linejoin="round"/>
 </svg>
