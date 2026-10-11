@@ -1,4 +1,4 @@
-// Sends the "Add a listing" and "Get alerts" forms to the site-forms Supabase function.
+// Sends the "Submit a signing" and "Get alerts" forms to the site-forms Supabase function.
 // The JSON goes as text/plain so the browser doesn't need a CORS preflight.
 (function () {
   var forms = document.querySelectorAll('form[data-form]');

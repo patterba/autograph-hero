@@ -16,7 +16,7 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY || 'sb_publishable_a6auUU4qDwaY0vc
 const BASE = (process.env.BASE_PATH || '').replace(/\/$/, '');
 const NOINDEX = process.env.SITE_NOINDEX === '1';
 const SITE_NAME = 'Autograph Hero';
-// Public endpoint for the "Add a listing" and sign-up forms (Supabase function site-forms).
+// Public endpoint for the "Submit a signing" and sign-up forms (Supabase function site-forms).
 const FORMS_URL = process.env.FORMS_URL || `${SUPABASE_URL}/functions/v1/site-forms`;
 const US_STATES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ');
 const SPORT_CHOICES = ['Football', 'Baseball', 'Basketball', 'Hockey', 'Soccer', 'Wrestling', 'MMA', 'Golf', 'Racing', 'Entertainment', 'Other'];
@@ -307,7 +307,7 @@ ${PHOTO_SCRIPT}
     <a href="${esc(link('/events/?type=mail-in'))}">Mail-in</a>
   </nav>
   <div class="header-actions">
-    <a class="btn btn-accent btn-sm" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Add a listing</a>
+    <a class="btn btn-accent btn-sm" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Submit a signing</a>
     <a class="btn btn-ink btn-sm" href="${esc(link('/signup/'))}"${pathname === '/signup/' ? ' aria-current="page"' : ''}>Get alerts</a>
   </div>
 </header>
@@ -413,7 +413,7 @@ ${sports.length ? `<section class="band band-alt">
       <div class="eyebrow">Built by fans</div>
       <h2>Know about one we missed?</h2>
       <p>Send us a signing or meet &amp; greet. We check every listing before it goes on the calendar.</p>
-      <a class="btn btn-ink" href="${esc(link('/add/'))}">${ICON.plus}Add a listing</a>
+      <a class="btn btn-ink" href="${esc(link('/add/'))}">${ICON.plus}Submit a signing</a>
     </div>
   </div>
 </section>
@@ -604,8 +604,8 @@ const formStatus = '<p class="f-status" role="status" aria-live="polite" hidden>
 function addPage() {
   const body = `
 <section class="page-head">
-  <div class="eyebrow accent">Add a listing</div>
-  <h1>Add a signing to the calendar</h1>
+  <div class="eyebrow accent">Submit a signing</div>
+  <h1>Submit a signing</h1>
   <p class="lede">Know about an autograph signing, meet &amp; greet or mail-in we don't have yet? Send it in. We check every listing against its source before it goes live.</p>
 </section>
 <section class="band band-tight">
@@ -655,7 +655,7 @@ function addPage() {
     ${formStatus}
   </form>
 </section>`;
-  return page({ title: 'Add a listing', description: 'Send us an autograph signing or meet & greet we are missing. Every listing is checked before it goes live.', pathname: '/add/', body, forms: true });
+  return page({ title: 'Submit a signing', description: 'Send us an autograph signing or meet & greet we are missing. Every listing is checked before it goes live.', pathname: '/add/', body, forms: true });
 }
 
 function signupPage(list, athletes) {

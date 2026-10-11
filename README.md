@@ -22,7 +22,7 @@ This pulls the latest signings from Supabase, builds the site and serves it at h
 
 ## Forms
 
-- **Add a listing** (`/add/`) saves to `public.submissions` with status `pending`. Nothing goes live until it is approved: `select admin.approve_submission(<id>)` copies it into `signings` as published (filed under the "Fan submission" source), or `select admin.reject_submission(<id>, 'reason')`. The private approval page does the same with buttons.
+- **Submit a signing** (`/add/`) saves to `public.submissions` with status `pending`. Nothing goes live until it is approved: `select admin.approve_submission(<id>)` copies it into `signings` as published (filed under the "Fan submission" source), or `select admin.reject_submission(<id>, 'reason')`. The private approval page does the same with buttons.
 - **Get alerts** (`/signup/`) saves name, email and favorites to `public.subscribers` (one row per email; signing up again adds favorites).
 - Both go through the Supabase function `site-forms`, which validates, drops bots (hidden field, minimum fill time) and limits each visitor to 5 sends an hour. Both tables are private.
 
@@ -33,7 +33,7 @@ This pulls the latest signings from Supabase, builds the site and serves it at h
 | `build.mjs` | Fetches the data and holds the page templates (home, all signings, one page per signing) |
 | `assets/site.css` | All styling. Colors and fonts are variables at the top |
 | `assets/site.js` | The search and filters on the "All signings" page |
-| `assets/forms.js` | Sends the "Add a listing" and "Get alerts" forms |
+| `assets/forms.js` | Sends the "Submit a signing" and "Get alerts" forms |
 | `serve.mjs` | Small local web server used by `npm start` |
 
 ## Settings
