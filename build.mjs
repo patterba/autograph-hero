@@ -281,6 +281,17 @@ function card(s) {
 </a>`;
 }
 
+// The last card in a feed: a link to every signing, sized like the others so rows end full.
+function moreCard(total, remaining, sport = null) {
+  const href = sport ? `/events/?sport=${encodeURIComponent(sport)}` : '/events/';
+  const line = sport ? `All upcoming ${sport.toLowerCase()} signings` : remaining > 0 ? `${remaining} more coming up` : `${total} upcoming in all`;
+  return `<a class="card card-more" href="${esc(link(href))}">
+  <span class="eyebrow">${esc(line)}</span>
+  <span class="card-more-title">See more signings</span>
+  <span class="card-more-arrow">${ICON.arrow}</span>
+</a>`;
+}
+
 function page({ title, description, pathname, body, script = false, forms = false, captcha = false }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: autograph signings and meet & greets`;
   return `<!doctype html>
@@ -337,7 +348,8 @@ function homePage(list) {
   const featured = list.find((s) => s.type === 'public' && s.photo) || list.find((s) => s.photo) || list[0];
   const sports = countBy(list, (s) => s.sport);
   const states = countBy(list, (s) => s.state);
-  const soon = list.slice(0, 8);
+  // 11 cards + the "See more" card = 12, which fills complete rows at 4, 3, 2 or 1 per row.
+  const soon = list.slice(0, 11);
 
   const feature = featured
     ? `<a class="feature" href="${esc(link(`/signing/${featured.slug}/`))}">
@@ -395,7 +407,8 @@ function homePage(list) {
     </div>
     <a class="more" href="${esc(link('/events/'))}">See all signings ${ICON.arrow}</a>
   </div>
-  ${soon.length ? `<div class="grid">${soon.map(card).join('\n')}</div>` : '<p class="empty">No upcoming signings are listed right now. Check back after the next weekly update.</p>'}
+  ${soon.length ? `<div class="grid grid-feed">${soon.map(card).join('\n')}
+${moreCard(list.length, list.length - soon.length)}</div>` : '<p class="empty">No upcoming signings are listed right now. Check back after the next weekly update.</p>'}
 </section>
 
 ${sports.length ? `<section class="band band-alt">
@@ -529,7 +542,8 @@ function calendarFor(s) {
 
 function signingPage(s, list) {
   const cal = calendarFor(s);
-  const more = list.filter((o) => o.id !== s.id && ((s.sport && o.sport === s.sport) || (s.state && o.state === s.state))).slice(0, 3);
+  // 5 related + the "See more" card = 6, which fills complete rows at 3, 2 or 1 per row.
+  const more = list.filter((o) => o.id !== s.id && ((s.sport && o.sport === s.sport) || (s.state && o.state === s.state))).slice(0, 5);
   const mapUrl = s.location && s.type !== 'mail-in' ? `https://www.google.com/maps/search/?${new URLSearchParams({ api: '1', query: s.location })}` : null;
   const credit = creditLine(s.photo, 'credit-main') + creditLine(s.photoFallback, 'credit-fb', true);
   const rows = [
@@ -584,7 +598,8 @@ function signingPage(s, list) {
 </section>
 ${more.length ? `<section class="band band-alt">
   <div class="section-head"><h2>More like this</h2><a class="more" href="${esc(link('/events/'))}">See all signings ${ICON.arrow}</a></div>
-  <div class="grid grid-3">${more.map(card).join('\n')}</div>
+  <div class="grid grid-related">${more.map(card).join('\n')}
+${moreCard(list.length, null, s.sport)}</div>
 </section>` : ''}`;
 
   const when = s.eventDate ? ` on ${longDate(s.eventDate)}` : '';

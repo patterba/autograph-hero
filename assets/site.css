@@ -103,7 +103,18 @@ h1, h2, h3, p { margin: 0; }
 
 /* Cards */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
-.grid-3 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+/* Fixed column counts so a feed of 12 (or 6) cards always ends on a full row. */
+.grid-feed { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-related { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1180px) { .grid-feed { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 880px) { .grid-feed, .grid-related { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .grid-feed, .grid-related { grid-template-columns: minmax(0, 1fr); } }
+.card.card-more { justify-content: space-between; gap: 18px; padding: 24px; min-height: 220px; background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.card.card-more:hover { color: var(--paper); }
+.card.card-more .eyebrow { color: #D9D3C6; }
+.card-more-title { font-family: var(--display); font-size: clamp(38px, 3.4vw, 52px); line-height: 0.95; text-transform: uppercase; }
+.card-more-arrow { align-self: flex-end; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
+.card-more-arrow svg { width: 24px; height: 24px; }
 .card { display: flex; flex-direction: column; background: var(--card); border: 1.5px solid var(--ink); border-radius: 16px; overflow: hidden; text-decoration: none; color: var(--ink); transition: transform 0.12s ease, box-shadow 0.12s ease; }
 .card:hover { color: var(--ink); transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
 .card-photo { position: relative; height: 210px; }
