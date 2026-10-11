@@ -171,14 +171,14 @@ h1, h2, h3, p { margin: 0; }
   .card, .feature { transition: none; }
 }
 
-/* Header actions: "Add a listing" and "Get alerts" on every page */
+/* Header actions: "Submit a signing" and "Get alerts" on every page */
 .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn-sm { min-height: 44px; padding: 10px 18px; font-size: 15px; }
 .btn-ink { background: var(--ink); color: var(--paper); }
 .btn-ink:hover { background: #33363E; color: var(--paper); }
 .header-actions .btn[aria-current='page'] { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-/* Home: alerts and add-a-listing side by side */
+/* Home: alerts and submit-a-signing side by side */
 .cta-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
 .cta { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: clamp(28px, 4vw, 48px); background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; }
 .cta h2 { font-family: var(--display); font-weight: 400; font-size: clamp(34px, 3.6vw, 48px); line-height: 1; text-transform: uppercase; }
