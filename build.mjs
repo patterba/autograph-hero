@@ -321,7 +321,7 @@ ${PHOTO_SCRIPT}
     <a href="${esc(link('/events/?type=mail-in'))}">Mail-in</a>
   </nav>
   <div class="header-actions">
-    <a class="btn btn-accent btn-sm" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Submit a signing</a>
+    <a class="btn btn-accent btn-sm" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Submit A Signing</a>
     <a class="btn btn-ink btn-sm btn-stack" href="${esc(link('/signup/'))}"${pathname === '/signup/' ? ' aria-current="page"' : ''}><span class="btn-main">Sign Up</span><span class="btn-sub">Never Miss A Signing</span></a>
   </div>
 </header>
@@ -430,7 +430,7 @@ ${sports.length ? `<section class="band band-alt">
       <div class="eyebrow">Built by fans</div>
       <h2>Know about one we missed?</h2>
       <p>Send us a signing or meet &amp; greet. We check every listing before it goes on the calendar.</p>
-      <a class="btn btn-ink" href="${esc(link('/add/'))}">${ICON.plus}Submit a signing</a>
+      <a class="btn btn-ink" href="${esc(link('/add/'))}">${ICON.plus}Submit A Signing</a>
     </div>
   </div>
 </section>
