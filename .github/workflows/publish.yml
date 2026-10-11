@@ -31,6 +31,19 @@ jobs:
         with:
           node-version: 22
 
+      # Looks up free Wikimedia Commons photos for players not checked yet (up to 50 per run).
+      # Uses the project's public key; the lookup runs in the Supabase function "athlete-photos".
+      - name: Find free player photos
+        continue-on-error: true
+        run: |
+          for i in 1 2; do
+            curl -sS --max-time 120 -X POST "https://ravavlocylqvkmthevtv.supabase.co/functions/v1/athlete-photos" \
+              -H "Authorization: Bearer $SUPABASE_ANON_JWT" -H "apikey: $SUPABASE_ANON_JWT"
+            echo
+          done
+        env:
+          SUPABASE_ANON_JWT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhdmF2bG9jeWxxdmttdGhldnR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODIyMzMsImV4cCI6MjEwNjQ1ODIzM30.MwlzxfiwlGTW9BJ-TzaRSGldWQhegtOFsvFbvqqpsQk
+
       - name: Build from Supabase
         run: node build.mjs
         env:

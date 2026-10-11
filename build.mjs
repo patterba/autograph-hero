@@ -94,7 +94,7 @@ async function loadSignings() {
 async function loadAthletes() {
   const byName = new Map();
   try {
-    const qs = new URLSearchParams({ select: 'name,sport,teams', limit: '5000' });
+    const qs = new URLSearchParams({ select: 'name,sport,teams,image_url,image_credit,image_license,image_page_url', limit: '5000' });
     const res = await fetch(`${SUPABASE_URL}/rest/v1/athletes?${qs}`, { headers: { apikey: SUPABASE_KEY } });
     if (!res.ok) throw new Error(`Supabase returned ${res.status}`);
     const rows = await res.json();
@@ -138,6 +138,19 @@ function teamsFor(names, sport, athletes) {
   return { teams, primary };
 }
 
+// A freely licensed Wikimedia Commons photo of the first signer that has one.
+function freePhotoFor(names, sport, athletes) {
+  for (const n of names) {
+    const rows = athletes.get(n.trim().toLowerCase()) || [];
+    const a = rows.find((r) => r.sport === sport && r.image_url) || rows.find((r) => r.image_url);
+    const url = a && safeUrl(a.image_url);
+    if (url) {
+      return { url, credit: a.image_credit || 'Wikimedia Commons', license: a.image_license || null, page: safeUrl(a.image_page_url), wikimedia: true, of: n };
+    }
+  }
+  return null;
+}
+
 function shape(row, athletes) {
   const names = Array.isArray(row.athlete_names) ? row.athlete_names.filter((n) => typeof n === 'string' && n.trim()) : [];
   const name = joinNames(names) || row.title || 'Autograph signing';
@@ -152,6 +165,15 @@ function shape(row, athletes) {
   const priceMin = money(row.price_min);
   const priceMax = money(row.price_max);
   const { teams, primary } = teamsFor(names, row.sport, athletes);
+  // Promoter photo first; a free Commons photo of the player is the backup, used when
+  // there is no promoter photo or it fails to load in the browser.
+  const ownUrl = safeUrl(row.image_url);
+  const own = ownUrl
+    ? { url: ownUrl, credit: row.image_credit || null, license: row.image_license || null, page: safeUrl(row.image_page_url), wikimedia: row.image_source === 'wikimedia' }
+    : null;
+  const free = freePhotoFor(names, row.sport, athletes);
+  const mainPhoto = own || free;
+  const fallbackPhoto = own && free && free.url !== own.url ? free : null;
   const prices = Array.isArray(row.prices)
     ? row.prices.filter((p) => p && typeof p.item === 'string' && money(p.price)).map((p) => ({ item: p.item, price: money(p.price) }))
     : [];
@@ -183,11 +205,8 @@ function shape(row, athletes) {
     listingUrl,
     host,
     source,
-    image: safeUrl(row.image_url),
-    imageSource: row.image_source || null,
-    imageCredit: row.image_credit || null,
-    imageLicense: row.image_license || null,
-    imagePage: safeUrl(row.image_page_url),
+    photo: mainPhoto,
+    photoFallback: fallbackPhoto,
   };
 }
 
@@ -204,12 +223,21 @@ const ICON = {
 
 const badge = (s) => `<span class="badge badge-${esc(s.type)}">${esc(TYPE_LABEL[s.type])}</span>`;
 
-function photo(s, cls = '') {
-  const img = s.image
-    ? `<img src="${esc(s.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`
+function photo(s, cls = '', id = '') {
+  const img = s.photo
+    ? `<img${id ? ` id="${id}"` : ''} src="${esc(s.photo.url)}"${s.photoFallback ? ` data-fallback="${esc(s.photoFallback.url)}"` : ''} alt="${esc(s.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="ahPhoto(this)">`
     : '';
   return `<div class="photo ${cls}">${img}</div>`;
 }
+
+function creditLine(p, id, hidden = false) {
+  if (!p) return '';
+  const who = p.wikimedia && p.page ? `<a href="${esc(p.page)}" rel="noopener">${esc(p.credit)}</a>` : esc(p.credit || 'the organizer');
+  return `<p class="credit" id="${id}"${hidden ? ' hidden' : ''}>Photo: ${who}${p.license ? `, ${esc(p.license)}` : ''}${p.wikimedia ? ', via Wikimedia Commons' : ''}</p>`;
+}
+
+// Runs when a photo fails to load: switch to the backup photo (and its credit), or hide it.
+const PHOTO_SCRIPT = `<script>function ahPhoto(i){var f=i.getAttribute('data-fallback'),m=i.id==='main-photo',a=document.getElementById('credit-main'),b=document.getElementById('credit-fb');i.removeAttribute('data-fallback');if(f){i.onerror=function(){i.remove();if(m&&b)b.hidden=true};i.src=f;if(m){if(a)a.hidden=true;if(b)b.hidden=false}}else{i.remove();if(m&&a)a.hidden=true}}</script>`;
 
 function whereLine(s) {
   if (s.type === 'mail-in') return `Mail-in${s.source ? ` · ${s.source}` : ''}`;
@@ -261,6 +289,7 @@ ${NOINDEX ? '<meta name="robots" content="noindex, nofollow">' : ''}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="${esc(link('/assets/site.css'))}">
+${PHOTO_SCRIPT}
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -278,6 +307,7 @@ ${body}
 <footer class="site-footer">
   <div class="brand">${ICON.logo}<span>AUTOGRAPH HERO</span></div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
+  <p class="small"><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(link('/assets/site.js'))}" defer></script>` : ''}
@@ -289,7 +319,7 @@ ${script ? `<script src="${esc(link('/assets/site.js'))}" defer></script>` : ''}
 // ---------- pages ----------
 
 function homePage(list) {
-  const featured = list.find((s) => s.type === 'public' && s.image) || list.find((s) => s.image) || list[0];
+  const featured = list.find((s) => s.type === 'public' && s.photo) || list.find((s) => s.photo) || list[0];
   const sports = countBy(list, (s) => s.sport);
   const states = countBy(list, (s) => s.state);
   const soon = list.slice(0, 8);
@@ -469,9 +499,7 @@ function signingPage(s, list) {
   const cal = calendarFor(s);
   const more = list.filter((o) => o.id !== s.id && ((s.sport && o.sport === s.sport) || (s.state && o.state === s.state))).slice(0, 3);
   const mapUrl = s.location && s.type !== 'mail-in' ? `https://www.google.com/maps/search/?${new URLSearchParams({ api: '1', query: s.location })}` : null;
-  const credit = s.image && s.imageCredit
-    ? `<p class="credit">Photo: ${s.imagePage && s.imageSource === 'wikimedia' ? `<a href="${esc(s.imagePage)}" rel="noopener">${esc(s.imageCredit)}</a>` : esc(s.imageCredit)}${s.imageLicense ? `, ${esc(s.imageLicense)}` : ''}</p>`
-    : '';
+  const credit = creditLine(s.photo, 'credit-main') + creditLine(s.photoFallback, 'credit-fb', true);
   const rows = [
     s.eventDate ? ['Date', longDate(s.eventDate)] : s.eventDateText ? ['Date', s.eventDateText] : null,
     s.timeText ? ['Time', s.timeText] : null,
@@ -489,7 +517,7 @@ function signingPage(s, list) {
 </nav>
 <section class="detail">
   <div class="detail-main">
-    ${photo(s, 'photo-large')}
+    ${photo(s, 'photo-large', 'main-photo')}
     ${credit}
     <h2>How this signing works</h2>
     <p class="lede">${esc(TYPE_BLURB[s.type])}</p>
@@ -539,6 +567,26 @@ ${more.length ? `<section class="band band-alt">
   };
 }
 
+function creditsPage(list) {
+  const seen = new Map();
+  for (const s of list) {
+    for (const p of [s.photo, s.photoFallback]) {
+      if (p?.wikimedia && !seen.has(p.url)) seen.set(p.url, { ...p, name: p.of || s.name });
+    }
+  }
+  const items = [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">Photo credits</div>
+  <h1>Photo credits</h1>
+  <p class="lede">Event photos come from the promoters' own listings and link back to them. When a promoter photo is missing or won't load, we show a freely licensed photo of the player from Wikimedia Commons. Those photographers are credited here.</p>
+</section>
+<section class="band band-tight">
+  ${items.length ? `<ul class="credits">${items.map((p) => `<li><strong>${esc(p.name)}</strong>: ${p.page ? `<a href="${esc(p.page)}" rel="noopener">${esc(p.credit)}</a>` : esc(p.credit)}${p.license ? `, ${esc(p.license)}` : ''}</li>`).join('')}</ul>` : '<p class="muted">No Wikimedia Commons photos are in use right now.</p>'}
+</section>`;
+  return page({ title: 'Photo credits', description: 'Credits for the player photos used on Autograph Hero.', pathname: '/photo-credits/', body });
+}
+
 // ---------- build ----------
 
 async function put(rel, content) {
@@ -565,6 +613,7 @@ async function main() {
     await put(`signing/${s.slug}/index.html`, html);
     if (ics) await put(`signing/${s.slug}/event.ics`, ics);
   }
+  await put('photo-credits/index.html', creditsPage(list));
   await put('404.html', page({
     title: 'Page not found',
     description: 'That page is not here.',
