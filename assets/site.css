@@ -37,7 +37,7 @@ h1, h2, h3, p { margin: 0; }
 
 /* Header and footer */
 .site-header { display: flex; align-items: center; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; padding: 18px var(--gutter); border-bottom: 1.5px solid var(--ink); }
-.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-family: var(--display); font-size: clamp(21px, 2.2vw, 28px); letter-spacing: 0.02em; }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); font-family: var(--display); font-size: clamp(21px, 2.2vw, 28px); letter-spacing: 0.02em; }
 .site-header nav { display: flex; gap: 4px 28px; flex-wrap: wrap; font-weight: 500; }
 .site-header nav a { text-decoration: none; padding: 10px 0; }
 .site-header nav a[aria-current='page'] { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
@@ -265,3 +265,7 @@ h1, h2, h3, p { margin: 0; }
   body { padding-bottom: 76px; }
 }
 @media (prefers-reduced-motion: reduce) { .btn-pop { transition: none; } }
+
+/* Logo mark */
+.logo-mark { flex-shrink: 0; width: clamp(42px, 4vw, 54px); height: auto; }
+.site-footer .logo-mark { width: 40px; }
