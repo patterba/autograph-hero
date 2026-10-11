@@ -18,6 +18,9 @@ const NOINDEX = process.env.SITE_NOINDEX === '1';
 const SITE_NAME = 'Autograph Hero';
 // Public endpoint for the "Submit a signing" and sign-up forms (Supabase function site-forms).
 const FORMS_URL = process.env.FORMS_URL || `${SUPABASE_URL}/functions/v1/site-forms`;
+// Cloudflare Turnstile site key (public) for the check on "Submit a signing".
+// Set as the GitHub repository variable TURNSTILE_SITE_KEY; empty = no check shown.
+const TURNSTILE_SITE_KEY = (process.env.TURNSTILE_SITE_KEY || '').trim();
 const US_STATES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ');
 const SPORT_CHOICES = ['Football', 'Baseball', 'Basketball', 'Hockey', 'Soccer', 'Wrestling', 'MMA', 'Golf', 'Racing', 'Entertainment', 'Other'];
 
@@ -278,7 +281,7 @@ function card(s) {
 </a>`;
 }
 
-function page({ title, description, pathname, body, script = false, forms = false }) {
+function page({ title, description, pathname, body, script = false, forms = false, captcha = false }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: autograph signings and meet & greets`;
   return `<!doctype html>
 <html lang="en">
@@ -322,6 +325,7 @@ ${body}
 </footer>
 ${script ? `<script src="${esc(link('/assets/site.js'))}" defer></script>` : ''}
 ${forms ? `<script src="${esc(link('/assets/forms.js'))}" defer></script>` : ''}
+${captcha ? '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>' : ''}
 </body>
 </html>
 `;
@@ -651,11 +655,12 @@ function addPage() {
       </div>
     </fieldset>
     ${honeypot}
+    ${TURNSTILE_SITE_KEY ? `<div class="f-captcha"><p class="f-label" id="captcha-label">Quick check that you're a person <span class="req">Required</span></p><div class="cf-turnstile" data-sitekey="${esc(TURNSTILE_SITE_KEY)}" data-theme="light" data-size="flexible" aria-labelledby="captcha-label"></div></div>` : ''}
     <div class="f-actions"><button class="btn btn-accent" type="submit">Send for review</button></div>
     ${formStatus}
   </form>
 </section>`;
-  return page({ title: 'Submit a signing', description: 'Send us an autograph signing or meet & greet we are missing. Every listing is checked before it goes live.', pathname: '/add/', body, forms: true });
+  return page({ title: 'Submit a signing', description: 'Send us an autograph signing or meet & greet we are missing. Every listing is checked before it goes live.', pathname: '/add/', body, forms: true, captcha: Boolean(TURNSTILE_SITE_KEY) });
 }
 
 function signupPage(list, athletes) {

@@ -208,6 +208,8 @@ h1, h2, h3, p { margin: 0; }
 .f-choices input { accent-color: var(--accent); margin: 0; }
 .f-check { display: flex; align-items: flex-start; gap: 12px; font-size: 16px; cursor: pointer; }
 .f-check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex-shrink: 0; }
+.f-captcha { display: flex; flex-direction: column; gap: 8px; }
+.f-captcha .cf-turnstile { min-height: 65px; max-width: 420px; }
 .f-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .f-actions .btn[disabled] { opacity: 0.6; cursor: progress; }
 .f-status { padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--ink); background: var(--card); font-weight: 600; }

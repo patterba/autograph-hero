@@ -24,6 +24,7 @@ This pulls the latest signings from Supabase, builds the site and serves it at h
 
 - **Submit a signing** (`/add/`) saves to `public.submissions` with status `pending`. Nothing goes live until it is approved: `select admin.approve_submission(<id>)` copies it into `signings` as published (filed under the "Fan submission" source), or `select admin.reject_submission(<id>, 'reason')`. The private approval page does the same with buttons.
 - **Get alerts** (`/signup/`) saves name, email and favorites to `public.subscribers` (one row per email; signing up again adds favorites).
+- **Spam check on Submit a signing:** Cloudflare Turnstile. It switches on when both keys are set: the site key as the GitHub repository variable `TURNSTILE_SITE_KEY` (Settings → Secrets and variables → Actions → Variables), and the secret key as the Supabase Edge Function secret `TURNSTILE_SECRET_KEY`. Add the GitHub variable first; if only the secret is set, the function rejects submissions because the form has no check to send.
 - Both go through the Supabase function `site-forms`, which validates, drops bots (hidden field, minimum fill time) and limits each visitor to 5 sends an hour. Both tables are private.
 
 ## Where things live

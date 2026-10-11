@@ -11,6 +11,7 @@
     var button = form.querySelector('button[type="submit"]');
     var favorites = [];
     var favInput = form.querySelector('#s-fav');
+    var captcha = form.querySelector('.cf-turnstile');
     var favList = form.querySelector('[data-fav-list]');
 
     if (favInput) {
@@ -94,6 +95,7 @@
         if (!value('event_date') && !value('order_deadline')) return invalid(form.elements.event_date, 'Please enter the signing date or the order deadline.');
         if (!/^https?:\/\/\S+\.\S+/.test(value('source_url'))) return invalid(form.elements.source_url, 'Please add a link to the official announcement or order page, starting with https://');
         if (!email.test(value('submitter_email'))) return invalid(form.elements.submitter_email, 'Please enter a valid email address so we can follow up.');
+        if (captcha && !captchaToken()) return invalid(null, 'Please complete the check above the Send button.');
       } else {
         if (favInput && favInput.value.trim()) addFavorite(favInput.value);
         if (!value('name')) return invalid(form.elements.name, 'Please enter your name.');
@@ -104,11 +106,23 @@
       return true;
     }
 
+    // Turnstile puts its one-time token in a hidden input inside the form.
+    function captchaToken() {
+      var t = form.querySelector('input[name="cf-turnstile-response"]');
+      return t ? t.value : '';
+    }
+    function resetCaptcha() {
+      if (captcha && window.turnstile) {
+        try { window.turnstile.reset(captcha); } catch (e) { /* widget not ready */ }
+      }
+    }
+
     function payload() {
       var data = { form: kind, elapsed_ms: Date.now() - started, website: value('website') };
       if (kind === 'listing') {
         ['signing_type', 'sport', 'event_date', 'event_time_text', 'order_deadline', 'venue', 'city', 'state', 'source_url', 'price_text', 'notes', 'submitter_name', 'submitter_email']
           .forEach(function (k) { data[k] = value(k) || null; });
+        data.captcha_token = captchaToken() || null;
         data.athlete_names = value('athlete_names').split(',').map(function (n) { return n.trim(); }).filter(Boolean);
       } else {
         data.name = value('name');
@@ -151,6 +165,7 @@
           show("We couldn't reach the server. Check your connection and try again.", 'is-error');
         })
         .then(function () {
+          resetCaptcha();
           button.disabled = false;
           status.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         });
