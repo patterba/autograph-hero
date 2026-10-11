@@ -39,6 +39,9 @@
     });
     count.textContent = shown + (shown === 1 ? ' signing' : ' signings');
     empty.hidden = shown !== 0;
+    // The "Submit A Signing" card in the results steps aside when the no-results message (which has its own button) shows.
+    var promo = document.querySelector('#results .promo');
+    if (promo) promo.hidden = shown === 0;
 
     var next = new URLSearchParams();
     keys.forEach(function (k) {

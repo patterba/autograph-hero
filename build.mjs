@@ -281,6 +281,16 @@ function card(s) {
 </a>`;
 }
 
+// A card-sized prompt that sits among the signings and asks fans to add one.
+function submitPrompt() {
+  return `<a class="promo" href="${esc(link('/add/'))}">
+  <span class="eyebrow">Built by fans</span>
+  <span class="promo-title">Know a signing we're missing?</span>
+  <span class="promo-text">Send it in. We check every one and add it to the calendar.</span>
+  <span class="btn btn-ink btn-sm">${ICON.plus}Submit A Signing</span>
+</a>`;
+}
+
 // The last card in a feed: a link to every signing, sized like the others so rows end full.
 function moreCard(total, remaining, sport = null) {
   const href = sport ? `/events/?sport=${encodeURIComponent(sport)}` : '/events/';
@@ -321,13 +331,18 @@ ${PHOTO_SCRIPT}
     <a href="${esc(link('/events/?type=mail-in'))}">Mail-in</a>
   </nav>
   <div class="header-actions">
-    <a class="btn btn-accent btn-sm" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Submit A Signing</a>
+    <a class="btn btn-accent btn-sm btn-pop" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Submit A Signing</a>
     <a class="btn btn-ink btn-sm btn-stack" href="${esc(link('/signup/'))}"${pathname === '/signup/' ? ' aria-current="page"' : ''}><span class="btn-main">Sign Up</span><span class="btn-sub">Never Miss A Signing</span></a>
   </div>
 </header>
 <main id="main">
 ${body}
 </main>
+${pathname === '/add/' ? '' : `<div class="submit-bar" hidden>
+  <span>Know a signing we're missing?</span>
+  <a class="btn btn-accent btn-sm" href="${esc(link('/add/'))}">${ICON.plus}Submit A Signing</a>
+</div>
+<script>(function(){var bar=document.querySelector('.submit-bar'),top=document.querySelector('.header-actions');if(!bar||!top||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){bar.hidden=e[0].isIntersecting}).observe(top)})();</script>`}
 <footer class="site-footer">
   <div class="brand">${ICON.logo}<span>AUTOGRAPH HERO</span></div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
@@ -500,8 +515,11 @@ function eventsPage(list) {
     <button class="btn btn-ghost" type="reset">Clear</button>
   </form>
   <p class="muted" id="count" aria-live="polite">${list.length} signing${list.length === 1 ? '' : 's'}</p>
-  <div class="grid" id="results">${list.map(card).join('\n')}</div>
-  <p class="empty" id="empty" hidden>No signings match those filters. Try clearing one.</p>
+  <div class="grid" id="results">${list.map((s, i) => (i === 7 ? submitPrompt() : '') + card(s)).join('\n')}${list.length <= 7 ? submitPrompt() : ''}</div>
+  <div class="empty" id="empty" hidden>
+    <p><strong>No signings match those filters.</strong> Try clearing one, or if you know about a signing we don't have, add it.</p>
+    <a class="btn btn-accent" href="${esc(link('/add/'))}">${ICON.plus}Submit A Signing</a>
+  </div>
 </section>`;
   return page({
     title: 'Upcoming signings',
@@ -570,6 +588,10 @@ function signingPage(s, list) {
     ${s.prices.length ? `<h2>Prices</h2>
     <div class="prices">${s.prices.map((p) => `<div><span>${esc(p.item)}</span><span class="mono">${esc(p.price)}</span></div>`).join('')}</div>` : ''}
     <p class="muted small">Listed from ${esc(s.source || 'the organizer')}. Autograph Hero does not sell tickets or handle orders.</p>
+    <a class="inline-submit" href="${esc(link('/add/'))}">
+      <span>${ICON.plus}</span>
+      <span><strong>Know about another ${esc(s.names[0] || 'signing')}${s.names[0] ? ' signing' : ''}?</strong> Fans add signings we miss. Submit it and we'll put it on the calendar.</span>
+    </a>
   </div>
   <aside class="ticket">
     <div class="ticket-top">
