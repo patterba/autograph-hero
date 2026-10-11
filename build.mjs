@@ -311,7 +311,7 @@ ${PHOTO_SCRIPT}
   </nav>
   <div class="header-actions">
     <a class="btn btn-accent btn-sm" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Submit a signing</a>
-    <a class="btn btn-ink btn-sm" href="${esc(link('/signup/'))}"${pathname === '/signup/' ? ' aria-current="page"' : ''}>Get alerts</a>
+    <a class="btn btn-ink btn-sm btn-stack" href="${esc(link('/signup/'))}"${pathname === '/signup/' ? ' aria-current="page"' : ''}><span class="btn-main">Sign Up</span><span class="btn-sub">Never Miss A Signing</span></a>
   </div>
 </header>
 <main id="main">
@@ -411,7 +411,7 @@ ${sports.length ? `<section class="band band-alt">
       <div class="eyebrow">Alerts</div>
       <h2>Never miss your favorites</h2>
       <p>Tell us your favorite teams, players and people. We'll email you when one of them has a signing.</p>
-      <a class="btn btn-accent" href="${esc(link('/signup/'))}">${ICON.bell}Get alerts</a>
+      <a class="btn btn-accent" href="${esc(link('/signup/'))}">${ICON.bell}Sign Up</a>
     </div>
     <div class="cta">
       <div class="eyebrow">Built by fans</div>
@@ -674,7 +674,7 @@ function signupPage(list, athletes) {
   const sorted = [...options].filter((o) => typeof o === 'string' && o.trim()).sort((a, b) => a.localeCompare(b));
   const body = `
 <section class="page-head">
-  <div class="eyebrow accent">Get alerts</div>
+  <div class="eyebrow accent">Sign up</div>
   <h1>Never miss your favorites</h1>
   <p class="lede">Tell us who you follow. When one of your favorite teams, players or people has a signing, we'll send you an email.</p>
 </section>
@@ -706,7 +706,7 @@ function signupPage(list, athletes) {
     ${formStatus}
   </form>
 </section>`;
-  return page({ title: 'Get alerts', description: 'Sign up to get an email when your favorite teams, players and people have an autograph signing.', pathname: '/signup/', body, forms: true });
+  return page({ title: 'Sign up', description: 'Sign up to get an email when your favorite teams, players and people have an autograph signing.', pathname: '/signup/', body, forms: true });
 }
 
 function creditsPage(list) {

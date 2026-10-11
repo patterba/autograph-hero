@@ -7,5 +7,5 @@
 - Internal links go through `link()` so the site works in a sub-folder (e.g. /new on Bluehost) and at the domain root.
 - Hosting is Bluehost (Apache). The workflow uploads over FTP; the build writes an .htaccess.
 - Design tokens are CSS variables at the top of `assets/site.css`.
-- Forms: "Submit a signing" (/add/) and "Get alerts" (/signup/) post to the Supabase function `site-forms` (assets/forms.js). Listings land in `public.submissions` as pending; `admin.approve_submission(id, note)` / `admin.reject_submission(id, note)` decide them (the private approval artifact calls these). Sign-ups land in `public.subscribers`. Both tables are private (RLS, no policies). The site rebuilds hourly.
+- Forms: "Submit a signing" (/add/) and "Sign Up" (/signup/) post to the Supabase function `site-forms` (assets/forms.js). Listings land in `public.submissions` as pending; `admin.approve_submission(id, note)` / `admin.reject_submission(id, note)` decide them (the private approval artifact calls these). Sign-ups land in `public.subscribers`. Both tables are private (RLS, no policies). The site rebuilds hourly.
 - Captcha: Cloudflare Turnstile on /add/ only. Site key from env TURNSTILE_SITE_KEY (GitHub variable); site-forms verifies with the TURNSTILE_SECRET_KEY function secret. Either missing = off on that side.
