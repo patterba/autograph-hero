@@ -371,7 +371,7 @@ function homePage(list) {
   // The hero ticket is a sign-up pass, not a signing: live counts on top, a "who do you
   // collect?" box below that carries the favorite over to the Sign Up page (?fav=).
   const athleteCount = new Set(list.flatMap((s) => s.names.map((n) => n.toLowerCase()))).size;
-  const stateCount = states.length;
+  const mailCount = list.filter((s) => s.type === 'mail-in').length;
   const suggest = [...new Set(list.flatMap((s) => [...s.names, ...(s.teams || [])]))]
     .filter((o) => typeof o === 'string' && o.trim()).sort((a, b) => a.localeCompare(b)).slice(0, 300);
   const stat = (n, label) => `<div class="pass-stat"><span class="pass-num">${n}</span><span class="pass-label">${label}</span></div>`;
@@ -381,7 +381,7 @@ function homePage(list) {
         <div class="pass-stats">
           ${stat(list.length, `Upcoming signing${list.length === 1 ? '' : 's'}`)}
           ${stat(athleteCount, `Athlete${athleteCount === 1 ? '' : 's'}`)}
-          ${stat(stateCount, `State${stateCount === 1 ? '' : 's'}`)}
+          ${stat(mailCount, 'By mail')}
         </div>
       </div>
       <div class="tear"></div>
