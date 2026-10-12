@@ -5,6 +5,8 @@
 import { mkdir, writeFile, rm, cp } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(ROOT, 'dist');
@@ -78,6 +80,12 @@ function joinNames(names) {
 }
 
 const link = (p) => `${BASE}${p}`;
+// Asset links carry a short hash of the file, so browsers and the host's cache
+// fetch the new CSS/JS as soon as it changes instead of keeping an old copy.
+const asset = (p) => {
+  const v = createHash('sha1').update(readFileSync(path.join(ROOT, p))).digest('hex').slice(0, 8);
+  return `${link(p)}?v=${v}`;
+};
 
 // ---------- data ----------
 
@@ -320,8 +328,8 @@ ${NOINDEX ? '<meta name="robots" content="noindex, nofollow">' : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Yellowtail&family=IBM+Plex+Mono:wght@500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="${esc(link('/assets/site.css'))}">
-<link rel="icon" type="image/svg+xml" href="${esc(link('/assets/logo.svg'))}">
+<link rel="stylesheet" href="${esc(asset('/assets/site.css'))}">
+<link rel="icon" type="image/svg+xml" href="${esc(asset('/assets/logo.svg'))}">
 ${PHOTO_SCRIPT}
 </head>
 <body>
@@ -352,8 +360,8 @@ ${pathname === '/add/' ? '' : `<div class="submit-bar" hidden>
   <p class="small"><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
-${script ? `<script src="${esc(link('/assets/site.js'))}" defer></script>` : ''}
-${forms ? `<script src="${esc(link('/assets/forms.js'))}" defer></script>` : ''}
+${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''}
+${forms ? `<script src="${esc(asset('/assets/forms.js'))}" defer></script>` : ''}
 ${captcha ? '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>' : ''}
 </body>
 </html>
@@ -826,6 +834,15 @@ async function main() {
     'DirectoryIndex index.html',
     `ErrorDocument 404 ${BASE}/404.html`,
     'RewriteEngine On',
+    '',
+    '# Pages change every hour, so the host\'s cache and browsers must check for a new copy',
+    '# each time. Assets are fingerprinted (?v=...), so they can be kept.',
+    '<IfModule mod_headers.c>',
+    '  <FilesMatch "\\.(html|ics|txt)$">',
+    '    Header set Cache-Control "no-cache, max-age=0, must-revalidate"',
+    '    Header set X-Endurance-Cache-Level "0"',
+    '  </FilesMatch>',
+    '</IfModule>',
     '',
   ].join('\n'));
 
