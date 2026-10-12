@@ -76,6 +76,24 @@ h1, h2, h3, p { margin: 0; }
 .feature-body { display: flex; flex-direction: column; gap: 10px; padding: 22px 26px 26px; }
 .feature-name { font-size: 28px; font-weight: 700; line-height: 1.1; }
 .feature-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 6px; }
+/* Hero "fan pass": live counts on top, sign-up box below the tear line */
+.pass:hover { transform: rotate(1.5deg); }
+.pass-top { display: flex; flex-direction: column; gap: 22px; padding: 22px 26px 30px; background: var(--ink); color: var(--paper); border-radius: 16px 16px 0 0; }
+.pass-top .badge { align-self: flex-start; }
+.pass-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.pass-stat { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.pass-stat + .pass-stat { border-left: 1.5px solid rgba(246, 241, 231, 0.25); padding-left: 14px; }
+.pass-num { font-family: var(--display); font-size: clamp(44px, 4.6vw, 64px); line-height: 0.9; color: var(--paper); }
+.pass-stat:first-child .pass-num { color: var(--accent-bright, #F97316); }
+.pass-label { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(246, 241, 231, 0.75); line-height: 1.3; }
+.pass-form p { margin: 0; }
+.pass-row { display: flex; gap: 8px; padding-top: 6px; }
+.pass-row input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 12px 14px; border: 1.5px solid var(--ink); border-radius: 12px; background: var(--paper); color: var(--ink); }
+.pass-row input:focus { outline: 3px solid var(--accent); outline-offset: 1px; }
+.pass-row .btn { flex-shrink: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (max-width: 400px) { .pass-row { flex-direction: column; } .pass-label { font-size: 10px; } }
+
 .tear { position: relative; border-top: 2px dashed var(--ink); }
 .tear::before, .tear::after { content: ''; position: absolute; top: -16px; width: 30px; height: 30px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--ink); }
 .tear::before { left: -16px; clip-path: inset(0 0 0 50%); }

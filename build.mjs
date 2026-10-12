@@ -363,24 +363,39 @@ ${captcha ? '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js"
 // ---------- pages ----------
 
 function homePage(list) {
-  const featured = list.find((s) => s.type === 'public' && s.photo) || list.find((s) => s.photo) || list[0];
   const sports = countBy(list, (s) => s.sport);
   const states = countBy(list, (s) => s.state);
   // 11 cards + the "See more" card = 12, which fills complete rows at 4, 3, 2 or 1 per row.
   const soon = list.slice(0, 11);
 
-  const feature = featured
-    ? `<a class="feature" href="${esc(link(`/signing/${featured.slug}/`))}">
-      <div class="feature-photo">${photo(featured)}<span class="badge badge-dark">Next up</span></div>
-      <div class="tear"></div>
-      <div class="feature-body">
-        <div class="eyebrow accent">${esc([TYPE_LABEL[featured.type], featured.primaryTeam || featured.sport].filter(Boolean).join(' · '))}</div>
-        <div class="feature-name">${esc(featured.name)}</div>
-        <div class="muted">${esc(whereLine(featured))}</div>
-        <div class="feature-foot"><span class="mono">${esc(whenLine(featured))}${featured.timeText && featured.timeText.length < 24 ? ` · ${esc(featured.timeText)}` : ''}</span><span class="btn btn-accent">View signing</span></div>
+  // The hero ticket is a sign-up pass, not a signing: live counts on top, a "who do you
+  // collect?" box below that carries the favorite over to the Sign Up page (?fav=).
+  const athleteCount = new Set(list.flatMap((s) => s.names.map((n) => n.toLowerCase()))).size;
+  const stateCount = states.length;
+  const suggest = [...new Set(list.flatMap((s) => [...s.names, ...(s.teams || [])]))]
+    .filter((o) => typeof o === 'string' && o.trim()).sort((a, b) => a.localeCompare(b)).slice(0, 300);
+  const stat = (n, label) => `<div class="pass-stat"><span class="pass-num">${n}</span><span class="pass-label">${label}</span></div>`;
+  const feature = `<div class="feature pass">
+      <div class="pass-top">
+        <span class="badge badge-public">Fan pass</span>
+        <div class="pass-stats">
+          ${stat(list.length, `Upcoming signing${list.length === 1 ? '' : 's'}`)}
+          ${stat(athleteCount, `Athlete${athleteCount === 1 ? '' : 's'}`)}
+          ${stat(stateCount, `State${stateCount === 1 ? '' : 's'}`)}
+        </div>
       </div>
-    </a>`
-    : '';
+      <div class="tear"></div>
+      <form class="feature-body pass-form" action="${esc(link('/signup/'))}" method="get">
+        <div class="feature-name">Never Miss A Signing</div>
+        <p class="muted">Tell us who you collect. We'll email you when they sign.</p>
+        <label class="sr-only" for="pass-fav">Favorite team, player or person</label>
+        <div class="pass-row">
+          <input id="pass-fav" name="fav" type="text" list="pass-fav-list" placeholder="Team, player or person" autocomplete="off" maxlength="80">
+          <button class="btn btn-accent" type="submit">${ICON.bell}Sign Up</button>
+        </div>
+        <datalist id="pass-fav-list">${suggest.map((o) => `<option value="${esc(o)}">`).join('')}</datalist>
+      </form>
+    </div>`;
 
   const body = `
 <section class="hero">
