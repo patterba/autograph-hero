@@ -86,10 +86,20 @@ jobs:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          # Bluehost's FTP certificate is issued for the shared server's name, not for
+          # the account hostname, so the name check fails. This trusts that one
+          # certificate by its fingerprint (the connection stays encrypted; any other
+          # certificate is still refused). When Bluehost renews it, the upload fails with
+          # "certificate common name doesn't match" and shows the new fingerprint in
+          # brackets: put it in a repository variable named FTP_CERT_FINGERPRINT.
+          FTP_CERT_FINGERPRINT: ${{ vars.FTP_CERT_FINGERPRINT || '1D:A4:47:AF:66:EC:58:06:8E:2B:AB:4C:38:BF:23:24:2B:26:D1:2D' }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
           lftp --env-password -u "$FTP_USERNAME" "$FTP_SERVER" -e "
             set ftp:ssl-allow true;
+            set ftp:ssl-force true;
+            set ftp:ssl-protect-data true;
+            set ssl:verify-certificate/$FTP_CERT_FINGERPRINT no;
             set ftp:passive-mode true;
             set net:max-retries 2;
             mirror --reverse --no-perms --verbose=1 --exclude-glob signing/ dist/ ./;

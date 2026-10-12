@@ -8,7 +8,7 @@ The Autograph Hero website. It lists upcoming autograph signings that are stored
 2. `build.mjs` reads every signing whose status is `published` and each signer's teams from the `athletes` table, drops the signings that are over, and writes a plain HTML site into `dist/`. Searching a team ("Broncos") finds its players.
 3. GitHub Actions (`.github/workflows/publish.yml`) runs that build on every push to `main` and every hour, then uploads `dist/` to Bluehost over FTP.
 
-The upload needs three repository secrets (Settings → Secrets and variables → Actions): `FTP_SERVER`, `FTP_USERNAME` and `FTP_PASSWORD`. Use a Bluehost FTP account whose directory is the site folder (for testing, `public_html/new`), so the upload cannot reach anything else.
+The upload needs three repository secrets (Settings → Secrets and variables → Actions): `FTP_SERVER`, `FTP_USERNAME` and `FTP_PASSWORD`. Use a Bluehost FTP account whose directory is the site folder (for testing, `public_html/new`), so the upload cannot reach anything else. Bluehost's FTP certificate doesn't match the account hostname, so the workflow trusts that one certificate by its fingerprint; if Bluehost renews it, the upload log shows the new fingerprint, which goes in the repository variable `FTP_CERT_FINGERPRINT`.
 
 ## Run it on your computer
 
