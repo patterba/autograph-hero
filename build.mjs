@@ -23,8 +23,9 @@ const FORMS_URL = process.env.FORMS_URL || `${SUPABASE_URL}/functions/v1/site-fo
 // Cloudflare Turnstile site key (public) for the check on "Submit a signing".
 // Set as the GitHub repository variable TURNSTILE_SITE_KEY; empty = no check shown.
 const TURNSTILE_SITE_KEY = (process.env.TURNSTILE_SITE_KEY || '').trim();
-// Cloudflare Web Analytics token (public; GitHub variable CF_ANALYTICS_TOKEN). Empty = no analytics.
-const CF_ANALYTICS_TOKEN = (process.env.CF_ANALYTICS_TOKEN || '').trim();
+// Cloudflare Web Analytics token for autographhero.com. It is public (it sits in every page).
+// The GitHub variable CF_ANALYTICS_TOKEN overrides it; set ANALYTICS=off to build without it.
+const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.CF_ANALYTICS_TOKEN || '35d2f0b32d714998a1157305df2b7064').trim();
 // Contact address shown on the Terms and Privacy pages (GitHub variable CONTACT_EMAIL).
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 // Date the Terms and Privacy pages were last changed. Update it when you edit them.
