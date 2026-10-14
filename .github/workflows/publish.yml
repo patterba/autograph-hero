@@ -51,6 +51,10 @@ jobs:
           # Cloudflare Turnstile site key (public). Set it under Settings → Secrets and
           # variables → Actions → Variables. Empty = no check on "Submit a signing".
           TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+          # Cloudflare Web Analytics token (public, from the JS snippet). Empty = no analytics.
+          CF_ANALYTICS_TOKEN: ${{ vars.CF_ANALYTICS_TOKEN }}
+          # Contact address shown on the Terms and Privacy pages.
+          CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
 
       # Keeps the latest built site on the "built-site" branch (one commit, replaced
       # each run). Useful for previews, or to upload to Bluehost by hand.

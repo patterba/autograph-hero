@@ -23,6 +23,12 @@ const FORMS_URL = process.env.FORMS_URL || `${SUPABASE_URL}/functions/v1/site-fo
 // Cloudflare Turnstile site key (public) for the check on "Submit a signing".
 // Set as the GitHub repository variable TURNSTILE_SITE_KEY; empty = no check shown.
 const TURNSTILE_SITE_KEY = (process.env.TURNSTILE_SITE_KEY || '').trim();
+// Cloudflare Web Analytics token (public; GitHub variable CF_ANALYTICS_TOKEN). Empty = no analytics.
+const CF_ANALYTICS_TOKEN = (process.env.CF_ANALYTICS_TOKEN || '').trim();
+// Contact address shown on the Terms and Privacy pages (GitHub variable CONTACT_EMAIL).
+const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
+// Date the Terms and Privacy pages were last changed. Update it when you edit them.
+const POLICY_DATE = '2026-10-13';
 const US_STATES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ');
 const SPORT_CHOICES = ['Football', 'Baseball', 'Basketball', 'Hockey', 'Soccer', 'Wrestling', 'MMA', 'Golf', 'Racing', 'Entertainment', 'Other'];
 
@@ -234,6 +240,7 @@ const ICON = {
   cal: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>',
   pin: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  user: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>',
   bell: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
   // Full logo: "Autograph" in brush script over block-letter HERO, with a cape on the H. The script is live text in
   // Yellowtail (loaded with the other fonts); its outline color comes from site.css. The favicon (assets/logo.svg) is the caped H alone.
@@ -312,7 +319,7 @@ function moreCard(total, remaining, sport = null) {
 </a>`;
 }
 
-function page({ title, description, pathname, body, script = false, forms = false, captcha = false }) {
+function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: autograph signings and meet & greets`;
   return `<!doctype html>
 <html lang="en">
@@ -340,6 +347,7 @@ ${PHOTO_SCRIPT}
     <a href="${esc(link('/events/'))}"${pathname === '/events/' ? ' aria-current="page"' : ''}>All Signings</a>
     <a href="${esc(link('/events/?type=public'))}">In Person</a>
     <a href="${esc(link('/events/?type=mail-in'))}">Mail-In</a>
+    <a class="nav-login" href="${esc(link('/account/'))}"${pathname === '/account/' ? ' aria-current="page"' : ''}>${ICON.user}Log In</a>
   </nav>
   <div class="header-actions">
     <a class="btn btn-accent btn-sm btn-pop" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Submit A Signing</a>
@@ -357,12 +365,14 @@ ${pathname === '/add/' ? '' : `<div class="submit-bar" hidden>
 <footer class="site-footer">
   <div class="brand">${ICON.logo}</div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
-  <p class="small"><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
+  <p class="small footer-links"><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''}
 ${forms ? `<script src="${esc(asset('/assets/forms.js'))}" defer></script>` : ''}
 ${captcha ? '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>' : ''}
+${account ? `<script src="${esc(asset('/assets/account.js'))}" defer></script>` : ''}
+${CF_ANALYTICS_TOKEN ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="${esc(JSON.stringify({ token: CF_ANALYTICS_TOKEN }))}"></script>` : ''}
 </body>
 </html>
 `;
@@ -726,15 +736,19 @@ function addPage() {
   return page({ title: 'Submit a signing', description: 'Send us an autograph signing or meet & greet we are missing. Every listing is checked before it goes live.', pathname: '/add/', body, forms: true, captcha: Boolean(TURNSTILE_SITE_KEY) });
 }
 
-function signupPage(list, athletes) {
-  // Suggestions for the favorites box: every team and every signer we know of.
+// Suggestions for the favorites boxes: every team and every signer we know of.
+function favOptions(list, athletes) {
   const options = new Set();
   for (const rows of athletes.values()) for (const a of rows) {
     if (a.name) options.add(a.name);
     for (const t of Array.isArray(a.teams) ? a.teams : []) if (t?.team) options.add(t.team);
   }
   for (const s of list) for (const n of s.names) options.add(n);
-  const sorted = [...options].filter((o) => typeof o === 'string' && o.trim()).sort((a, b) => a.localeCompare(b));
+  return [...options].filter((o) => typeof o === 'string' && o.trim()).sort((a, b) => a.localeCompare(b));
+}
+
+function signupPage(list, athletes) {
+  const sorted = favOptions(list, athletes);
   const body = `
 <section class="page-head">
   <div class="eyebrow accent">Sign up</div>
@@ -767,9 +781,155 @@ function signupPage(list, athletes) {
     ${honeypot}
     <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.bell}Sign up for alerts</button></div>
     ${formStatus}
+    <p class="muted small">Already signed up? <a href="${esc(link('/account/'))}">Log in</a> to change your favorites. See our <a href="${esc(link('/privacy/'))}">privacy policy</a>.</p>
   </form>
 </section>`;
   return page({ title: 'Sign up', description: 'Sign up to get an email when your favorite teams, players and people have an autograph signing.', pathname: '/signup/', body, forms: true });
+}
+
+// Member login and account. Static HTML; assets/account.js switches between the
+// "send me a login link" form and the account editor once the emailed link is used.
+function accountPage(list, athletes) {
+  const sorted = favOptions(list, athletes);
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">Members</div>
+  <h1 data-account-title>Log in</h1>
+  <p class="lede" data-account-lede>Signed up for alerts? Enter your email and we'll send you a link to log in. No password needed.</p>
+</section>
+<section class="band band-tight" data-account data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}" data-endpoint="${esc(FORMS_URL)}" data-path="${esc(BASE)}">
+  <form class="f-form f-narrow" data-view="login" novalidate>
+    <fieldset>
+      <legend><span class="f-n">01</span>Email me a login link</legend>
+      ${field('a-email', 'Email you signed up with', '<input id="a-email" name="email" type="email" required maxlength="254" autocomplete="email">')}
+      ${honeypot}
+      <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.user}Send login link</button></div>
+      ${formStatus}
+    </fieldset>
+    <p class="muted small">Not signed up yet? <a href="${esc(link('/signup/'))}">Sign up</a> to get alerts when your favorites have a signing.</p>
+  </form>
+
+  <p class="notice" data-view="loading" hidden>Logging you in…</p>
+
+  <form class="f-form f-narrow" data-view="account" novalidate hidden>
+    <fieldset>
+      <legend><span class="f-n">01</span>Your details</legend>
+      <div class="f-row">
+        ${field('m-name', 'Name', '<input id="m-name" name="name" type="text" required maxlength="120" autocomplete="name">')}
+        <div class="f-field"><span class="f-label">Email</span><p class="account-email" data-email></p></div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend><span class="f-n">02</span>Your favorites</legend>
+      <div class="f-field">
+        <label for="m-fav">Add a team, player or person</label>
+        <div class="fav-entry">
+          <input id="m-fav" type="text" list="m-fav-options" maxlength="80" autocomplete="off" placeholder="e.g. Denver Broncos or John Elway">
+          <button class="btn btn-ghost" type="button" data-fav-add>Add</button>
+        </div>
+        <datalist id="m-fav-options">${sorted.map((o) => `<option value="${esc(o)}"></option>`).join('')}</datalist>
+        <ul class="fav-list" aria-label="Your favorites" data-fav-list></ul>
+      </div>
+      <label class="f-check"><input type="checkbox" name="alerts"> Email me when my favorites have a signing.</label>
+    </fieldset>
+    <div class="f-actions">
+      <button class="btn btn-accent" type="submit">Save changes</button>
+      <button class="btn btn-ghost" type="button" data-logout>Log out</button>
+    </div>
+    <p class="f-status" role="status" aria-live="polite" hidden></p>
+    <div class="danger-zone">
+      <h2>Delete my account</h2>
+      <p class="muted">This removes your name, email and favorites from Autograph Hero for good. You can sign up again any time.</p>
+      <div class="f-actions">
+        <button class="btn btn-ghost btn-danger" type="button" data-delete>Delete my account</button>
+        <button class="btn btn-danger-solid" type="button" data-delete-confirm hidden>Yes, delete everything</button>
+        <button class="btn btn-ghost" type="button" data-delete-cancel hidden>Keep my account</button>
+      </div>
+    </div>
+  </form>
+  <noscript><p class="notice">Logging in needs JavaScript turned on.</p></noscript>
+</section>`;
+  return page({ title: 'Log in', description: 'Log in to change your favorite teams and players, pause alerts or delete your account.', pathname: '/account/', body, account: true });
+}
+
+function contactLine() {
+  return CONTACT_EMAIL
+    ? `email us at <a href="mailto:${esc(CONTACT_EMAIL)}">${esc(CONTACT_EMAIL)}</a>`
+    : `use the <a href="${esc(link('/account/'))}">account page</a> to manage or delete your details`;
+}
+
+function policyPage({ title, pathname, description, eyebrow, intro, sections }) {
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">${esc(eyebrow)}</div>
+  <h1>${esc(title)}</h1>
+  <p class="mono small">Last updated ${esc(longDate(POLICY_DATE))}</p>
+  <p class="lede">${intro}</p>
+</section>
+<section class="band band-tight">
+  <div class="prose">
+    ${sections.map(([h, html]) => `<h2>${esc(h)}</h2>\n${html}`).join('\n    ')}
+  </div>
+</section>`;
+  return page({ title, description, pathname, body });
+}
+
+function privacyPage() {
+  return policyPage({
+    title: 'Privacy policy',
+    pathname: '/privacy/',
+    eyebrow: 'Privacy',
+    description: 'What Autograph Hero collects, why, who helps us run the site, and how to change or delete your details.',
+    intro: 'Autograph Hero lists upcoming autograph signings and meet &amp; greets. We collect as little as we can, we never sell your information, and you can delete your account yourself at any time.',
+    sections: [
+      ['What we collect and why', `<ul>
+      <li><strong>When you sign up for alerts:</strong> your name, email address, the teams, players and people you pick, and when you agreed to receive alerts. We use these to email you when your favorites have a signing and to let you manage your account.</li>
+      <li><strong>When you log in:</strong> your email address, so we can send you a login link. Your login is remembered in your browser's storage on that device until you log out.</li>
+      <li><strong>When you submit a signing:</strong> the event details you enter, plus your name (optional) and email address so we can follow up. We check every submission before it goes on the calendar. Your name and email are never shown on the site.</li>
+      <li><strong>To stop spam:</strong> a scrambled, one-way code made from your internet (IP) address, used to limit how many forms one visitor can send in an hour. The Submit a Signing form also uses a Cloudflare Turnstile check to tell people from bots.</li>
+      <li><strong>Site statistics:</strong> we use Cloudflare Web Analytics to count visits and popular pages. It does not use cookies and does not follow you to other websites.</li>
+    </ul>`],
+      ['What we don\'t do', `<p>We don't sell or rent your information, we don't show ads, and we don't use advertising or tracking cookies. We only email you about signings for the favorites you chose, and about your account (such as login links).</p>`],
+      ['Who helps us run the site', `<p>These services handle some information on our behalf, only to run Autograph Hero:</p>
+    <ul>
+      <li><strong>Supabase</strong>: stores sign-ups and submissions, and handles logins.</li>
+      <li><strong>Resend</strong>: sends login and alert emails.</li>
+      <li><strong>Cloudflare</strong>: site statistics and the spam check.</li>
+      <li><strong>Bluehost</strong>: hosts the website.</li>
+      <li><strong>Google Fonts, Wikimedia Commons and promoter websites</strong>: the site's fonts and some photos load from these services, so they receive your IP address when your browser fetches them, as with any website.</li>
+    </ul>`],
+      ['Your choices', `<ul>
+      <li>Change your favorites or turn alerts off on your <a href="${esc(link('/account/'))}">account page</a>.</li>
+      <li>Delete your account there too. That removes your name, email and favorites.</li>
+      <li>Every alert email includes a link to stop alerts.</li>
+      <li>To ask what we hold about you, or anything else, ${contactLine()}.</li>
+    </ul>`],
+      ['How long we keep it', `<p>We keep your sign-up until you delete your account or ask us to. Submitted signings are kept as a record of the listings on the site. The scrambled spam-check codes are only used to count recent sends.</p>`],
+      ['Children', `<p>Autograph Hero isn't meant for children under 13, and we don't knowingly collect their information. If you think a child has signed up, ${contactLine()} and we'll remove it.</p>`],
+      ['Changes', `<p>If we change this policy, we'll update the date at the top of this page. If a change matters for how we use your email, we'll tell members by email before it takes effect.</p>`],
+    ],
+  });
+}
+
+function termsPage() {
+  return policyPage({
+    title: 'Terms of use',
+    pathname: '/terms/',
+    eyebrow: 'Terms',
+    description: 'The terms for using Autograph Hero, including listings, submissions and accounts.',
+    intro: 'By using Autograph Hero you agree to these terms. They are short, so please read them.',
+    sections: [
+      ['What Autograph Hero is', `<p>Autograph Hero is a free directory of upcoming autograph signings, meet &amp; greets and mail-in signings. Listings are gathered from public promoter and shop websites and from fans who submit them. We are not the organizer of any signing, we don't sell tickets or autographs, and we are not affiliated with the athletes, celebrities, teams, leagues or promoters listed unless we say so. Any purchase is between you and the organizer.</p>`],
+      ['Listings can change', `<p>We work to keep listings accurate, but dates, times, prices, guests and availability can change or be cancelled without notice. Always confirm the details on the organizer's own page before you order, mail an item or travel. We aren't responsible for losses from relying on a listing.</p>`],
+      ['Other websites', `<p>Listings link to the organizers' websites. We don't control those sites and aren't responsible for their content, products, prices or policies.</p>`],
+      ['Submitting a signing', `<p>When you submit a signing, you confirm that the details are accurate to the best of your knowledge and that you're allowed to share them. You let us publish, edit and remove the listing details. We may decline any submission. We never publish your name or email.</p>`],
+      ['Accounts and alerts', `<p>You can sign up for alert emails and log in with a link sent to your email. Keep access to your email account secure, since anyone who can read it can log in. You can change or delete your account at any time. We may close accounts or block form use that is abusive.</p>`],
+      ['Fair use of the site', `<p>Please don't send spam or false listings, try to get around our spam checks, overload or attack the site, or copy the listings in bulk to republish elsewhere.</p>`],
+      ['Names, logos and photos', `<p>Team, league and player names and logos belong to their owners and are used only to identify who is signing. Event photos belong to the promoters who published them. Some player photos come from Wikimedia Commons under their own licenses; see <a href="${esc(link('/photo-credits/'))}">photo credits</a>.</p>`],
+      ['No guarantees', `<p>The site is provided as it is, without warranties of any kind. To the extent the law allows, Autograph Hero is not liable for any indirect or consequential losses arising from your use of the site or any listing.</p>`],
+      ['Changes and contact', `<p>We may update these terms and will change the date at the top when we do. Questions? ${contactLine().replace(/^./, (c) => c.toUpperCase())}.</p>`],
+    ],
+  });
 }
 
 function creditsPage(list) {
@@ -821,6 +981,9 @@ async function main() {
   await put('photo-credits/index.html', creditsPage(list));
   await put('add/index.html', addPage());
   await put('signup/index.html', signupPage(list, athletes));
+  await put('account/index.html', accountPage(list, athletes));
+  await put('privacy/index.html', privacyPage());
+  await put('terms/index.html', termsPage());
   await put('404.html', page({
     title: 'Page not found',
     description: 'That page is not here.',
@@ -834,6 +997,13 @@ async function main() {
     'DirectoryIndex index.html',
     `ErrorDocument 404 ${BASE}/404.html`,
     'RewriteEngine On',
+    '',
+    '# Addresses from the old WordPress site, so saved links and search results still work.',
+    `RedirectMatch 301 ^${BASE}/terms-conditions/?$ ${BASE}/terms/`,
+    `RedirectMatch 301 ^${BASE}/privacy-policy/?$ ${BASE}/privacy/`,
+    `RedirectMatch 301 ^${BASE}/my-account(/.*)?$ ${BASE}/account/`,
+    `RedirectMatch 301 ^${BASE}/submit-an-appearance/?$ ${BASE}/add/`,
+    `RedirectMatch 301 ^${BASE}/(type|browse)(/.*)?$ ${BASE}/events/`,
     '',
     '# Pages change every hour, so the host\'s cache and browsers must check for a new copy',
     '# each time. Assets are fingerprinted (?v=...), so they can be kept.',

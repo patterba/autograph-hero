@@ -290,3 +290,26 @@ h1, h2, h3, p { margin: 0; }
 .logo-lockup text { font-family: 'Yellowtail', 'Brush Script MT', cursive; font-size: 105px; fill: #0A0A0A; stroke: var(--paper); stroke-width: 9px; stroke-linejoin: round; paint-order: stroke fill; }
 .site-footer .logo-lockup { height: 60px; }
 .site-footer .logo-lockup text { stroke: var(--paper-alt); }
+
+/* Log In link in the main nav */
+.site-header nav .nav-login { display: inline-flex; align-items: center; gap: 6px; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+
+/* Terms and Privacy */
+.prose { display: flex; flex-direction: column; gap: 14px; max-width: 72ch; }
+.prose h2 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 2.6vw, 34px); line-height: 1.05; text-transform: uppercase; margin-top: 18px; }
+.prose p, .prose li { color: var(--ink-2); }
+.prose ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; }
+.prose a { font-weight: 600; text-underline-offset: 3px; }
+
+/* Account page */
+.account-email { margin: 0; padding: 12px 0; font-weight: 600; overflow-wrap: anywhere; }
+.danger-zone { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; padding: clamp(20px, 3vw, 28px); border: 2px dashed #8A1C12; border-radius: 18px; }
+.danger-zone h2 { font-size: 20px; font-weight: 700; }
+.btn-danger { border-color: #8A1C12; color: #8A1C12; }
+.btn-danger:hover { background: #8A1C12; color: #FFFFFF; }
+.btn-danger-solid { background: #8A1C12; color: #FFFFFF; border-color: #8A1C12; }
+.btn-danger-solid:hover { background: #6E150D; color: #FFFFFF; }
+@media (max-width: 520px) {
+  .site-header nav { gap: 4px 16px; font-size: 16px; }
+}
