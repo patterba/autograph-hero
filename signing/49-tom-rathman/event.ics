@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-49@autographhero.com
+DTSTAMP:20261017T000000Z
+DTSTART;VALUE=DATE:20261021
+DTEND;VALUE=DATE:20261022
+SUMMARY:Tom Rathman autograph signing
+DESCRIPTION:Order deadline: Tuesday\, October 13\, 2026\nDetails: https://powerssportsmemorabilia.com/products/tom-rathman-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

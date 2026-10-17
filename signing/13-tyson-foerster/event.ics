@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-13@autographhero.com
+DTSTAMP:20261017T000000Z
+DTSTART;VALUE=DATE:20261102
+DTEND;VALUE=DATE:20261103
+SUMMARY:Tyson Foerster autograph signing
+DESCRIPTION:Time: 6:30 pm - 8:00 pm\nDetails: https://carlscards.com/event/philadelphia-flyers-tyson-foerster-autograph-signing/\nConfirm details with the organizer before you go.
+LOCATION:Carl's Cards & Collectibles\, 22 West Eagle Road\, Havertown\, PA
+END:VEVENT
+END:VCALENDAR

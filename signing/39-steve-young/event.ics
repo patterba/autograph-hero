@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-39@autographhero.com
+DTSTAMP:20261017T000000Z
+DTSTART;VALUE=DATE:20261110
+DTEND;VALUE=DATE:20261111
+SUMMARY:Steve Young autograph signing
+DESCRIPTION:Order deadline: Monday\, November 2\, 2026\nDetails: https://powerssportsmemorabilia.com/products/steve-young-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

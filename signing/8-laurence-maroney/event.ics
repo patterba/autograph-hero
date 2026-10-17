@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-8@autographhero.com
+DTSTAMP:20261017T000000Z
+DTSTART;VALUE=DATE:20261107
+DTEND;VALUE=DATE:20261108
+SUMMARY:Laurence Maroney autograph signing
+DESCRIPTION:Time: 11:00am - 12:00pm\nOrder deadline: Saturday\, October 31\, 2026\nDetails: https://www.sureshotpromotions.com/products/laurence-maroney-public-autograph-signing-saturday-11-7-2026\nConfirm details with the organizer before you go.
+LOCATION:Shriner's Auditorium\, Wilmington\, MA
+END:VEVENT
+END:VCALENDAR
