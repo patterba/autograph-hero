@@ -1,0 +1,19 @@
+DirectoryIndex index.html
+ErrorDocument 404 /new/404.html
+RewriteEngine On
+
+# Addresses from the old WordPress site, so saved links and search results still work.
+RedirectMatch 301 ^/new/terms-conditions/?$ /new/terms/
+RedirectMatch 301 ^/new/privacy-policy/?$ /new/privacy/
+RedirectMatch 301 ^/new/my-account(/.*)?$ /new/account/
+RedirectMatch 301 ^/new/submit-an-appearance/?$ /new/add/
+RedirectMatch 301 ^/new/(type|browse)(/.*)?$ /new/events/
+
+# Pages change every hour, so the host's cache and browsers must check for a new copy
+# each time. Assets are fingerprinted (?v=...), so they can be kept.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|ics|txt)$">
+    Header set Cache-Control "no-cache, max-age=0, must-revalidate"
+    Header set X-Endurance-Cache-Level "0"
+  </FilesMatch>
+</IfModule>

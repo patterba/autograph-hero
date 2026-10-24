@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-173@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261024
+DTEND;VALUE=DATE:20261025
+SUMMARY:Floyd Mayweather Jr. autograph signing
+DESCRIPTION:Order deadline: Friday\, October 16\, 2026\nDetails: https://powerssportsmemorabilia.com/products/floyd-mayweather-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

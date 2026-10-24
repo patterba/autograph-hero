@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-243@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:C. Thomas Howell autograph signing
+DESCRIPTION:Order deadline: Monday\, November 2\, 2026\nDetails: https://powerssportsmemorabilia.com/products/c-thomas-howell-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

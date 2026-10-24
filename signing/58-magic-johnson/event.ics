@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-58@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261030
+DTEND;VALUE=DATE:20261031
+SUMMARY:Order deadline: Magic Johnson autograph signing
+DESCRIPTION:Details: https://powerssportsmemorabilia.com/products/magic-johnson-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

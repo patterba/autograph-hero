@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-42@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261029
+DTEND;VALUE=DATE:20261030
+SUMMARY:Jimmy Johnson autograph signing
+DESCRIPTION:Order deadline: Monday\, October 19\, 2026\nDetails: https://powerssportsmemorabilia.com/products/jimmy-johnson-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

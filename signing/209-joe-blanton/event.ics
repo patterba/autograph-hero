@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-209@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:Joe Blanton autograph signing
+DESCRIPTION:Time: 11:30 am - 1:00 pm\nDetails: https://carlscards.com/event/2008-world-series-champion-joe-blanton-autograph-signing/\nConfirm details with the organizer before you go.
+LOCATION:Carl's Cards & Collectibles\, 22 West Eagle Road\, Havertown\, PA
+END:VEVENT
+END:VCALENDAR

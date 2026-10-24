@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-143@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261211
+DTEND;VALUE=DATE:20261212
+SUMMARY:Dwight Gooden autograph signing
+DESCRIPTION:Order deadline: Monday\, November 30\, 2026\nDetails: https://powerssportsmemorabilia.com/products/dwight-gooden-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

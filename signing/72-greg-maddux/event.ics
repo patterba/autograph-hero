@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-72@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261026
+DTEND;VALUE=DATE:20261027
+SUMMARY:Order deadline: Greg Maddux autograph signing
+DESCRIPTION:Details: https://powerssportsmemorabilia.com/products/greg-maddux-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-229@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261103
+DTEND;VALUE=DATE:20261104
+SUMMARY:Payne Durham autograph signing
+DESCRIPTION:Order deadline: Monday\, October 26\, 2026\nDetails: https://powerssportsmemorabilia.com/products/payne-durham-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

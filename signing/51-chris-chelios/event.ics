@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-51@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:Chris Chelios autograph signing
+DESCRIPTION:Time: 11:00am - 12:00pm\nOrder deadline: Saturday\, October 31\, 2026\nDetails: https://www.sureshotpromotions.com/products/chris-chelios-public-autograph-signing-sunday-11-8-2026\nConfirm details with the organizer before you go.
+LOCATION:Shriner's Auditorium\, Wilmington\, MA
+END:VEVENT
+END:VCALENDAR

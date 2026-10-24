@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-14@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261106
+DTEND;VALUE=DATE:20261107
+SUMMARY:Saquon Barkley autograph signing
+DESCRIPTION:Time: 7:00 pm\nOrder deadline: Friday\, November 6\, 2026\nDetails: https://carlscards.com/event/super-bowl-champion-saquon-barkley-private-signing/\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

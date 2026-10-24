@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-225@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261113
+DTEND;VALUE=DATE:20261114
+SUMMARY:Andre Reed autograph signing
+DESCRIPTION:Order deadline: Thursday\, November 5\, 2026\nDetails: https://powerssportsmemorabilia.com/products/andre-reed-autograph-signing\nConfirm details with the organizer before you go.
+END:VEVENT
+END:VCALENDAR

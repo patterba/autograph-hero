@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-7@autographhero.com
+DTSTAMP:20261024T000000Z
+DTSTART;VALUE=DATE:20261107
+DTEND;VALUE=DATE:20261108
+SUMMARY:Scotty Bowman autograph signing
+DESCRIPTION:Time: 12:00pm - 1:00pm\nOrder deadline: Saturday\, October 31\, 2026\nDetails: https://www.sureshotpromotions.com/products/scotty-bowman-public-autograph-signing-saturday-11-7-2026\nConfirm details with the organizer before you go.
+LOCATION:Shriner's Auditorium\, Wilmington\, MA
+END:VEVENT
+END:VCALENDAR
