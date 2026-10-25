@@ -100,6 +100,9 @@
         if (favInput && favInput.value.trim()) addFavorite(favInput.value);
         if (!value('name')) return invalid(form.elements.name, 'Please enter your name.');
         if (!email.test(value('email'))) return invalid(form.elements.email, 'Please enter a valid email address.');
+        var pw = form.elements.password ? form.elements.password.value : '';
+        if (form.elements.password && pw.length < 8) return invalid(form.elements.password, 'Please choose a password of at least 8 characters.');
+        if (form.elements.password2 && form.elements.password2.value !== pw) return invalid(form.elements.password2, "The two passwords don't match.");
         if (!favorites.length) return invalid(favInput, 'Please add at least one favorite team, player or person.');
         if (!value('consent')) return invalid(form.elements.consent, 'Please tick the box to agree to receive alert emails.');
         if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
@@ -130,9 +133,31 @@
         data.email = value('email');
         data.consent = value('consent') === true;
         data.favorites = favorites.slice();
+        if (form.elements.password) data.password = form.elements.password.value;
         data.captcha_token = captchaToken() || null;
       }
       return data;
+    }
+
+    // Signs in with Supabase Auth and keeps the login where the account page looks for it.
+    function logIn(f, mail, password) {
+      return fetch(f.getAttribute('data-supabase') + '/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        headers: { apikey: f.getAttribute('data-key'), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: mail, password: password }),
+      }).then(function (res) {
+        if (!res.ok) return false;
+        return res.json().then(function (j) {
+          try {
+            localStorage.setItem('ah-session', JSON.stringify({
+              access_token: j.access_token,
+              refresh_token: j.refresh_token,
+              expires_at: j.expires_at || Math.floor(Date.now() / 1000) + (j.expires_in || 3600),
+            }));
+          } catch (e) { return false; }
+          return true;
+        });
+      }).catch(function () { return false; });
     }
 
     form.addEventListener('input', function (e) {
@@ -153,6 +178,15 @@
           return res.json().catch(function () { return { ok: false }; });
         })
         .then(function (r) {
+          if (r && r.ok && kind === 'signup' && r.login && form.getAttribute('data-supabase')) {
+            // Log straight in with the password they just chose, then open their account page.
+            show((r.message || "You're signed up!") + ' Logging you in…', 'is-success');
+            return logIn(form, value('email'), form.elements.password.value).then(function (ok) {
+              if (ok) { location.href = form.getAttribute('data-account') + '?welcome=1'; return; }
+              form.reset(); favorites = []; renderFavorites(); started = Date.now();
+              show((r.message || "You're signed up!") + ' Log in with your email and password on the Log In page.', 'is-success');
+            });
+          }
           if (r && r.ok) {
             form.reset();
             favorites = [];

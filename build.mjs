@@ -29,7 +29,7 @@ const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.C
 // Contact address shown on the Terms and Privacy pages (GitHub variable CONTACT_EMAIL).
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 // Date the Terms and Privacy pages were last changed. Update it when you edit them.
-const POLICY_DATE = '2026-10-13';
+const POLICY_DATE = '2026-10-25';
 const US_STATES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ');
 const SPORT_CHOICES = ['Football', 'Baseball', 'Basketball', 'Hockey', 'Soccer', 'Wrestling', 'MMA', 'Golf', 'Racing', 'Entertainment', 'Other'];
 
@@ -763,12 +763,16 @@ function signupPage(list, athletes) {
   <p class="lede">Tell us who you follow. When one of your favorite teams, players or people has a signing, we'll send you an email.</p>
 </section>
 <section class="band band-tight">
-  <form class="f-form f-narrow" data-form="signup" data-endpoint="${esc(FORMS_URL)}" novalidate>
+  <form class="f-form f-narrow" data-form="signup" data-endpoint="${esc(FORMS_URL)}" data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}" data-account="${esc(link('/account/'))}" novalidate>
     <fieldset>
-      <legend><span class="f-n">01</span>Your details</legend>
+      <legend><span class="f-n">01</span>Your account</legend>
       <div class="f-row">
         ${field('s-name', 'Name <span class="req">Required</span>', '<input id="s-name" name="name" type="text" required maxlength="120" autocomplete="name">')}
-        ${field('s-email', 'Email <span class="req">Required</span>', '<input id="s-email" name="email" type="email" required maxlength="254" autocomplete="email">')}
+        ${field('s-email', 'Email (your login) <span class="req">Required</span>', '<input id="s-email" name="email" type="email" required maxlength="254" autocomplete="username">')}
+      </div>
+      <div class="f-row">
+        ${field('s-pass', 'Password <span class="req">Required</span>', '<input id="s-pass" name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password" aria-describedby="s-pass-hint">', 'At least 8 characters.')}
+        ${field('s-pass2', 'Password again <span class="req">Required</span>', '<input id="s-pass2" name="password2" type="password" required maxlength="72" autocomplete="new-password">')}
       </div>
     </fieldset>
     <fieldset>
@@ -789,7 +793,7 @@ function signupPage(list, athletes) {
     ${captchaBox()}
     <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.bell}Sign up for alerts</button></div>
     ${formStatus}
-    <p class="muted small">Already signed up? <a href="${esc(link('/account/'))}">Log in</a> to change your favorites. See our <a href="${esc(link('/privacy/'))}">privacy policy</a>.</p>
+    <p class="muted small">Already have an account? <a href="${esc(link('/account/'))}">Log in</a> to change your favorites. See our <a href="${esc(link('/privacy/'))}">privacy policy</a>.</p>
   </form>
 </section>`;
   return page({ title: 'Sign up', description: 'Sign up to get an email when your favorite teams, players and people have an autograph signing.', pathname: '/signup/', body, forms: true, captcha: Boolean(TURNSTILE_SITE_KEY) });
@@ -799,32 +803,56 @@ function signupPage(list, athletes) {
 // "send me a login link" form and the account editor once the emailed link is used.
 function accountPage(list, athletes) {
   const sorted = favOptions(list, athletes);
+  const pw = (id, name, label, auto, hint = '') =>
+    field(id, label, `<input id="${id}" name="${name}" type="password" required ${auto === 'new-password' ? 'minlength="8" ' : ''}maxlength="72" autocomplete="${auto}"${hint ? ` aria-describedby="${id}-hint"` : ''}>`, hint);
   const body = `
 <section class="page-head">
   <div class="eyebrow accent">Members</div>
   <h1 data-account-title>Log in</h1>
-  <p class="lede" data-account-lede>Signed up for alerts? Enter your email and we'll send you a link to log in. No password needed.</p>
+  <p class="lede" data-account-lede>Log in with the email and password you signed up with.</p>
 </section>
 <section class="band band-tight" data-account data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}" data-endpoint="${esc(FORMS_URL)}" data-path="${esc(BASE)}">
   <form class="f-form f-narrow" data-view="login" novalidate>
     <fieldset>
-      <legend><span class="f-n">01</span>Email me a login link</legend>
-      ${field('a-email', 'Email you signed up with', '<input id="a-email" name="email" type="email" required maxlength="254" autocomplete="email">')}
-      ${honeypot}
-      <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.user}Send login link</button></div>
-      ${formStatus}
+      <legend>Log in</legend>
+      ${field('a-email', 'Email', '<input id="a-email" name="email" type="email" required maxlength="254" autocomplete="username">')}
+      ${pw('a-pass', 'password', 'Password', 'current-password')}
+      <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.user}Log in</button><button class="btn btn-ghost" type="button" data-show="forgot">Forgot password?</button></div>
+      <p class="f-status" role="status" aria-live="polite" hidden></p>
     </fieldset>
-    <p class="muted small">Not signed up yet? <a href="${esc(link('/signup/'))}">Sign up</a> to get alerts when your favorites have a signing.</p>
+    <p class="muted small">No account yet? <a href="${esc(link('/signup/'))}">Sign up</a> to get alerts when your favorites have a signing.</p>
   </form>
 
-  <p class="notice" data-view="loading" hidden>Logging you in…</p>
+  <form class="f-form f-narrow" data-view="forgot" novalidate hidden>
+    <fieldset>
+      <legend>Forgot your password?</legend>
+      <p class="muted">Enter the email you signed up with and we'll send you a link to set a new password.</p>
+      ${field('r-email', 'Email', '<input id="r-email" name="email" type="email" required maxlength="254" autocomplete="username">')}
+      ${honeypot}
+      <div class="f-actions"><button class="btn btn-accent" type="submit">Email me a link</button><button class="btn btn-ghost" type="button" data-show="login">Back to log in</button></div>
+      <p class="f-status" role="status" aria-live="polite" hidden></p>
+    </fieldset>
+  </form>
+
+  <form class="f-form f-narrow" data-view="setpw" novalidate hidden>
+    <fieldset>
+      <legend>Set a new password</legend>
+      ${pw('n-pass', 'password', 'New password', 'new-password', 'At least 8 characters.')}
+      ${pw('n-pass2', 'password2', 'New password again', 'new-password')}
+      <div class="f-actions"><button class="btn btn-accent" type="submit">Save password</button></div>
+      <p class="f-status" role="status" aria-live="polite" hidden></p>
+    </fieldset>
+  </form>
+
+  <p class="notice" data-view="loading" hidden>Loading…</p>
 
   <form class="f-form f-narrow" data-view="account" novalidate hidden>
+    <p class="f-status" role="status" aria-live="polite" data-account-status hidden></p>
     <fieldset>
       <legend><span class="f-n">01</span>Your details</legend>
       <div class="f-row">
         ${field('m-name', 'Name', '<input id="m-name" name="name" type="text" required maxlength="120" autocomplete="name">')}
-        <div class="f-field"><span class="f-label">Email</span><p class="account-email" data-email></p></div>
+        <div class="f-field"><span class="f-label">Email (your login)</span><p class="account-email" data-email></p></div>
       </div>
     </fieldset>
     <fieldset>
@@ -844,10 +872,19 @@ function accountPage(list, athletes) {
       <button class="btn btn-accent" type="submit">Save changes</button>
       <button class="btn btn-ghost" type="button" data-logout>Log out</button>
     </div>
-    <p class="f-status" role="status" aria-live="polite" hidden></p>
+    <p class="f-status" role="status" aria-live="polite" data-save-status hidden></p>
+    <fieldset data-change-pw>
+      <legend><span class="f-n">03</span>Change password</legend>
+      <div class="f-row">
+        ${pw('c-pass', 'newpassword', 'New password', 'new-password', 'At least 8 characters.')}
+        ${pw('c-pass2', 'newpassword2', 'New password again', 'new-password')}
+      </div>
+      <div class="f-actions"><button class="btn btn-ghost" type="button" data-change-pw-save>Change password</button></div>
+      <p class="f-status" role="status" aria-live="polite" data-pw-status hidden></p>
+    </fieldset>
     <div class="danger-zone">
       <h2>Delete my account</h2>
-      <p class="muted">This removes your name, email and favorites from Autograph Hero for good. You can sign up again any time.</p>
+      <p class="muted">This removes your name, email, password and favorites from Autograph Hero for good. You can sign up again any time.</p>
       <div class="f-actions">
         <button class="btn btn-ghost btn-danger" type="button" data-delete>Delete my account</button>
         <button class="btn btn-danger-solid" type="button" data-delete-confirm hidden>Yes, delete everything</button>
@@ -943,8 +980,8 @@ function privacyPage() {
     intro: 'Autograph Hero lists upcoming autograph signings and meet &amp; greets. We collect as little as we can, we never sell your information, and you can delete your account yourself at any time.',
     sections: [
       ['What we collect and why', `<ul>
-      <li><strong>When you sign up for alerts:</strong> your name, email address, the teams, players and people you pick, and when you agreed to receive alerts. We use these to email you when your favorites have a signing and to let you manage your account.</li>
-      <li><strong>When you log in:</strong> your email address, so we can send you a login link. Your login is remembered in your browser's storage on that device until you log out.</li>
+      <li><strong>When you sign up:</strong> your name, email address, a password, the teams, players and people you pick, and when you agreed to receive alerts. We use these to email you when your favorites have a signing and to let you log in and manage your account. Your password is stored only in scrambled (hashed) form by our login provider; nobody at Autograph Hero can see it.</li>
+      <li><strong>When you log in:</strong> your login is remembered in your browser's storage on that device until you log out. If you forget your password, we email you a link to set a new one.</li>
       <li><strong>When you submit a signing:</strong> the event details you enter, plus your name (optional) and email address so we can follow up. We check every submission before it goes on the calendar. Your name and email are never shown on the site.</li>
       <li><strong>To stop spam:</strong> a scrambled, one-way code made from your internet (IP) address, used to limit how many forms one visitor can send in an hour. The Submit a Signing form also uses a Cloudflare Turnstile check to tell people from bots.</li>
       <li><strong>Site statistics:</strong> we use Cloudflare Web Analytics to count visits and popular pages. It does not use cookies and does not follow you to other websites.</li>
