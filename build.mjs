@@ -677,6 +677,11 @@ ${moreCard(list.length, null, s.sport)}</div>
 
 const field = (id, label, input, hint = '') =>
   `<div class="f-field"><label for="${id}">${label}</label>${input}${hint ? `<p class="f-hint" id="${id}-hint">${hint}</p>` : ''}</div>`;
+// Cloudflare Turnstile "are you a person" check, shown on Submit a Signing and Sign Up.
+// Usually a single click or nothing at all. Only appears when a site key is set.
+const captchaBox = () => (TURNSTILE_SITE_KEY
+  ? `<div class="f-captcha"><p class="f-label" id="captcha-label">Quick check that you're a person <span class="req">Required</span></p><div class="cf-turnstile" data-sitekey="${esc(TURNSTILE_SITE_KEY)}" data-theme="light" data-size="flexible" aria-labelledby="captcha-label"></div></div>`
+  : '');
 const honeypot = '<div class="hp" aria-hidden="true"><label for="f-website">Leave this empty</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>';
 const formStatus = '<p class="f-status" role="status" aria-live="polite" hidden></p><noscript><p class="notice">This form needs JavaScript turned on.</p></noscript>';
 
@@ -730,7 +735,7 @@ function addPage() {
       </div>
     </fieldset>
     ${honeypot}
-    ${TURNSTILE_SITE_KEY ? `<div class="f-captcha"><p class="f-label" id="captcha-label">Quick check that you're a person <span class="req">Required</span></p><div class="cf-turnstile" data-sitekey="${esc(TURNSTILE_SITE_KEY)}" data-theme="light" data-size="flexible" aria-labelledby="captcha-label"></div></div>` : ''}
+    ${captchaBox()}
     <div class="f-actions"><button class="btn btn-accent" type="submit">Send for review</button></div>
     ${formStatus}
   </form>
@@ -779,14 +784,15 @@ function signupPage(list, athletes) {
         <ul class="fav-list" aria-label="Your favorites" data-fav-list></ul>
       </div>
     </fieldset>
-    <label class="f-check"><input type="checkbox" name="consent" required> Email me when my favorites have a signing. I can unsubscribe at any time.</label>
+    <label class="f-check"><input type="checkbox" name="consent" required checked> Email me when my favorites have a signing. I can unsubscribe at any time.</label>
     ${honeypot}
+    ${captchaBox()}
     <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.bell}Sign up for alerts</button></div>
     ${formStatus}
     <p class="muted small">Already signed up? <a href="${esc(link('/account/'))}">Log in</a> to change your favorites. See our <a href="${esc(link('/privacy/'))}">privacy policy</a>.</p>
   </form>
 </section>`;
-  return page({ title: 'Sign up', description: 'Sign up to get an email when your favorite teams, players and people have an autograph signing.', pathname: '/signup/', body, forms: true });
+  return page({ title: 'Sign up', description: 'Sign up to get an email when your favorite teams, players and people have an autograph signing.', pathname: '/signup/', body, forms: true, captcha: Boolean(TURNSTILE_SITE_KEY) });
 }
 
 // Member login and account. Static HTML; assets/account.js switches between the
@@ -947,7 +953,7 @@ function privacyPage() {
       ['Who helps us run the site', `<p>These services handle some information on our behalf, only to run Autograph Hero:</p>
     <ul>
       <li><strong>Supabase</strong>: stores sign-ups and submissions, and handles logins.</li>
-      <li><strong>Resend</strong>: sends login and alert emails.</li>
+      <li><strong>Resend</strong>: sends the welcome email, login links and alert emails.</li>
       <li><strong>Cloudflare</strong>: site statistics and the spam check.</li>
       <li><strong>Bluehost</strong>: hosts the website.</li>
       <li><strong>Google Fonts, Wikimedia Commons and promoter websites</strong>: the site's fonts and some photos load from these services, so they receive your IP address when your browser fetches them, as with any website.</li>

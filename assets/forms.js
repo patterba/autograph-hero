@@ -95,13 +95,14 @@
         if (!value('event_date') && !value('order_deadline')) return invalid(form.elements.event_date, 'Please enter the signing date or the order deadline.');
         if (!/^https?:\/\/\S+\.\S+/.test(value('source_url'))) return invalid(form.elements.source_url, 'Please add a link to the official announcement or order page, starting with https://');
         if (!email.test(value('submitter_email'))) return invalid(form.elements.submitter_email, 'Please enter a valid email address so we can follow up.');
-        if (captcha && !captchaToken()) return invalid(null, 'Please complete the check above the Send button.');
+        if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
       } else {
         if (favInput && favInput.value.trim()) addFavorite(favInput.value);
         if (!value('name')) return invalid(form.elements.name, 'Please enter your name.');
         if (!email.test(value('email'))) return invalid(form.elements.email, 'Please enter a valid email address.');
         if (!favorites.length) return invalid(favInput, 'Please add at least one favorite team, player or person.');
         if (!value('consent')) return invalid(form.elements.consent, 'Please tick the box to agree to receive alert emails.');
+        if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
       }
       return true;
     }
@@ -129,6 +130,7 @@
         data.email = value('email');
         data.consent = value('consent') === true;
         data.favorites = favorites.slice();
+        data.captcha_token = captchaToken() || null;
       }
       return data;
     }
