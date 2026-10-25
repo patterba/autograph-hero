@@ -138,7 +138,7 @@ jobs:
               set ssl:verify-certificate/$FTP_CERT_FINGERPRINT no; set ftp:passive-mode true;
               cls -1 wp-config.php; quit" >/dev/null 2>&1 && echo yes || echo no
             ORIGIN_IP=$(getent ahostsv4 "$FTP_SERVER" | awk 'NR==1{print $1}')
-            for p in / /index.html /terms/ /new/ /sitemap.xml; do
+            for p in / /terms/ /admin/ /new/ /sitemap.xml; do
               for via in origin cloudflare; do
                 if [ "$via" = origin ]; then R="--resolve autographhero.com:443:$ORIGIN_IP"; else R=""; fi
                 curl -sk -m 20 $R -A "Mozilla/5.0 deploy-check" -o body -D hdr "https://autographhero.com$p" || true

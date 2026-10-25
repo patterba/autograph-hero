@@ -320,7 +320,7 @@ function moreCard(total, remaining, sport = null) {
 </a>`;
 }
 
-function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false }) {
+function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: autograph signings and meet & greets`;
   return `<!doctype html>
 <html lang="en">
@@ -329,7 +329,7 @@ function page({ title, description, pathname, body, script = false, forms = fals
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(full)}</title>
 <meta name="description" content="${esc(description)}">
-${NOINDEX ? '<meta name="robots" content="noindex, nofollow">' : ''}
+${NOINDEX || admin ? '<meta name="robots" content="noindex, nofollow">' : ''}
 <meta property="og:title" content="${esc(full)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:type" content="website">
@@ -358,7 +358,7 @@ ${PHOTO_SCRIPT}
 <main id="main">
 ${body}
 </main>
-${pathname === '/add/' ? '' : `<div class="submit-bar" hidden>
+${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
   <span>Know a signing we're missing?</span>
   <a class="btn btn-accent btn-sm" href="${esc(link('/add/'))}">${ICON.plus}Submit A Signing</a>
 </div>
@@ -373,7 +373,8 @@ ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''
 ${forms ? `<script src="${esc(asset('/assets/forms.js'))}" defer></script>` : ''}
 ${captcha ? '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>' : ''}
 ${account ? `<script src="${esc(asset('/assets/account.js'))}" defer></script>` : ''}
-${CF_ANALYTICS_TOKEN ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="${esc(JSON.stringify({ token: CF_ANALYTICS_TOKEN }))}"></script>` : ''}
+${admin ? `<script src="${esc(asset('/assets/admin.js'))}" defer></script>` : ''}
+${CF_ANALYTICS_TOKEN && !admin ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="${esc(JSON.stringify({ token: CF_ANALYTICS_TOKEN }))}"></script>` : ''}
 </body>
 </html>
 `;
@@ -853,6 +854,58 @@ function accountPage(list, athletes) {
   return page({ title: 'Log in', description: 'Log in to change your favorite teams and players, pause alerts or delete your account.', pathname: '/account/', body, account: true });
 }
 
+// Owner's review page. Static shell; assets/admin.js logs in with email + password
+// (Supabase Auth) and calls admin_queue / admin_decide, which refuse anyone whose
+// login doesn't carry the admin role. Not linked from the site, not indexed.
+function adminPage() {
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">Admin</div>
+  <h1 data-admin-title>Admin log in</h1>
+</section>
+<section class="band band-tight" data-admin data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}" data-site="${esc(link('/'))}">
+  <form class="f-form f-narrow" data-view="login" novalidate>
+    <fieldset>
+      <legend>Log in to review signings</legend>
+      ${field('ad-email', 'Email', '<input id="ad-email" name="email" type="email" required maxlength="254" autocomplete="username">')}
+      ${field('ad-pass', 'Password', '<input id="ad-pass" name="password" type="password" required maxlength="200" autocomplete="current-password">')}
+      <div class="f-actions"><button class="btn btn-accent" type="submit">Log in</button></div>
+      <p class="f-status" role="status" aria-live="polite" hidden></p>
+    </fieldset>
+  </form>
+  <p class="notice" data-view="loading" hidden>Loading…</p>
+  <div class="admin" data-view="panel" hidden>
+    <div class="admin-bar">
+      <div class="admin-tabs" role="tablist">
+        <button role="tab" type="button" data-tab="pending" aria-selected="true">Waiting <span class="admin-count" data-count="pending"></span></button>
+        <button role="tab" type="button" data-tab="reviewed" aria-selected="false">Reviewed</button>
+        <button role="tab" type="button" data-tab="fans" aria-selected="false">Sign-ups <span class="admin-count" data-count="fans"></span></button>
+        <button role="tab" type="button" data-tab="settings" aria-selected="false">Password</button>
+      </div>
+      <div class="admin-actions">
+        <button class="btn btn-ghost btn-sm" type="button" data-refresh>Refresh</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-logout>Log out</button>
+      </div>
+    </div>
+    <p class="f-status" role="status" aria-live="polite" data-panel-status hidden></p>
+    <div data-pane="pending"></div>
+    <div data-pane="reviewed" hidden></div>
+    <div data-pane="fans" hidden></div>
+    <form class="f-form f-narrow" data-pane="settings" hidden novalidate>
+      <fieldset>
+        <legend>Change your password</legend>
+        ${field('ad-new', 'New password', '<input id="ad-new" name="password" type="password" minlength="10" maxlength="200" autocomplete="new-password" aria-describedby="ad-new-hint">', 'At least 10 characters.')}
+        ${field('ad-new2', 'New password again', '<input id="ad-new2" name="password2" type="password" maxlength="200" autocomplete="new-password">')}
+        <div class="f-actions"><button class="btn btn-accent" type="submit">Change password</button></div>
+        <p class="f-status" role="status" aria-live="polite" hidden></p>
+      </fieldset>
+    </form>
+  </div>
+  <noscript><p class="notice">The admin page needs JavaScript turned on.</p></noscript>
+</section>`;
+  return page({ title: 'Admin', description: 'Autograph Hero admin.', pathname: '/admin/', body, admin: true });
+}
+
 function contactLine() {
   return CONTACT_EMAIL
     ? `email us at <a href="mailto:${esc(CONTACT_EMAIL)}">${esc(CONTACT_EMAIL)}</a>`
@@ -985,6 +1038,7 @@ async function main() {
   await put('account/index.html', accountPage(list, athletes));
   await put('privacy/index.html', privacyPage());
   await put('terms/index.html', termsPage());
+  await put('admin/index.html', adminPage());
   await put('404.html', page({
     title: 'Page not found',
     description: 'That page is not here.',
@@ -994,7 +1048,7 @@ async function main() {
   // Search engines: a sitemap of every page, only once the site is meant to be indexed.
   const ORIGIN = 'https://autographhero.com';
   const pages = ['/', '/events/', '/add/', '/signup/', '/account/', '/terms/', '/privacy/', '/photo-credits/', ...list.map((s) => `/signing/${s.slug}/`)];
-  await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: ${ORIGIN}${link('/sitemap.xml')}\n`);
+  await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nDisallow: ${link('/admin/')}\nAllow: /\nSitemap: ${ORIGIN}${link('/sitemap.xml')}\n`);
   if (!NOINDEX) {
     await put('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${esc(ORIGIN + link(p))}</loc><lastmod>${TODAY}</lastmod></url>`).join('\n')}\n</urlset>\n`);
   }
