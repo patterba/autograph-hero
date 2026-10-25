@@ -991,7 +991,15 @@ async function main() {
     pathname: '/404',
     body: `<section class="page-head"><h1>That signing is over or moved</h1><p class="lede">Past signings come off the calendar. <a href="${esc(link('/events/'))}">See what is coming up.</a></p></section>`,
   }));
-  await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');
+  // Search engines: a sitemap of every page, only once the site is meant to be indexed.
+  const ORIGIN = 'https://autographhero.com';
+  const pages = ['/', '/events/', '/add/', '/signup/', '/account/', '/terms/', '/privacy/', '/photo-credits/', ...list.map((s) => `/signing/${s.slug}/`)];
+  await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: ${ORIGIN}${link('/sitemap.xml')}\n`);
+  if (!NOINDEX) {
+    await put('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${esc(ORIGIN + link(p))}</loc><lastmod>${TODAY}</lastmod></url>`).join('\n')}\n</urlset>\n`);
+  }
+  // Once the site lives at the domain root, the old /new preview folder sends people to the same page at the root.
+  if (!BASE) await put('new/.htaccess', 'RedirectMatch 301 ^/new/?(.*)$ /$1\n');
   // Apache (Bluehost): serve our index.html ahead of any WordPress index.php,
   // use our 404 page, and stop a parent WordPress .htaccess from rewriting our URLs.
   await put('.htaccess', [
