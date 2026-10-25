@@ -130,7 +130,12 @@ jobs:
             lftp --env-password -u "$FTP_USERNAME" "$FTP_SERVER" -e "
               set ftp:ssl-allow true; set ftp:ssl-force true; set ftp:ssl-protect-data true;
               set ssl:verify-certificate/$FTP_CERT_FINGERPRINT no; set ftp:passive-mode true;
-              cls -1a; quit" 2>&1 | sed 's#.*/##' | sort | head -60
+              cls -1a; quit" 2>&1 | sed 's#/$##; s#.*/##' | sort | head -60
+            echo "## Is this the WordPress folder? (wp-config.php present)"
+            lftp --env-password -u "$FTP_USERNAME" "$FTP_SERVER" -e "
+              set ftp:ssl-allow true; set ftp:ssl-force true; set ftp:ssl-protect-data true;
+              set ssl:verify-certificate/$FTP_CERT_FINGERPRINT no; set ftp:passive-mode true;
+              cls -1 wp-config.php; quit" >/dev/null 2>&1 && echo yes || echo no
             ORIGIN_IP=$(getent ahostsv4 "$FTP_SERVER" | awk 'NR==1{print $1}')
             for p in / /index.html /terms/ /new/ /sitemap.xml; do
               for via in origin cloudflare; do
