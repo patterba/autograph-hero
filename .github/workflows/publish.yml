@@ -16,11 +16,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Where the site lives on autographhero.com. "/new" while testing.
-  # To go live at the root, set this to "" and point the FTP account at public_html.
-  SITE_PATH: /new
-  # Keeps the test copy out of Google. Set to '0' when the site goes live.
-  SITE_NOINDEX: '1'
+  # Where the site lives on autographhero.com: "" = the domain root (live since Oct 25, 2026).
+  # The FTP account's folder must match (public_html for the root).
+  SITE_PATH: ''
+  # '1' keeps a test copy out of Google; '0' = live and indexed.
+  SITE_NOINDEX: '0'
 
 jobs:
   publish:
