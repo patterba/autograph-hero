@@ -109,3 +109,43 @@ jobs:
             mirror --reverse --no-perms --verbose=1 --exclude-glob signing/ dist/ ./;
             mirror --reverse --delete --no-perms --verbose=1 dist/signing/ ./signing/;
             quit"
+
+      # Writes a short report to the "deploy-check" branch: which top-level names are in
+      # the FTP folder, and what the site returns from Bluehost directly (skipping
+      # Cloudflare) and through Cloudflare. No logins, paths or IP addresses are written.
+      - name: Check what visitors get
+        if: steps.login.outputs.ready == 'true'
+        continue-on-error: true
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_CERT_FINGERPRINT: ${{ vars.FTP_CERT_FINGERPRINT || '1D:A4:47:AF:66:EC:58:06:8E:2B:AB:4C:38:BF:23:24:2B:26:D1:2D' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/check && cd /tmp/check
+          {
+            echo "Run: $(date -u +%FT%TZ)"
+            echo "## Names in the FTP folder"
+            lftp --env-password -u "$FTP_USERNAME" "$FTP_SERVER" -e "
+              set ftp:ssl-allow true; set ftp:ssl-force true; set ftp:ssl-protect-data true;
+              set ssl:verify-certificate/$FTP_CERT_FINGERPRINT no; set ftp:passive-mode true;
+              cls -1a; quit" 2>&1 | sed 's#.*/##' | sort | head -60
+            ORIGIN_IP=$(getent ahostsv4 "$FTP_SERVER" | awk 'NR==1{print $1}')
+            for p in / /index.html /terms/ /new/ /sitemap.xml; do
+              for via in origin cloudflare; do
+                if [ "$via" = origin ]; then R="--resolve autographhero.com:443:$ORIGIN_IP"; else R=""; fi
+                curl -sk -m 20 $R -A "Mozilla/5.0 deploy-check" -o body -D hdr "https://autographhero.com$p" || true
+                echo "## $p via $via"
+                grep -iE '^HTTP/|^location:|^cache-control:|^cf-cache-status:|^age:|^x-.*cache' hdr | tr -d '\r'
+                grep -o '<title>[^<]*' body | head -1
+                grep -o 'Updated [A-Za-z]*, [A-Za-z]* [0-9]*, 20[0-9]*' body | head -1
+                grep -c 'wp-content' body | sed 's/^/wp-content mentions: /'
+              done
+            done
+          } > report.txt 2>&1
+          git init -q -b deploy-check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add report.txt && git commit -q -m "Deploy check" 
+          git push -q --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" deploy-check
