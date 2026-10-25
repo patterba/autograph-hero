@@ -106,7 +106,8 @@ jobs:
             set ssl:verify-certificate/$FTP_CERT_FINGERPRINT no;
             set ftp:passive-mode true;
             set net:max-retries 2;
-            mirror --reverse --no-perms --verbose=1 --exclude-glob signing/ dist/ ./;
+            rm -r -f .git;
+            mirror --reverse --no-perms --verbose=1 --exclude-glob signing/ --exclude-glob .git/ dist/ ./;
             mirror --reverse --delete --no-perms --verbose=1 dist/signing/ ./signing/;
             quit"
 
