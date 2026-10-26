@@ -320,7 +320,7 @@ function moreCard(total, remaining, sport = null) {
 </a>`;
 }
 
-function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false }) {
+function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false, noindex = false }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: autograph signings and meet & greets`;
   return `<!doctype html>
 <html lang="en">
@@ -329,7 +329,7 @@ function page({ title, description, pathname, body, script = false, forms = fals
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(full)}</title>
 <meta name="description" content="${esc(description)}">
-${NOINDEX || admin ? '<meta name="robots" content="noindex, nofollow">' : ''}
+${NOINDEX || admin || noindex ? '<meta name="robots" content="noindex, nofollow">' : ''}
 <meta property="og:title" content="${esc(full)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:type" content="website">
@@ -949,6 +949,46 @@ function adminPage() {
   return page({ title: 'Admin', description: 'Autograph Hero admin.', pathname: '/admin/', body, admin: true });
 }
 
+// "Stop these emails" link from alert emails: /unsubscribe/?t=<token>. A button (not the
+// link itself) turns alerts off, so email scanners that open links can't unsubscribe anyone.
+function unsubscribePage() {
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">Alerts</div>
+  <h1>Stop alert emails?</h1>
+  <p class="lede">You'll stop getting emails about signings for your favorites. Your account stays, and you can turn alerts back on any time.</p>
+</section>
+<section class="band band-tight">
+  <div class="f-form f-narrow" data-unsub data-endpoint="${esc(FORMS_URL)}">
+    <div class="f-actions">
+      <button class="btn btn-accent" type="button" data-unsub-go>Yes, stop alert emails</button>
+      <a class="btn btn-ghost" href="${esc(link('/account/'))}">Change my favorites instead</a>
+    </div>
+    <p class="f-status" role="status" aria-live="polite" hidden></p>
+    <noscript><p class="notice">This needs JavaScript. You can also turn alerts off on your <a href="${esc(link('/account/'))}">account page</a>.</p></noscript>
+  </div>
+</section>
+<script>
+(function () {
+  var box = document.querySelector('[data-unsub]');
+  var go = box.querySelector('[data-unsub-go]');
+  var st = box.querySelector('.f-status');
+  var t = new URLSearchParams(location.search).get('t') || '';
+  function show(m, k) { st.hidden = false; st.className = 'f-status ' + (k || ''); st.textContent = m; }
+  if (!t) { go.disabled = true; show("This link is missing its code. You can turn alerts off on your account page.", 'is-error'); return; }
+  go.addEventListener('click', function () {
+    go.disabled = true;
+    show('Working…', '');
+    fetch(box.getAttribute('data-endpoint'), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify({ form: 'unsubscribe', token: t }) })
+      .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+      .then(function (r) { show((r && r.message) || 'Something went wrong. Please try again.', r && r.ok ? 'is-success' : 'is-error'); if (!(r && r.ok)) go.disabled = false; })
+      .catch(function () { show("We couldn't reach the server. Please try again.", 'is-error'); go.disabled = false; });
+  });
+})();
+</script>`;
+  return page({ title: 'Stop alert emails', description: 'Stop Autograph Hero alert emails.', pathname: '/unsubscribe/', body, admin: false, noindex: true });
+}
+
 function contactLine() {
   return CONTACT_EMAIL
     ? `email us at <a href="mailto:${esc(CONTACT_EMAIL)}">${esc(CONTACT_EMAIL)}</a>`
@@ -984,6 +1024,7 @@ function privacyPage() {
       <li><strong>When you log in:</strong> your login is remembered in your browser's storage on that device until you log out. If you forget your password, we email you a link to set a new one.</li>
       <li><strong>When you submit a signing:</strong> the event details you enter, plus your name (optional) and email address so we can follow up. We check every submission before it goes on the calendar. Your name and email are never shown on the site.</li>
       <li><strong>To stop spam:</strong> a scrambled, one-way code made from your internet (IP) address, used to limit how many forms one visitor can send in an hour. The Submit a Signing form also uses a Cloudflare Turnstile check to tell people from bots.</li>
+      <li><strong>Weekly alerts:</strong> once a week, if new signings were added for your favorites, we email you a short list with photos and links. Weeks with nothing new, you get nothing.</li>
       <li><strong>Site statistics:</strong> we use Cloudflare Web Analytics to count visits and popular pages. It does not use cookies and does not follow you to other websites.</li>
     </ul>`],
       ['What we don\'t do', `<p>We don't sell or rent your information, we don't show ads, and we don't use advertising or tracking cookies. We only email you about signings for the favorites you chose, and about your account (such as login links).</p>`],
@@ -1082,6 +1123,7 @@ async function main() {
   await put('privacy/index.html', privacyPage());
   await put('terms/index.html', termsPage());
   await put('admin/index.html', adminPage());
+  await put('unsubscribe/index.html', unsubscribePage());
   await put('404.html', page({
     title: 'Page not found',
     description: 'That page is not here.',

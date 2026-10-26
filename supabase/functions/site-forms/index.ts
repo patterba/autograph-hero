@@ -9,6 +9,8 @@
 //                     emails that signed up; the reply never says which.
 //   form = "login":   (older) emails a one-time login link through Supabase Auth.
 //   form = "delete_account": a logged-in member deletes their sign-up and their login.
+//   form = "unsubscribe": the "stop these emails" link in alert emails (token from the
+//                     subscriber row) turns alerts off without logging in.
 // These are public forms. JWT verification is off on purpose (the site's anon key is
 // public anyway); protection is validation, a hidden honeypot field, a minimum fill
 // time, a per-visitor hourly limit and, for submitted signings and sign-ups, a
@@ -474,6 +476,21 @@ async function deleteAccount(b: Record<string, unknown>) {
   return reply(200, { ok: true, message: "Your account and alert sign-up have been deleted." });
 }
 
+async function unsubscribe(b: Record<string, unknown>) {
+  const token = String(b.token || "");
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token)) {
+    return fail("That link doesn't look right. You can turn alerts off from your account page instead.");
+  }
+  const r = await db(`subscribers?unsubscribe_token=eq.${token}&select=id`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "unsubscribed", updated_at: new Date().toISOString() }),
+    headers: { Prefer: "return=representation" },
+  });
+  const rows = r.ok ? await r.json() : [];
+  if (!rows.length) return fail("We couldn't find that sign-up. It may already have been deleted.", 404);
+  return reply(200, { ok: true, message: "Done. You won't get alert emails from Autograph Hero anymore. Changed your mind? Turn them back on from your account page." });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
   if (req.method !== "POST") return fail("Not found", 404);
@@ -487,6 +504,7 @@ Deno.serve(async (req) => {
   }
 
   if (b.form === "delete_account") return deleteAccount(b);
+  if (b.form === "unsubscribe") return unsubscribe(b);
 
   // Bots: the hidden "website" field must stay empty and the form can't be sent instantly.
   const quick = b.form === "login" || b.form === "reset";
