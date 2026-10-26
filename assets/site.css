@@ -228,7 +228,7 @@ h1, h2, h3, p { margin: 0; }
 .f-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .f-field label, .f-label { font-size: 15px; font-weight: 600; }
 .req { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-left: 6px; }
-.f-form input[type='text'], .f-form input[type='email'], .f-form input[type='url'], .f-form input[type='date'], .f-form select, .f-form textarea {
+.f-form input[type='text'], .f-form input[type='email'], .f-form input[type='password'], .f-form input[type='url'], .f-form input[type='date'], .f-form select, .f-form textarea {
   width: 100%; border: 1.5px solid var(--ink); background: #FFFFFF; color: var(--ink); font: 500 17px var(--body); padding: 12px 14px; border-radius: 12px; min-height: 48px;
 }
 .f-form textarea { resize: vertical; }
