@@ -134,9 +134,12 @@
   Array.prototype.forEach.call(tabs, function (t) {
     t.addEventListener('click', function () { selectTab(t.getAttribute('data-tab')); });
   });
+  var currentTab = 'pending';
   function selectTab(name) {
+    currentTab = name;
     Array.prototype.forEach.call(tabs, function (t) { t.setAttribute('aria-selected', String(t.getAttribute('data-tab') === name)); });
     Object.keys(panes).forEach(function (k) { panes[k].hidden = k !== name; });
+    if (name === 'analytics' && !analyticsLoaded) loadAnalytics();
   }
 
   // ---- data
@@ -148,6 +151,7 @@
       renderFans(q.fans || [], q.tally || []);
       showView('panel');
       status(panelStatus, message || '', message ? 'is-success' : '');
+      if (currentTab === 'analytics') loadAnalytics(); else analyticsLoaded = false;
     }).catch(function (e) {
       if (e.expired) loggedOut(e.message);
       else { showView('panel'); status(panelStatus, e.message, 'is-error'); }
@@ -285,6 +289,236 @@
       tb.appendChild(tr);
     });
     table.appendChild(tb); wrap.appendChild(table); pane.appendChild(wrap);
+  }
+
+  // ---- analytics: our own numbers (admin_stats) plus visitors from Cloudflare (admin-analytics function)
+  var ANALYTICS = root.getAttribute('data-analytics');
+  var analyticsLoaded = false;
+  var visitorDays = 30;
+  var TYPE_PLURAL = { public: 'In person', private: 'Private', 'mail-in': 'Mail-in', unknown: 'Not sure' };
+  function num(n) { return Number(n || 0).toLocaleString('en-US'); }
+  function stat(grid, value, label) {
+    var d = el('div', 'stat');
+    d.appendChild(el('span', 'stat-n', value));
+    d.appendChild(el('span', 'stat-l', label));
+    grid.appendChild(d);
+  }
+  // Simple bar chart: one bar per day/week, height by value, the number on hover and for screen readers.
+  function bars(list, labelOf, valueOf, title) {
+    var max = list.reduce(function (m, x) { return Math.max(m, valueOf(x)); }, 0) || 1;
+    var wrap = el('figure', 'bars');
+    wrap.setAttribute('aria-label', title);
+    var row = el('div', 'bars-row');
+    list.forEach(function (x) {
+      var v = valueOf(x);
+      var b = el('div', 'bar');
+      b.title = labelOf(x) + ': ' + num(v);
+      var fill = el('span', 'bar-fill');
+      fill.style.height = Math.max(v ? 4 : 0, Math.round((v / max) * 100)) + '%';
+      b.appendChild(fill);
+      b.appendChild(el('span', 'sr-only', labelOf(x) + ': ' + num(v)));
+      row.appendChild(b);
+    });
+    wrap.appendChild(row);
+    var axis = el('figcaption', 'bars-axis');
+    if (list.length) {
+      axis.appendChild(el('span', null, labelOf(list[0])));
+      axis.appendChild(el('span', null, 'Highest: ' + num(max)));
+      axis.appendChild(el('span', null, labelOf(list[list.length - 1])));
+    }
+    wrap.appendChild(axis);
+    return wrap;
+  }
+  function topTable(title, list, cols) {
+    var box = el('div', 'stat-box');
+    box.appendChild(el('h3', null, title));
+    if (!list || !list.length) { box.appendChild(el('p', 'muted small', 'Nothing yet.')); return box; }
+    var t = el('table', 'admin-table');
+    var tb = el('tbody');
+    list.forEach(function (r) {
+      var tr = el('tr');
+      tr.appendChild(el('td', null, cols[0](r)));
+      tr.appendChild(el('td', 'num', cols[1](r)));
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); box.appendChild(t);
+    return box;
+  }
+  function shortDay(d) {
+    var x = new Date(String(d) + 'T12:00:00');
+    return isNaN(x) ? String(d) : x.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function loadAnalytics() {
+    analyticsLoaded = true;
+    var pane = panes.analytics;
+    pane.textContent = '';
+    var visitors = el('section', 'stat-section');
+    var site = el('section', 'stat-section');
+    pane.appendChild(visitors);
+    pane.appendChild(site);
+    visitors.appendChild(el('p', 'muted', 'Loading visitor numbers…'));
+    site.appendChild(el('p', 'muted', 'Loading…'));
+    rpc('admin_stats').then(function (st) { renderSiteStats(site, st); }).catch(function (e) {
+      if (e.expired) loggedOut(e.message); else { site.textContent = ''; site.appendChild(el('p', 'f-status is-error', e.message)); }
+    });
+    loadVisitors(visitors);
+  }
+
+  function loadVisitors(box) {
+    token().then(function (t) {
+      return fetch(ANALYTICS, { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify({ days: visitorDays }) });
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (r.status === 401 || r.status === 403) { var e = new Error('Your login has expired. Please log in again.'); e.expired = true; throw e; }
+        if (!r.ok) throw new Error(j.error || 'Could not load visitor numbers.');
+        renderVisitors(box, j);
+      });
+    }).catch(function (e) {
+      if (e.expired) { loggedOut(e.message); return; }
+      box.textContent = '';
+      box.appendChild(el('h2', 'admin-h2', 'Visitors'));
+      box.appendChild(el('p', 'f-status is-error', e.message));
+    });
+  }
+
+  function renderVisitors(box, d) {
+    box.textContent = '';
+    var head = el('div', 'stat-head');
+    head.appendChild(el('h2', 'admin-h2', 'Visitors'));
+    if (d.connected) {
+      var pick = el('div', 'stat-range');
+      [7, 30].forEach(function (n) {
+        var b = el('button', 'btn btn-ghost btn-sm', 'Last ' + n + ' days');
+        b.type = 'button';
+        b.setAttribute('aria-pressed', String(visitorDays === n));
+        b.addEventListener('click', function () { visitorDays = n; box.textContent = ''; box.appendChild(el('p', 'muted', 'Loading visitor numbers…')); loadVisitors(box); });
+        pick.appendChild(b);
+      });
+      head.appendChild(pick);
+    }
+    box.appendChild(head);
+
+    if (!d.connected) { box.appendChild(connectForm(false)); return; }
+    if (d.error) {
+      box.appendChild(el('p', 'f-status is-error', d.error));
+      box.appendChild(connectForm(true));
+      return;
+    }
+    if (d.empty) {
+      box.appendChild(el('p', 'notice', 'Connected to Cloudflare, but no visits to autographhero.com were recorded in the last ' + d.days + ' days. Numbers show up a few minutes after people visit.'));
+      box.appendChild(connectForm(true));
+      return;
+    }
+    var grid = el('div', 'stats');
+    stat(grid, num(d.totals.views), 'Page views');
+    stat(grid, num(d.totals.visits), 'Visits');
+    var perDay = d.byDay && d.byDay.length ? Math.round(d.totals.views / d.byDay.length) : 0;
+    stat(grid, num(perDay), 'Page views a day');
+    box.appendChild(grid);
+    if (d.byDay && d.byDay.length) {
+      box.appendChild(el('h3', 'stat-sub', 'Page views by day'));
+      box.appendChild(bars(d.byDay, function (x) { return shortDay(x.date); }, function (x) { return x.views; }, 'Page views by day'));
+    }
+    var cols = el('div', 'stat-cols');
+    cols.appendChild(topTable('Top pages', d.pages, [function (r) { return r.label || '/'; }, function (r) { return num(r.views); }]));
+    cols.appendChild(topTable('Where visitors came from', d.referrers, [function (r) { return r.label; }, function (r) { return num(r.visits); }]));
+    cols.appendChild(topTable('Countries', d.countries, [function (r) { return r.label || 'Unknown'; }, function (r) { return num(r.views); }]));
+    cols.appendChild(topTable('Devices', d.devices, [function (r) { return r.label ? r.label.charAt(0).toUpperCase() + r.label.slice(1) : 'Unknown'; }, function (r) { return num(r.views); }]));
+    box.appendChild(cols);
+    box.appendChild(el('p', 'muted small', 'From Cloudflare Web Analytics. A visit is someone arriving from another site or typing the address; page views count every page they open. Cloudflare samples busy sites, so numbers are close estimates.'));
+    box.appendChild(connectForm(true));
+  }
+
+  // Connect (or change) the Cloudflare API token. It's saved in the database's secret store,
+  // never shown again, and only the admin-analytics function reads it.
+  function connectForm(connected) {
+    var wrap = connected ? el('details', 'stat-connect') : el('div', 'stat-connect');
+    if (connected) wrap.appendChild(el('summary', null, 'Change Cloudflare connection'));
+    else {
+      wrap.appendChild(el('p', null, 'See how many people visit the site, which pages they look at and where they come from. This uses the Cloudflare Web Analytics already on the site. Connect it once:'));
+      var ol = el('ol', 'stat-steps');
+      [
+        'Log in at dash.cloudflare.com, click your profile icon (top right), then "My Profile" → "API Tokens".',
+        'Click "Create Token", scroll down and click "Get started" next to "Create Custom Token".',
+        'Name it "Autograph Hero analytics". Under Permissions pick: Account → Account Analytics → Read. Under Account Resources pick your account.',
+        'Click "Continue to summary", then "Create Token". Copy the token and paste it below.',
+      ].forEach(function (t) { ol.appendChild(el('li', null, t)); });
+      wrap.appendChild(ol);
+    }
+    var f = el('form', 'f-form');
+    f.noValidate = true;
+    var fs = el('fieldset');
+    function input(id, label, name, hint) {
+      var d = el('div', 'f-field');
+      var l = el('label', null, label); l.htmlFor = id;
+      var i = el('input'); i.id = id; i.name = name; i.type = name === 'token' ? 'password' : 'text'; i.autocomplete = 'off'; i.spellcheck = false;
+      d.appendChild(l); d.appendChild(i);
+      if (hint) d.appendChild(el('p', 'f-hint', hint));
+      fs.appendChild(d);
+    }
+    input('cf-token', 'Cloudflare API token', 'token');
+    input('cf-account', 'Account ID (optional)', 'account', 'Only needed if we can’t find it. It’s on the right side of your Cloudflare account home page.');
+    var actions = el('div', 'f-actions');
+    var save = el('button', 'btn btn-accent', connected ? 'Save new token' : 'Connect Cloudflare'); save.type = 'submit';
+    actions.appendChild(save);
+    if (connected) {
+      var off = el('button', 'btn btn-ghost', 'Disconnect'); off.type = 'button';
+      off.addEventListener('click', function () {
+        off.disabled = true;
+        rpc('admin_clear_cloudflare').then(function () { loadAnalytics(); }).catch(function (e) { status(st, e.message, 'is-error'); off.disabled = false; });
+      });
+      actions.appendChild(off);
+    }
+    fs.appendChild(actions);
+    var st = el('p', 'f-status'); st.hidden = true; st.setAttribute('role', 'status');
+    fs.appendChild(st);
+    f.appendChild(fs);
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var tok = f.elements.token.value.trim();
+      if (tok.length < 20) { status(st, 'Paste the whole token from Cloudflare.', 'is-error'); return; }
+      save.disabled = true;
+      status(st, 'Saving…', '');
+      rpc('admin_set_cloudflare', { p_token: tok, p_account: f.elements.account.value.trim() || null }).then(function () {
+        f.reset();
+        loadAnalytics();
+      }).catch(function (err) {
+        if (err.expired) loggedOut(err.message); else status(st, err.message, 'is-error');
+        save.disabled = false;
+      });
+    });
+    wrap.appendChild(f);
+    return wrap;
+  }
+
+  function renderSiteStats(box, st) {
+    box.textContent = '';
+    var m = st.members || {}, l = st.listings || {}, sub = st.submissions || {};
+    box.appendChild(el('h2', 'admin-h2', 'Members'));
+    var g1 = el('div', 'stats');
+    stat(g1, num(m.active), 'Getting alerts');
+    stat(g1, num(m.new7), 'New this week');
+    stat(g1, num(m.new30), 'New in 30 days');
+    stat(g1, num(m.off), 'Stopped alerts');
+    box.appendChild(g1);
+    if (st.weekly && st.weekly.length) {
+      box.appendChild(el('h3', 'stat-sub', 'Sign-ups by week'));
+      box.appendChild(bars(st.weekly, function (x) { return 'Week of ' + shortDay(x.week); }, function (x) { return x.n; }, 'Sign-ups by week'));
+    }
+    if (m.last_digest) box.appendChild(el('p', 'muted small', 'Last weekly alert email: ' + day(m.last_digest) + '.'));
+
+    box.appendChild(el('h2', 'admin-h2', 'Signings'));
+    var g2 = el('div', 'stats');
+    stat(g2, num(l.upcoming), 'Upcoming on the site');
+    stat(g2, num(l.new7), 'Added this week');
+    stat(g2, num(sub.pending), 'Submissions waiting');
+    stat(g2, num(sub.approved), 'Submissions approved');
+    box.appendChild(g2);
+    var cols = el('div', 'stat-cols');
+    cols.appendChild(topTable('Upcoming by sport', l.by_sport, [function (r) { return r.label; }, function (r) { return num(r.n); }]));
+    cols.appendChild(topTable('Upcoming by type', l.by_type, [function (r) { return TYPE_PLURAL[r.label] || r.label; }, function (r) { return num(r.n); }]));
+    box.appendChild(cols);
   }
 
   // ---- password change

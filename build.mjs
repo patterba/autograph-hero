@@ -1029,7 +1029,7 @@ function adminPage() {
   <div class="eyebrow accent">Admin</div>
   <h1 data-admin-title>Admin log in</h1>
 </section>
-<section class="band band-tight" data-admin data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}" data-site="${esc(link('/'))}">
+<section class="band band-tight" data-admin data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}" data-site="${esc(link('/'))}" data-analytics="${esc(`${SUPABASE_URL}/functions/v1/admin-analytics`)}">
   <form class="f-form f-narrow" data-view="login" novalidate>
     <fieldset>
       <legend>Log in to review signings</legend>
@@ -1046,6 +1046,7 @@ function adminPage() {
         <button role="tab" type="button" data-tab="pending" aria-selected="true">Waiting <span class="admin-count" data-count="pending"></span></button>
         <button role="tab" type="button" data-tab="reviewed" aria-selected="false">Reviewed</button>
         <button role="tab" type="button" data-tab="fans" aria-selected="false">Sign-ups <span class="admin-count" data-count="fans"></span></button>
+        <button role="tab" type="button" data-tab="analytics" aria-selected="false">Analytics</button>
         <button role="tab" type="button" data-tab="settings" aria-selected="false">Password</button>
       </div>
       <div class="admin-actions">
@@ -1057,6 +1058,7 @@ function adminPage() {
     <div data-pane="pending"></div>
     <div data-pane="reviewed" hidden></div>
     <div data-pane="fans" hidden></div>
+    <div data-pane="analytics" hidden></div>
     <form class="f-form f-narrow" data-pane="settings" hidden novalidate>
       <fieldset>
         <legend>Change your password</legend>
