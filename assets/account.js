@@ -22,7 +22,7 @@
   Array.prototype.forEach.call(root.querySelectorAll('[data-view]'), function (v) { views[v.getAttribute('data-view')] = v; });
   var title = document.querySelector('[data-account-title]');
   var lede = document.querySelector('[data-account-lede]');
-  var acct = views.account;
+  var acct = root.querySelector('[data-account-form]');
   var favInput = acct.querySelector('#m-fav');
   var favList = acct.querySelector('[data-fav-list]');
   var favorites = [];
@@ -32,7 +32,7 @@
     forgot: ['Reset your password', "We'll email you a link to set a new one."],
     setpw: ['Set a new password', 'Choose a new password for your account.'],
     loading: ['Your account', ''],
-    account: ['Your account', 'Change your favorites, pause alerts, or update your password.'],
+    account: ['Your account', 'Upcoming signings for your favorite teams and players, soonest first.'],
   };
   function showView(name) {
     Object.keys(views).forEach(function (k) { views[k].hidden = k !== name; });
@@ -226,12 +226,62 @@
     if (e.key === 'Enter') { e.preventDefault(); addFavorite(favInput.value); }
   });
 
+  // ---- tabs: Your Feed / Change Preferences
+  var tabs = root.querySelectorAll('[role="tab"][data-tab]');
+  var panes = root.querySelectorAll('[data-pane]');
+  function selectTab(name) {
+    Array.prototype.forEach.call(tabs, function (t) { t.setAttribute('aria-selected', String(t.getAttribute('data-tab') === name)); });
+    Array.prototype.forEach.call(panes, function (p) { p.hidden = p.getAttribute('data-pane') !== name; });
+    lede.textContent = name === 'feed'
+      ? 'Upcoming signings for your favorite teams and players, soonest first.'
+      : 'Change your favorites, pause alerts, or update your password.';
+  }
+  Array.prototype.forEach.call(root.querySelectorAll('[data-tab]'), function (b) {
+    b.addEventListener('click', function () { selectTab(b.getAttribute('data-tab')); });
+  });
+  Array.prototype.forEach.call(tabs, function (t, i) {
+    t.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      var next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      next.focus();
+      selectTab(next.getAttribute('data-tab'));
+    });
+  });
+
+  // ---- Your Feed: show the upcoming signings whose signer (or a team they played for)
+  // matches a favorite. "Broncos" matches "Denver Broncos". Same rule as the alert emails.
+  var feedCards = Array.prototype.slice.call(root.querySelectorAll('[data-feed] .card'));
+  function renderFeed(favs) {
+    var wanted = (favs || []).map(function (f) { return String(f).toLowerCase().trim(); }).filter(function (f) { return f.length >= 3; });
+    var shown = 0;
+    feedCards.forEach(function (c) {
+      var terms = (c.getAttribute('data-terms') || '').split('|');
+      var hit = wanted.length > 0 && terms.some(function (t) {
+        return t.length >= 3 && wanted.some(function (f) { return t.indexOf(f) !== -1 || (t.length >= 4 && f.indexOf(t) !== -1); });
+      });
+      c.hidden = !hit;
+      if (hit) shown++;
+    });
+    root.querySelector('[data-feed-count]').textContent = shown
+      ? shown + (shown === 1 ? ' upcoming signing' : ' upcoming signings') + ' for your favorites'
+      : '';
+    root.querySelector('[data-feed-empty]').hidden = shown !== 0;
+    var list = root.querySelector('[data-feed-favs]');
+    list.textContent = '';
+    (favs || []).forEach(function (f) {
+      var li = document.createElement('li');
+      li.textContent = f;
+      list.appendChild(li);
+    });
+  }
+
   function fill(data) {
     acct.elements.name.value = data.name || '';
     acct.querySelector('[data-email]').textContent = data.email || '';
     acct.elements.alerts.checked = !!data.alerts;
     favorites = Array.isArray(data.favorites) ? data.favorites.slice() : [];
     renderFavorites();
+    renderFeed(favorites);
   }
 
   function loadAccount(message) {
@@ -243,7 +293,10 @@
       }
       fill(data);
       showView('account');
-      status(acct.querySelector('[data-account-status]'), message || '', message ? 'is-success' : '');
+      selectTab('feed');
+      var first = String(data.name || '').trim().split(/\s+/)[0];
+      if (first) title.textContent = 'Hi, ' + first;
+      status(views.account.querySelector('[data-account-status]'), message || '', message ? 'is-success' : '');
     }).catch(function (e) {
       loggedOut(e.expired ? 'Your login has expired. Please log in again.' : "We couldn't load your account. Please try again.");
     });
@@ -288,7 +341,7 @@
     }).then(function () { b.disabled = false; });
   });
 
-  acct.querySelector('[data-logout]').addEventListener('click', function () {
+  root.querySelector('[data-logout]').addEventListener('click', function () {
     var t = session && session.access_token;
     if (t) fetch(API + '/auth/v1/logout', { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + t } }).catch(function () {});
     loggedOut("You're logged out.", 'is-success');

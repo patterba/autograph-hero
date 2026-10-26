@@ -340,3 +340,25 @@ h1, h2, h3, p { margin: 0; }
 .admin-table th, .admin-table td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .admin-table th { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 @media (max-width: 560px) { .admin-dl { grid-template-columns: 1fr; gap: 2px; } .admin-dl dd { margin-bottom: 8px; } }
+
+/* Member area: Your Feed / Change Preferences tabs */
+.member { display: flex; flex-direction: column; gap: 22px; }
+.member-tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1.5px solid var(--ink); }
+.member-tabs button { font: 600 17px var(--body); background: none; border: none; border-bottom: 3px solid transparent; padding: 12px 16px; cursor: pointer; color: var(--muted); margin-bottom: -1.5px; }
+.member-tabs button[aria-selected='true'] { color: var(--ink); border-bottom-color: var(--accent); }
+.member-tabs button:hover { color: var(--ink); }
+.feed-head { display: flex; flex-direction: column; gap: 10px; }
+.feed-count { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.feed-count:empty { display: none; }
+.feed-favs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.feed-favs li { padding: 5px 12px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); font-weight: 600; font-size: 14px; }
+.member-tabs { align-items: center; }
+.member-tabs .member-logout { margin-left: auto; margin-bottom: 6px; }
+@media (max-width: 520px) {
+  .member-tabs { flex-wrap: nowrap; gap: 0; }
+  .member-tabs button { font-size: 15px; padding: 10px 9px; white-space: nowrap; }
+  .member-tabs .member-logout { min-height: 36px; padding: 6px 12px; font-size: 14px; flex-shrink: 0; }
+}
+.member-tabs button.member-logout { border: 1.5px solid var(--ink); border-radius: 999px; color: var(--ink); font-size: 15px; padding: 8px 16px; min-height: 40px; }
+.member-tabs button.member-logout:hover { background: var(--ink); color: var(--paper); }
+@media (max-width: 520px) { .member-tabs button.member-logout { font-size: 14px; padding: 6px 12px; min-height: 36px; } }

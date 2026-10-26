@@ -803,6 +803,12 @@ function signupPage(list, athletes) {
 // "send me a login link" form and the account editor once the emailed link is used.
 function accountPage(list, athletes) {
   const sorted = favOptions(list, athletes);
+  // "Your Feed": every upcoming signing is in the page (hidden), tagged with its signers and
+  // their teams; account.js shows the ones that match the member's favorites, soonest first.
+  const feedCards = list.map((s) => {
+    const terms = [...s.names, ...(s.teams || [])].map((t) => String(t).toLowerCase().trim()).filter(Boolean).join('|');
+    return card(s).replace('<a class="card" ', `<a class="card" hidden data-terms="${esc(terms)}" `);
+  }).join('\n');
   const pw = (id, name, label, auto, hint = '') =>
     field(id, label, `<input id="${id}" name="${name}" type="password" required ${auto === 'new-password' ? 'minlength="8" ' : ''}maxlength="72" autocomplete="${auto}"${hint ? ` aria-describedby="${id}-hint"` : ''}>`, hint);
   const body = `
@@ -846,8 +852,25 @@ function accountPage(list, athletes) {
 
   <p class="notice" data-view="loading" hidden>Loading…</p>
 
-  <form class="f-form f-narrow" data-view="account" novalidate hidden>
+  <div class="member" data-view="account" hidden>
     <p class="f-status" role="status" aria-live="polite" data-account-status hidden></p>
+    <div class="member-tabs" role="tablist" aria-label="Your account">
+      <button role="tab" type="button" id="tab-feed" aria-controls="pane-feed" aria-selected="true" data-tab="feed">Your Feed</button>
+      <button role="tab" type="button" id="tab-prefs" aria-controls="pane-prefs" aria-selected="false" data-tab="prefs">Change Preferences</button>
+      <button class="btn btn-ghost btn-sm member-logout" type="button" data-logout>Log out</button>
+    </div>
+    <div class="member-pane" role="tabpanel" id="pane-feed" aria-labelledby="tab-feed" data-pane="feed">
+      <div class="feed-head">
+        <p class="feed-count" data-feed-count></p>
+        <ul class="feed-favs" aria-label="Your favorites" data-feed-favs></ul>
+      </div>
+      <div class="grid grid-feed" data-feed>${feedCards}</div>
+      <div class="empty" data-feed-empty hidden>
+        <p><strong>No upcoming signings for your favorites right now.</strong> We'll email you as soon as one is added.</p>
+        <div class="f-actions"><button class="btn btn-accent" type="button" data-tab="prefs">Add more favorites</button><a class="btn btn-ghost" href="${esc(link('/events/'))}">See all signings</a></div>
+      </div>
+    </div>
+  <form class="f-form f-narrow member-pane" role="tabpanel" id="pane-prefs" aria-labelledby="tab-prefs" data-pane="prefs" data-account-form novalidate hidden>
     <fieldset>
       <legend><span class="f-n">01</span>Your details</legend>
       <div class="f-row">
@@ -870,7 +893,6 @@ function accountPage(list, athletes) {
     </fieldset>
     <div class="f-actions">
       <button class="btn btn-accent" type="submit">Save changes</button>
-      <button class="btn btn-ghost" type="button" data-logout>Log out</button>
     </div>
     <p class="f-status" role="status" aria-live="polite" data-save-status hidden></p>
     <fieldset data-change-pw>
@@ -892,6 +914,7 @@ function accountPage(list, athletes) {
       </div>
     </div>
   </form>
+  </div>
   <noscript><p class="notice">Logging in needs JavaScript turned on.</p></noscript>
 </section>`;
   return page({ title: 'Log in', description: 'Log in to change your favorite teams and players, pause alerts or delete your account.', pathname: '/account/', body, account: true });
