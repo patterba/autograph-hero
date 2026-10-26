@@ -60,7 +60,7 @@ h1, h2, h3, p { margin: 0; }
 /* Photos: striped placeholder shows when there is no image or it fails to load */
 .photo { position: relative; width: 100%; height: 100%; overflow: hidden; background-color: #E9E1D2; background-image: repeating-linear-gradient(135deg, rgba(22, 24, 29, 0.06) 0 12px, transparent 12px 24px); }
 .photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
-.photo-large { aspect-ratio: 4 / 3; border: 1.5px solid var(--ink); border-radius: 20px; }
+.photo-large { aspect-ratio: 4 / 3; border: 1.5px solid var(--ink); border-radius: 20px; width: min(100%, 640px, calc(56vh * 4 / 3)); min-width: min(100%, 320px); }
 .credit { font-size: 13px; color: var(--muted); margin-top: -16px; }
 .credits { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; max-width: 70ch; }
 
@@ -401,3 +401,16 @@ h1, h2, h3, p { margin: 0; }
 /* Type-ahead boxes (favorites, Fan Pass): no browser drop-down arrow; the list still opens as you type or click */
 input[list]::-webkit-calendar-picker-indicator { display: none !important; }
 .fav-how { margin-top: -2px; }
+
+/* Signing page: photo kept to a sensible size (promoter photos are often small and look soft
+   when blown up); on wide screens the "how it works" and prices sit beside it. */
+.detail-photo, .detail-text { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+@media (min-width: 1440px) {
+  .detail-main { flex-direction: row; align-items: flex-start; gap: clamp(28px, 3vw, 48px); }
+  .detail-photo { flex: 0 0 min(48%, 600px); }
+  .detail-photo .photo-large { width: 100%; }
+  .detail-text { flex: 1; }
+  .detail-text > h2:first-child { margin-top: 0; }
+}
+.photo-large { background: var(--card); }
+.photo-large img { object-fit: contain; object-position: center; }

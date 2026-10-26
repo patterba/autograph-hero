@@ -710,8 +710,11 @@ function signingPage(s, list) {
 ${crumbsNav(trail)}
 <section class="detail">
   <div class="detail-main">
+    <div class="detail-photo">
     ${photo(s, 'photo-large', 'main-photo')}
     ${credit}
+    </div>
+    <div class="detail-text">
     <h2>How this signing works</h2>
     <p class="lede">${esc(TYPE_BLURB[s.type])}</p>
     ${s.prices.length ? `<h2>Prices</h2>
@@ -721,6 +724,7 @@ ${crumbsNav(trail)}
       <span>${ICON.plus}</span>
       <span><strong>Know about another ${esc(s.names[0] || 'signing')}${s.names[0] ? ' signing' : ''}?</strong> Fans add signings we miss. Submit it and we'll put it on the calendar.</span>
     </a>
+    </div>
   </div>
   <aside class="ticket">
     <div class="ticket-top">
