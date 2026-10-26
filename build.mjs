@@ -897,13 +897,17 @@ function accountPage(list, athletes) {
   const pw = (id, name, label, auto, hint = '') =>
     field(id, label, `<input id="${id}" name="${name}" type="password" required ${auto === 'new-password' ? 'minlength="8" ' : ''}maxlength="72" autocomplete="${auto}"${hint ? ` aria-describedby="${id}-hint"` : ''}>`, hint);
   const body = `
-<section class="page-head">
+<section class="page-head" data-account-head hidden>
   <div class="eyebrow accent">Members</div>
   <h1 data-account-title>Log in</h1>
   <p class="lede" data-account-lede>Log in with the email and password you signed up with.</p>
 </section>
 <section class="band band-tight" data-account data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}" data-endpoint="${esc(FORMS_URL)}" data-path="${esc(BASE)}">
-  <form class="f-form f-narrow" data-view="login" novalidate>
+  <form class="f-form login-split" data-view="login" novalidate>
+    <div class="login-hello">
+      <h1 class="login-hello-big">Welcome back</h1>
+      <p class="login-hello-sub">Never Miss Another Autograph</p>
+    </div>
     <fieldset>
       <legend>Log in</legend>
       ${field('a-email', 'Email', '<input id="a-email" name="email" type="email" required maxlength="254" autocomplete="username">')}
@@ -911,7 +915,7 @@ function accountPage(list, athletes) {
       <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.user}Log in</button><button class="btn btn-ghost" type="button" data-show="forgot">Forgot password?</button></div>
       <p class="f-status" role="status" aria-live="polite" hidden></p>
     </fieldset>
-    <p class="muted small">No account yet? <a href="${esc(link('/signup/'))}">Sign up</a> to get alerts when your favorites have a signing.</p>
+    <p class="muted small login-note">No account yet? <a href="${esc(link('/signup/'))}">Sign up</a> to get alerts when your favorites have a signing.</p>
   </form>
 
   <form class="f-form f-narrow" data-view="forgot" novalidate hidden>

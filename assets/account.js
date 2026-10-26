@@ -34,8 +34,11 @@
     loading: ['Your account', ''],
     account: ['Your account', 'Upcoming signings for your favorite teams and players, soonest first.'],
   };
+  var head = document.querySelector('[data-account-head]');
   function showView(name) {
     Object.keys(views).forEach(function (k) { views[k].hidden = k !== name; });
+    // The login view has its own big "Welcome back" heading, so the page title only shows on the others.
+    if (head) head.hidden = name === 'login';
     title.textContent = COPY[name][0];
     lede.textContent = COPY[name][1];
     lede.hidden = !COPY[name][1];

@@ -385,3 +385,15 @@ h1, h2, h3, p { margin: 0; }
 }
 .hub-list { padding-top: clamp(16px, 2vw, 32px); }
 .dir-group { padding-bottom: 8px; }
+
+/* Log in: a big "Welcome back" beside the login box (above it on phones) */
+.login-split { max-width: 1120px; padding-top: clamp(16px, 3vw, 40px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-areas: 'hello box' 'hello note'; gap: 16px clamp(24px, 4vw, 64px); align-items: center; }
+.login-split > fieldset { grid-area: box; }
+.login-split > .login-note { grid-area: note; }
+.login-hello { grid-area: hello; display: flex; flex-direction: column; gap: 14px; }
+.login-hello-big { font-family: var(--display); font-weight: 400; font-size: clamp(52px, 7vw, 104px); line-height: 0.92; text-transform: uppercase; color: var(--ink); }
+.login-hello-sub { font-size: clamp(18px, 1.8vw, 24px); font-weight: 700; color: var(--accent); }
+@media (max-width: 800px) {
+  .login-split { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'hello' 'box' 'note'; }
+  .login-hello { gap: 8px; }
+}
