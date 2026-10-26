@@ -876,7 +876,7 @@ function signupPage(list, athletes) {
     <label class="f-check"><input type="checkbox" name="consent" required checked> Email me when my favorites have a signing. I can unsubscribe at any time.</label>
     ${honeypot}
     ${captchaBox()}
-    <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.bell}Sign up for alerts</button></div>
+    <div class="f-actions"><button class="btn btn-accent" type="submit">${ICON.bell}Sign Up</button></div>
     ${formStatus}
     <p class="muted small">Already have an account? <a href="${esc(link('/account/'))}">Log in</a> to change your favorites. See our <a href="${esc(link('/privacy/'))}">privacy policy</a>.</p>
   </form>
