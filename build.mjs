@@ -81,6 +81,7 @@ const nextDay = (s) => new Date(toUTC(s).getTime() + 86400000).toISOString().sli
 const TODAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date());
 
 function money(n) {
+  if (n === null || n === undefined || n === '') return null;
   const v = Number(n);
   if (!Number.isFinite(v)) return null;
   return '$' + v.toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2 });
