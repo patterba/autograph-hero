@@ -127,7 +127,7 @@ const LOGO_URL = "https://raw.githubusercontent.com/patterba/autograph-hero/main
 // Logo band at the top of every email. Hosted on GitHub (not autographhero.com) because the
 // site's Cloudflare bot check can block the servers email apps use to load images.
 const emailHeader = () =>
-  `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F1E7;border-bottom:2px solid #16181D;margin:0 0 20px"><tr><td style="padding:12px 16px"><a href="https://autographhero.com/"><img src="${LOGO_URL}" width="160" height="96" alt="Autograph Hero" style="display:block;border:0;outline:none;width:160px;height:96px"></a></td></tr></table>`;
+  `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F1E7;border-bottom:2px solid #16181D;margin:0 0 20px"><tr><td width="160" valign="middle" style="padding:12px 0 12px 16px"><a href="https://autographhero.com/"><img src="${LOGO_URL}" width="160" height="96" alt="Autograph Hero" style="display:block;border:0;outline:none;width:160px;height:96px"></a></td><td valign="middle" align="right" style="padding:12px 16px 12px 12px;font-family:Helvetica,Arial,sans-serif;font-size:20px;line-height:1.2;font-weight:800;color:#C2410C;font-style:italic">Never miss a signing!</td></tr></table>`;
 
 function digest(sub: { name: string; unsubscribe_token: string }, fresh: Signing[], upcoming: Signing[]) {
   const first = String(sub.name || "").split(" ")[0] || "there";
