@@ -864,11 +864,11 @@ function signupPage(list, athletes) {
       <legend><span class="f-n">02</span>Your favorites</legend>
       <div class="f-field">
         <label for="s-fav">Add a team, player or person <span class="req">At least one</span></label>
+        <p class="f-hint fav-how" id="s-fav-hint">Choose from the list or add your own manually, then press Add. You can add up to 25.</p>
         <div class="fav-entry">
           <input id="s-fav" type="text" list="fav-options" maxlength="80" autocomplete="off" placeholder="e.g. Denver Broncos or John Elway" aria-describedby="s-fav-hint">
           <button class="btn btn-ghost" type="button" data-fav-add>Add</button>
         </div>
-        <p class="f-hint" id="s-fav-hint">Pick from the list or type your own, then press Add. You can add up to 25.</p>
         <datalist id="fav-options">${sorted.map((o) => `<option value="${esc(o)}"></option>`).join('')}</datalist>
         <ul class="fav-list" aria-label="Your favorites" data-fav-list></ul>
       </div>
@@ -971,8 +971,9 @@ function accountPage(list, athletes) {
       <legend><span class="f-n">02</span>Your favorites</legend>
       <div class="f-field">
         <label for="m-fav">Add a team, player or person</label>
+        <p class="f-hint fav-how" id="m-fav-hint">Choose from the list or add your own manually, then press Add.</p>
         <div class="fav-entry">
-          <input id="m-fav" type="text" list="m-fav-options" maxlength="80" autocomplete="off" placeholder="e.g. Denver Broncos or John Elway">
+          <input id="m-fav" type="text" list="m-fav-options" maxlength="80" autocomplete="off" placeholder="e.g. Denver Broncos or John Elway" aria-describedby="m-fav-hint">
           <button class="btn btn-ghost" type="button" data-fav-add>Add</button>
         </div>
         <datalist id="m-fav-options">${sorted.map((o) => `<option value="${esc(o)}"></option>`).join('')}</datalist>

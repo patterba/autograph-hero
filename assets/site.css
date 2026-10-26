@@ -397,3 +397,7 @@ h1, h2, h3, p { margin: 0; }
   .login-split { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'hello' 'box' 'note'; }
   .login-hello { gap: 8px; }
 }
+
+/* Type-ahead boxes (favorites, Fan Pass): no browser drop-down arrow; the list still opens as you type or click */
+input[list]::-webkit-calendar-picker-indicator { display: none !important; }
+.fav-how { margin-top: -2px; }
