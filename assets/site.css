@@ -362,3 +362,6 @@ h1, h2, h3, p { margin: 0; }
 .member-tabs button.member-logout { border: 1.5px solid var(--ink); border-radius: 999px; color: var(--ink); font-size: 15px; padding: 8px 16px; min-height: 40px; }
 .member-tabs button.member-logout:hover { background: var(--ink); color: var(--paper); }
 @media (max-width: 520px) { .member-tabs button.member-logout { font-size: 14px; padding: 6px 12px; min-height: 36px; } }
+/* Breathing room between the favorites row and the feed cards */
+.feed-head { margin-bottom: 24px; }
+.feed-favs { row-gap: 10px; }
