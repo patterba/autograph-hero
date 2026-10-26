@@ -365,3 +365,23 @@ h1, h2, h3, p { margin: 0; }
 /* Breathing room between the favorites row and the feed cards */
 .feed-head { margin-bottom: 24px; }
 .feed-favs { row-gap: 10px; }
+
+/* Signer, team and sport pages, and the A–Z lists */
+.hub-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 24px 48px; }
+.hub-copy { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.hub-copy .btn { align-self: flex-start; margin-top: 8px; }
+.hub-photo { margin: 0; flex: 0 0 auto; width: clamp(160px, 18vw, 240px); }
+.hub-photo img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 20%; border: 1.5px solid var(--ink); border-radius: 16px; background: var(--paper-alt); }
+.hub-photo .credit { margin-top: 8px; font-size: 12px; }
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.chips a { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); font-weight: 600; font-size: 15px; text-decoration: none; }
+.chips a:hover { border-color: var(--accent); }
+.chip-n { background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 1px 8px; font-family: var(--mono); font-size: 12px; }
+.dir-h { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 2.6vw, 34px); text-transform: uppercase; line-height: 1; }
+.ticket dd a { text-underline-offset: 3px; }
+@media (max-width: 640px) {
+  .hub-head { flex-direction: column-reverse; align-items: flex-start; }
+  .hub-photo { width: 140px; }
+}
+.hub-list { padding-top: clamp(16px, 2vw, 32px); }
+.dir-group { padding-bottom: 8px; }

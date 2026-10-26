@@ -55,6 +55,9 @@ jobs:
           CF_ANALYTICS_TOKEN: ${{ vars.CF_ANALYTICS_TOKEN }}
           # Contact address shown on the Terms and Privacy pages.
           CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
+          # Search engine ownership codes (public), from Google Search Console / Bing Webmaster Tools.
+          GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
+          BING_SITE_VERIFICATION: ${{ vars.BING_SITE_VERIFICATION }}
 
       # Keeps the latest built site on the "built-site" branch (one commit, replaced
       # each run). Useful for previews, or to upload to Bluehost by hand.

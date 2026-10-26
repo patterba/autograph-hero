@@ -30,6 +30,12 @@ const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.C
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 // Date the Terms and Privacy pages were last changed. Update it when you edit them.
 const POLICY_DATE = '2026-10-25';
+// The live address, for canonical links, the sitemap and share previews.
+const ORIGIN = (process.env.SITE_ORIGIN || 'https://autographhero.com').replace(/\/$/, '');
+// Search engine ownership checks (Google Search Console / Bing Webmaster Tools, "HTML tag" method).
+// These codes are public: they only prove who owns the site. GitHub variables can override them.
+const GOOGLE_VERIFY = (process.env.GOOGLE_SITE_VERIFICATION || '').trim();
+const BING_VERIFY = (process.env.BING_SITE_VERIFICATION || '').trim();
 const US_STATES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ');
 const SPORT_CHOICES = ['Football', 'Baseball', 'Basketball', 'Hockey', 'Soccer', 'Wrestling', 'MMA', 'Golf', 'Racing', 'Entertainment', 'Other'];
 
@@ -87,6 +93,10 @@ function joinNames(names) {
 }
 
 const link = (p) => `${BASE}${p}`;
+const abs = (p) => ORIGIN + link(p);
+// Structured data for search engines. "<" is escaped so scraped text can't close the script tag.
+const jsonLd = (o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`;
+const mdy = (s) => fmt(s, { month: 'short', day: 'numeric', year: 'numeric' });
 // Asset links carry a short hash of the file, so browsers and the host's cache
 // fetch the new CSS/JS as soon as it changes instead of keeping an old copy.
 const asset = (p) => {
@@ -219,6 +229,8 @@ function shape(row, athletes) {
     location: [row.venue, row.city, row.state].filter(Boolean).join(', '),
     priceMin,
     priceMax,
+    priceLow: Number.isFinite(Number(row.price_min)) && row.price_min !== null ? Number(row.price_min) : null,
+    priceHigh: Number.isFinite(Number(row.price_max)) && row.price_max !== null ? Number(row.price_max) : null,
     prices,
     sport: row.sport || null,
     teamCity: row.team_city || null,
@@ -320,8 +332,14 @@ function moreCard(total, remaining, sport = null) {
 </a>`;
 }
 
-function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false, noindex = false }) {
-  const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: autograph signings and meet & greets`;
+// noindex: true keeps a page out of search results; 'follow' does the same but lets search engines follow its links.
+// image: an absolute photo URL for share previews (defaults to assets/social.png). ld: structured data objects.
+function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false, noindex = false, image = null, imageAlt = null, ld = [], ogType = 'website' }) {
+  const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: Autograph Signings, Meet & Greets and Mail-Ins`;
+  const hidden = NOINDEX || admin || noindex;
+  const robots = NOINDEX || admin ? 'noindex, nofollow' : noindex === 'follow' ? 'noindex, follow' : noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
+  const canonical = pathname.endsWith('/') ? abs(pathname) : null;
+  const shareImage = image || abs('/assets/social.png');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -329,10 +347,20 @@ function page({ title, description, pathname, body, script = false, forms = fals
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(full)}</title>
 <meta name="description" content="${esc(description)}">
-${NOINDEX || admin || noindex ? '<meta name="robots" content="noindex, nofollow">' : ''}
-<meta property="og:title" content="${esc(full)}">
+<meta name="robots" content="${robots}">
+${canonical && !hidden ? `<link rel="canonical" href="${esc(canonical)}">` : ''}
+${GOOGLE_VERIFY && pathname === '/' ? `<meta name="google-site-verification" content="${esc(GOOGLE_VERIFY)}">` : ''}
+${BING_VERIFY && pathname === '/' ? `<meta name="msvalidate.01" content="${esc(BING_VERIFY)}">` : ''}
+<meta property="og:site_name" content="${SITE_NAME}">
+<meta property="og:title" content="${esc(title || full)}">
 <meta property="og:description" content="${esc(description)}">
-<meta property="og:type" content="website">
+<meta property="og:type" content="${esc(ogType)}">
+${canonical ? `<meta property="og:url" content="${esc(canonical)}">` : ''}
+<meta property="og:image" content="${esc(shareImage)}">
+${image ? '' : '<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">'}
+<meta property="og:image:alt" content="${esc(imageAlt || `${SITE_NAME}: never miss a signing`)}">
+<meta name="twitter:card" content="${image ? 'summary' : 'summary_large_image'}">
+${hidden ? '' : ld.filter(Boolean).map(jsonLd).join('\n')}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Yellowtail&family=IBM+Plex+Mono:wght@500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap">
@@ -366,7 +394,7 @@ ${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
 <footer class="site-footer">
   <div class="brand">${ICON.logo}</div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
-  <p class="small footer-links"><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
+  <p class="small footer-links"><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''}
@@ -467,7 +495,7 @@ ${moreCard(list.length, list.length - soon.length)}</div>` : '<p class="empty">N
 ${sports.length ? `<section class="band band-alt">
   <div class="section-head"><h2>Browse by sport</h2></div>
   <div class="tiles">
-    ${sports.map(([sp, n]) => `<a class="tile" href="${esc(link(`/events/?sport=${encodeURIComponent(sp)}`))}"><span class="tile-name">${esc(sp)}</span><span class="mono">${n} signing${n === 1 ? '' : 's'} ${ICON.arrow}</span></a>`).join('\n    ')}
+    ${sports.map(([sp, n]) => `<a class="tile" href="${esc(link(sportPath(sp)))}"><span class="tile-name">${esc(sp)}</span><span class="mono">${n} signing${n === 1 ? '' : 's'} ${ICON.arrow}</span></a>`).join('\n    ')}
   </div>
 </section>` : ''}
 
@@ -499,9 +527,19 @@ ${sports.length ? `<section class="band band-alt">
 
   return page({
     title: '',
-    description: 'Find upcoming autograph signings and meet & greets with athletes and celebrities. Dates, prices and order deadlines in one place.',
+    description: `Find ${list.length} upcoming autograph signings, meet & greets and mail-in signings with athletes and celebrities. Dates, prices and order deadlines, plus email alerts for your favorites.`,
     pathname: '/',
     body,
+    ld: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: SITE_NAME,
+        url: abs('/'),
+        potentialAction: { '@type': 'SearchAction', target: { '@type': 'EntryPoint', urlTemplate: `${abs('/events/')}?q={search_term_string}` }, 'query-input': 'required name=search_term_string' },
+      },
+      { '@context': 'https://schema.org', '@type': 'Organization', name: SITE_NAME, url: abs('/'), logo: abs('/assets/email-logo.png') },
+    ],
   });
 }
 
@@ -560,7 +598,7 @@ function eventsPage(list) {
   </div>
 </section>`;
   return page({
-    title: 'Upcoming signings',
+    title: 'Upcoming Autograph Signings and Meet & Greets',
     description: `Browse ${list.length} upcoming autograph signings. Filter by athlete, sport, state or signing type.`,
     pathname: '/events/',
     body,
@@ -596,6 +634,61 @@ function calendarFor(s) {
   return { google: `https://calendar.google.com/calendar/render?${g}`, file, isDeadline };
 }
 
+// Search result title and summary for a signing: who, what kind, where and when, and the price.
+const KIND = { public: 'Autograph Signing', private: 'Private Signing', 'mail-in': 'Mail-In Signing', unknown: 'Autograph Signing' };
+function signingMeta(s) {
+  const where = s.type === 'public' && s.place ? ` in ${s.place}` : '';
+  const title = `${s.name} ${KIND[s.type]}${where}${s.eventDate ? ` (${mdy(s.eventDate)})` : ''}`;
+  const venue = s.venue ? s.venue.split(',')[0] : null;
+  const on = s.eventDate ? ` on ${shortDate(s.eventDate)}${s.timeText && s.type === 'public' ? `, ${s.timeText}` : ''}` : '';
+  const by = s.deadline && !s.deadlinePassed && s.deadline !== s.eventDate ? ` Order by ${fmt(s.deadline, { month: 'short', day: 'numeric' })}.` : '';
+  const lead = {
+    public: `Meet ${s.name}${venue ? ` at ${venue}` : ''}${s.place ? `, ${s.place}` : ''}${on}.`,
+    private: `${s.name} private signing${s.source ? ` with ${s.source}` : ''}${on}: send in your item and get it signed.`,
+    'mail-in': `Get an autograph from ${s.name} by mail${s.source ? ` through ${s.source}` : ''}${on}.`,
+    unknown: `${s.name} autograph signing${on}.`,
+  }[s.type];
+  const price = s.priceMin ? ` Autographs from ${s.priceMin}.` : '';
+  return {
+    title,
+    description: `${lead}${by}${price}`,
+    image: s.photo?.url || null,
+    imageAlt: s.name,
+  };
+}
+
+// schema.org Event, which lets Google show the signing in event search results. Only for
+// in-person signings with a date and a place; mail-ins aren't events you can go to.
+function eventLd(s) {
+  if (s.type !== 'public' || !s.eventDate || !(s.venue || s.city)) return null;
+  const us = s.state && US_STATES.includes(s.state);
+  const offer = s.listingUrl
+    ? s.priceLow !== null && s.priceHigh !== null && s.priceHigh > s.priceLow
+      ? { '@type': 'AggregateOffer', url: s.listingUrl, lowPrice: s.priceLow, highPrice: s.priceHigh, priceCurrency: 'USD' }
+      : { '@type': 'Offer', url: s.listingUrl, ...(s.priceLow !== null ? { price: s.priceLow, priceCurrency: 'USD' } : {}), availability: 'https://schema.org/InStock' }
+    : undefined;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: `${s.name} Autograph Signing`,
+    description: signingMeta(s).description,
+    startDate: s.eventDate,
+    endDate: s.eventDate,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: {
+      '@type': 'Place',
+      name: s.venue || s.place,
+      address: { '@type': 'PostalAddress', addressLocality: s.city || undefined, addressRegion: s.state || undefined, addressCountry: us ? 'US' : undefined },
+    },
+    image: s.photo ? [s.photo.url] : undefined,
+    url: abs(`/signing/${s.slug}/`),
+    performer: s.names.length ? s.names.map((n) => ({ '@type': 'Person', name: n })) : undefined,
+    organizer: s.source ? { '@type': 'Organization', name: s.source, url: s.listingUrl ? new URL(s.listingUrl).origin : undefined } : undefined,
+    offers: offer,
+  };
+}
+
 function signingPage(s, list) {
   const cal = calendarFor(s);
   // 5 related + the "See more" card = 6, which fills complete rows at 3, 2 or 1 per row.
@@ -608,15 +701,12 @@ function signingPage(s, list) {
     s.deadline ? ['Order by', `${longDate(s.deadline)}${s.deadlinePassed ? ' (passed)' : ''}`] : null,
     s.venue ? ['Venue', s.venue] : null,
     s.place ? ['City', s.place] : null,
-    s.teams.length ? [s.teams.length === 1 ? 'Team' : 'Teams', s.teams.join(', '), 'wide'] : null,
+    s.teams.length ? [s.teams.length === 1 ? 'Team' : 'Teams', { html: s.teams.map((t) => `<a href="${esc(link(teamPath(slugify(t))))}">${esc(t)}</a>`).join(', ') }, 'wide'] : null,
   ].filter(Boolean);
+  const trail = [['Home', '/'], ...(s.sport ? [[s.sport, sportPath(s.sport)]] : [['All signings', '/events/']]), [s.name, `/signing/${s.slug}/`]];
 
   const body = `
-<nav class="crumbs" aria-label="Breadcrumb">
-  <a href="${esc(link('/events/'))}">All signings</a><span aria-hidden="true">/</span>
-  ${s.sport ? `<a href="${esc(link(`/events/?sport=${encodeURIComponent(s.sport)}`))}">${esc(s.sport)}</a><span aria-hidden="true">/</span>` : ''}
-  <span>${esc(s.name)}</span>
-</nav>
+${crumbsNav(trail)}
 <section class="detail">
   <div class="detail-main">
     ${photo(s, 'photo-large', 'main-photo')}
@@ -640,7 +730,7 @@ function signingPage(s, list) {
     <div class="tear"></div>
     <div class="ticket-body">
       ${s.deadlinePassed ? '<p class="notice">The order deadline listed for this signing has passed. Check with the organizer for late availability.</p>' : ''}
-      <dl>${rows.map(([k, v, wide]) => `<div${wide ? ' class="wide"' : ''}><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+      <dl>${rows.map(([k, v, wide]) => `<div${wide ? ' class="wide"' : ''}><dt>${esc(k)}</dt><dd>${v?.html ?? esc(v)}</dd></div>`).join('')}</dl>
       ${s.priceMin ? `<div class="from"><span class="eyebrow">Price</span><span class="from-n">${esc(s.priceMax && s.priceMax !== s.priceMin ? `${s.priceMin} to ${s.priceMax}` : s.priceMin)}</span></div>` : ''}
       ${s.listingUrl ? `<a class="btn btn-accent btn-block" href="${esc(s.listingUrl)}" rel="noopener" target="_blank">${s.type === 'public' ? 'Get tickets' : 'Order'} at ${esc(s.host)} ${ICON.out}</a>` : ''}
       ${cal ? `<div class="cal">
@@ -652,6 +742,7 @@ function signingPage(s, list) {
       </div>` : ''}
       ${mapUrl ? `<a class="maplink" href="${esc(mapUrl)}" rel="noopener" target="_blank">${ICON.pin}Open in Google Maps</a>` : ''}
       ${s.names.length ? `<a class="maplink" href="${esc(link(`/signup/?fav=${encodeURIComponent(s.names[0])}`))}">${ICON.bell}Email me when ${esc(s.names[0])} signs again</a>` : ''}
+      ${s.names.filter((n) => slugify(n)).map((n) => `<a class="maplink" href="${esc(link(signerPath(slugify(n))))}">${ICON.arrow}All ${esc(n)} signings</a>`).join('\n      ')}
       <p class="muted small">Details can change. Confirm with the organizer before you order or travel.</p>
     </div>
   </aside>
@@ -662,15 +753,8 @@ ${more.length ? `<section class="band band-alt">
 ${moreCard(list.length, null, s.sport)}</div>
 </section>` : ''}`;
 
-  const when = s.eventDate ? ` on ${longDate(s.eventDate)}` : '';
-  const where = s.place && s.type === 'public' ? ` in ${s.place}` : '';
   return {
-    html: page({
-      title: `${s.name} autograph signing`,
-      description: `${s.name} ${TYPE_LABEL[s.type].toLowerCase()} autograph signing${when}${where}. Prices, order deadline and how to take part.`,
-      pathname: `/signing/${s.slug}/`,
-      body,
-    }),
+    html: page({ ...signingMeta(s), pathname: `/signing/${s.slug}/`, body, ld: [breadcrumbLd(trail), eventLd(s)] }),
     ics: cal ? cal.file : null,
   };
 }
@@ -917,7 +1001,7 @@ function accountPage(list, athletes) {
   </div>
   <noscript><p class="notice">Logging in needs JavaScript turned on.</p></noscript>
 </section>`;
-  return page({ title: 'Log in', description: 'Log in to change your favorite teams and players, pause alerts or delete your account.', pathname: '/account/', body, account: true });
+  return page({ title: 'Log in', description: 'Log in to change your favorite teams and players, pause alerts or delete your account.', pathname: '/account/', body, account: true, noindex: 'follow' });
 }
 
 // Owner's review page. Static shell; assets/admin.js logs in with email + password
@@ -1113,6 +1197,231 @@ function creditsPage(list) {
   return page({ title: 'Photo credits', description: 'Credits for the player photos used on Autograph Hero.', pathname: '/photo-credits/', body });
 }
 
+// ---------- hub pages: one per signer, team and sport ----------
+// People search "<name> autograph signing" or "<team> autograph signings", so each gets a page
+// with its upcoming signings. Pages come from public.athletes as well as the signings, so a
+// player's address stays the same between signings. With nothing coming up, a page still
+// exists (old links keep working) but asks search engines not to list it until it has signings.
+
+const signerPath = (slug) => `/autographs/${slug}/`;
+const teamPath = (slug) => `/teams/${slug}/`;
+const sportPath = (sport) => `/sports/${slugify(sport)}/`;
+
+function buildHubs(list, athletes) {
+  const signers = new Map();
+  const teams = new Map();
+  const sports = new Map();
+  const signer = (name, sport) => {
+    const slug = slugify(name);
+    if (!slug) return null;
+    if (!signers.has(slug)) signers.set(slug, { slug, name: name.trim(), sport: null, list: [] });
+    const h = signers.get(slug);
+    if (!h.sport && sport) h.sport = sport;
+    return h;
+  };
+  const team = (name) => {
+    const slug = slugify(name);
+    if (!slug) return null;
+    if (!teams.has(slug)) teams.set(slug, { slug, name: name.trim(), sports: new Map(), list: [], signers: new Set() });
+    return teams.get(slug);
+  };
+  const sport = (name) => {
+    const slug = slugify(name);
+    if (!slug) return null;
+    if (!sports.has(slug)) sports.set(slug, { slug, name, list: [], signers: new Set(), teams: new Set() });
+    return sports.get(slug);
+  };
+
+  for (const rows of athletes.values()) for (const a of rows) if (typeof a.name === 'string') signer(a.name, a.sport);
+  for (const s of list) {
+    for (const n of new Set(s.names)) signer(n, s.sport)?.list.push(s);
+    for (const t of new Set(s.teams)) team(t)?.list.push(s);
+    if (s.sport) sport(s.sport)?.list.push(s);
+  }
+  for (const h of signers.values()) {
+    const { teams: ts, primary } = teamsFor([h.name], h.sport, athletes);
+    h.teams = ts.map((t) => team(t)).filter(Boolean);
+    h.primary = (primary && team(primary)) || h.teams[0] || null;
+    for (const t of h.teams) {
+      t.signers.add(h);
+      if (h.sport) t.sports.set(h.sport, (t.sports.get(h.sport) || 0) + 1);
+    }
+    h.photo = freePhotoFor([h.name], h.sport, athletes);
+    if (h.sport) sport(h.sport)?.signers.add(h);
+  }
+  for (const t of teams.values()) {
+    t.sport = [...t.sports.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+    if (t.sport) sport(t.sport)?.teams.add(t);
+  }
+  return { signers, teams, sports };
+}
+
+const byName = (a, b) => a.name.localeCompare(b.name);
+const plural = (n, word) => `${n} upcoming ${word}${n === 1 ? '' : 's'}`;
+
+// Pill links to other hub pages, with a count of upcoming signings.
+function chipList(items, pathFor) {
+  return `<ul class="chips">${items.map((h) => `<li><a href="${esc(link(pathFor(h)))}">${esc(h.name)}${h.list.length ? `<span class="chip-n">${h.list.length}</span>` : ''}</a></li>`).join('')}</ul>`;
+}
+
+function breadcrumbLd(trail) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: trail.map(([name, p], i) => ({ '@type': 'ListItem', position: i + 1, name, ...(p ? { item: abs(p) } : {}) })),
+  };
+}
+
+function crumbsNav(trail) {
+  return `<nav class="crumbs" aria-label="Breadcrumb">${trail.map(([name, p], i) => (i < trail.length - 1 && p
+    ? `<a href="${esc(link(p))}">${esc(name)}</a><span aria-hidden="true">/</span>`
+    : `<span>${esc(name)}</span>`)).join('')}</nav>`;
+}
+
+function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, list, sections = [], title, description }) {
+  const cards = list.length
+    ? `<div class="grid">${list.map(card).join('\n')}</div>`
+    : `<div class="empty"><p><strong>Nothing is listed right now.</strong> Signings are added every week. Sign up and we'll email you when one is announced.</p></div>`;
+  const body = `
+${crumbsNav(trail)}
+<section class="page-head hub-head">
+  <div class="hub-copy">
+    <div class="eyebrow accent">${esc(eyebrow)}</div>
+    <h1>${esc(h1)}</h1>
+    <p class="lede">${lede}</p>
+    ${favorite ? `<p><a class="btn btn-ink" href="${esc(link(`/signup/?fav=${encodeURIComponent(favorite)}`))}">${ICON.bell}${esc(alertText || `Email me when ${favorite} signs`)}</a></p>` : ''}
+  </div>
+  ${pic ? `<figure class="hub-photo"><img src="${esc(pic.url)}" alt="${esc(pic.of || h1)}" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"><figcaption class="credit">Photo: ${pic.page ? `<a href="${esc(pic.page)}" rel="noopener">${esc(pic.credit)}</a>` : esc(pic.credit)}${pic.license ? `, ${esc(pic.license)}` : ''}, via Wikimedia Commons</figcaption></figure>` : ''}
+</section>
+<section class="band band-tight hub-list">
+  <div class="section-head"><h2>Upcoming signings</h2></div>
+  ${cards}
+</section>
+${sections.filter((x) => x && x.items.length).map((x) => `<section class="band band-alt">
+  <div class="section-head"><h2>${esc(x.title)}</h2></div>
+  ${chipList(x.items, x.path)}
+</section>`).join('\n')}`;
+  return page({
+    title,
+    description,
+    pathname,
+    body,
+    noindex: list.length ? false : 'follow',
+    image: pic?.url || list.find((s) => s.photo)?.photo.url || null,
+    imageAlt: h1,
+    ld: [
+      breadcrumbLd(trail),
+      list.length ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: h1,
+        itemListElement: list.map((s, i) => ({ '@type': 'ListItem', position: i + 1, url: abs(`/signing/${s.slug}/`), name: signingMeta(s).title })),
+      } : null,
+    ],
+  });
+}
+
+const typeMix = (list) => {
+  const n = (t) => list.filter((s) => s.type === t).length;
+  return [n('public') && `${n('public')} in person`, n('mail-in') && `${n('mail-in')} by mail`, n('private') && `${n('private')} private`].filter(Boolean).join(', ');
+};
+const nextLine = (list) => {
+  const first = list.find((s) => s.eventDate);
+  return first ? ` The next one is ${longDate(first.eventDate)}${first.place && first.type === 'public' ? ` in ${first.place}` : ''}.` : '';
+};
+
+function signerPage(h) {
+  const n = h.list.length;
+  const teamText = h.teams.length ? `${h.name} has played for the ${joinNames(h.teams.map((t) => t.name))}.` : '';
+  const lede = n
+    ? `${esc(h.name)} has ${esc(plural(n, 'autograph signing'))} (${esc(typeMix(h.list))}).${esc(nextLine(h.list))} See dates, prices and order deadlines below.`
+    : `There are no ${esc(h.name)} autograph signings listed right now.`;
+  // Other signers from the team they're best known for, ones with signings coming up first.
+  const related = [...(h.primary?.signers || [])].filter((o) => o !== h).sort((a, b) => (b.list.length > 0) - (a.list.length > 0) || byName(a, b)).slice(0, 30);
+  return hubPage({
+    pathname: signerPath(h.slug),
+    trail: [['Home', '/'], ['Signers', '/autographs/'], [h.name, signerPath(h.slug)]],
+    eyebrow: [h.sport, 'Autograph signings'].filter(Boolean).join(' · '),
+    h1: `${h.name} autograph signings`,
+    lede: lede + (teamText ? ` ${esc(teamText)}` : ''),
+    photo: h.photo,
+    favorite: h.name,
+    list: h.list,
+    sections: [
+      { title: h.teams.length === 1 ? 'Team' : 'Teams', items: h.teams, path: (t) => teamPath(t.slug) },
+      related.length ? { title: `More ${h.primary.name} signers`, items: related, path: (o) => signerPath(o.slug) } : null,
+    ],
+    title: `${h.name} Autograph Signings ${THIS_YEAR}${n ? ` (${n} upcoming)` : ''}`,
+    description: n
+      ? `${h.name} autograph signings and meet & greets: ${typeMix(h.list)}.${nextLine(h.list)} Prices, order deadlines and email alerts.`
+      : `Get an email when ${h.name} has an autograph signing or meet & greet. Autograph Hero lists signings from promoters and shops every week.`,
+  });
+}
+
+function teamPage(t) {
+  const n = t.list.length;
+  const people = [...t.signers].sort(byName);
+  return hubPage({
+    pathname: teamPath(t.slug),
+    trail: [['Home', '/'], ['Teams', '/teams/'], [t.name, teamPath(t.slug)]],
+    eyebrow: [t.sport, 'Team signings'].filter(Boolean).join(' · '),
+    h1: `${t.name} autograph signings`,
+    lede: n
+      ? `${esc(plural(n, 'signing'))} with current and former ${esc(t.name)} players (${esc(typeMix(t.list))}).${esc(nextLine(t.list))}`
+      : `No signings with ${esc(t.name)} players are listed right now.`,
+    favorite: t.name,
+    alertText: `Get ${t.name} signing alerts`,
+    list: t.list,
+    sections: [{ title: `${t.name} signers`, items: people, path: (o) => signerPath(o.slug) }],
+    title: `${t.name} Autograph Signings ${THIS_YEAR}${n ? ` (${n} upcoming)` : ''}`,
+    description: n
+      ? `Upcoming autograph signings with current and former ${t.name} players: ${people.filter((p) => p.list.length).slice(0, 4).map((p) => p.name).join(', ')}. Dates, prices and order deadlines.`
+      : `Get an email when a current or former ${t.name} player has an autograph signing.`,
+  });
+}
+
+function sportPage(sp) {
+  const n = sp.list.length;
+  const people = [...sp.signers].filter((h) => h.list.length).sort(byName);
+  const teams = [...sp.teams].filter((t) => t.list.length).sort(byName);
+  return hubPage({
+    pathname: sportPath(sp.name),
+    trail: [['Home', '/'], ['All signings', '/events/'], [sp.name, sportPath(sp.name)]],
+    eyebrow: 'Browse by sport',
+    h1: `${sp.name} autograph signings`,
+    lede: n ? `${esc(plural(n, sp.name.toLowerCase() + ' signing'))} (${esc(typeMix(sp.list))}), soonest first.` : `No ${esc(sp.name.toLowerCase())} signings are listed right now.`,
+    list: sp.list,
+    sections: [
+      { title: 'Signers', items: people, path: (o) => signerPath(o.slug) },
+      { title: 'Teams', items: teams, path: (t) => teamPath(t.slug) },
+    ],
+    title: `${sp.name} Autograph Signings ${THIS_YEAR}`,
+    description: `${n} upcoming ${sp.name.toLowerCase()} autograph signings and meet & greets${people.length ? ` with ${people.slice(0, 3).map((p) => p.name).join(', ')} and more` : ''}. Dates, prices and order deadlines.`,
+  });
+}
+
+// A–Z lists of every signer and team, grouped by sport, so every hub page is linked from somewhere.
+function directoryPage({ pathname, eyebrow, h1, lede, items, path: pathFor, title, description }) {
+  const groups = new Map();
+  for (const h of [...items].sort(byName)) {
+    const k = h.sport || 'Other';
+    groups.set(k, [...(groups.get(k) || []), h]);
+  }
+  const order = [...groups.keys()].sort((a, b) => (a === 'Other') - (b === 'Other') || a.localeCompare(b));
+  const body = `
+${crumbsNav([['Home', '/'], [h1, pathname]])}
+<section class="page-head">
+  <div class="eyebrow accent">${esc(eyebrow)}</div>
+  <h1>${esc(h1)}</h1>
+  <p class="lede">${esc(lede)}</p>
+</section>
+${order.map((k) => `<section class="band band-tight dir-group">
+  <h2 class="dir-h">${esc(k)}</h2>
+  ${chipList(groups.get(k), pathFor)}
+</section>`).join('\n')}`;
+  return page({ title, description, pathname, body, ld: [breadcrumbLd([['Home', '/'], [h1, pathname]])] });
+}
+
 // ---------- build ----------
 
 async function put(rel, content) {
@@ -1140,6 +1449,30 @@ async function main() {
     if (ics) await put(`signing/${s.slug}/event.ics`, ics);
   }
   await put('photo-credits/index.html', creditsPage(list));
+  const hubs = buildHubs(list, athletes);
+  for (const h of hubs.signers.values()) await put(`autographs/${h.slug}/index.html`, signerPage(h));
+  for (const t of hubs.teams.values()) await put(`teams/${t.slug}/index.html`, teamPage(t));
+  for (const sp of hubs.sports.values()) await put(`sports/${sp.slug}/index.html`, sportPage(sp));
+  await put('autographs/index.html', directoryPage({
+    pathname: '/autographs/',
+    eyebrow: 'Signers A–Z',
+    h1: 'Autograph signers',
+    lede: 'Every athlete and celebrity we track. Numbers show upcoming signings; pick a name to see them or get an email when they sign.',
+    items: [...hubs.signers.values()],
+    path: (h) => signerPath(h.slug),
+    title: 'Autograph Signers A–Z',
+    description: `Upcoming autograph signings for ${hubs.signers.size} athletes and celebrities, from A to Z.`,
+  }));
+  await put('teams/index.html', directoryPage({
+    pathname: '/teams/',
+    eyebrow: 'Teams A–Z',
+    h1: 'Signings by team',
+    lede: 'Autograph signings with current and former players, grouped by team. Numbers show upcoming signings.',
+    items: [...hubs.teams.values()],
+    path: (t) => teamPath(t.slug),
+    title: 'Autograph Signings by Team',
+    description: `Autograph signings with current and former players from ${hubs.teams.size} pro teams.`,
+  }));
   await put('add/index.html', addPage());
   await put('signup/index.html', signupPage(list, athletes));
   await put('account/index.html', accountPage(list, athletes));
@@ -1154,8 +1487,15 @@ async function main() {
     body: `<section class="page-head"><h1>That signing is over or moved</h1><p class="lede">Past signings come off the calendar. <a href="${esc(link('/events/'))}">See what is coming up.</a></p></section>`,
   }));
   // Search engines: a sitemap of every page, only once the site is meant to be indexed.
-  const ORIGIN = 'https://autographhero.com';
-  const pages = ['/', '/events/', '/add/', '/signup/', '/account/', '/terms/', '/privacy/', '/photo-credits/', ...list.map((s) => `/signing/${s.slug}/`)];
+  // Only pages meant for search results: hub pages with nothing coming up are left out.
+  const live = (m) => [...m.values()].filter((h) => h.list.length);
+  const pages = [
+    '/', '/events/', '/autographs/', '/teams/', '/add/', '/signup/', '/terms/', '/privacy/', '/photo-credits/',
+    ...live(hubs.sports).map((sp) => sportPath(sp.name)),
+    ...live(hubs.signers).map((h) => signerPath(h.slug)),
+    ...live(hubs.teams).map((t) => teamPath(t.slug)),
+    ...list.map((s) => `/signing/${s.slug}/`),
+  ];
   await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nDisallow: ${link('/admin/')}\nAllow: /\nSitemap: ${ORIGIN}${link('/sitemap.xml')}\n`);
   if (!NOINDEX) {
     await put('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${esc(ORIGIN + link(p))}</loc><lastmod>${TODAY}</lastmod></url>`).join('\n')}\n</urlset>\n`);
