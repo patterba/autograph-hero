@@ -150,8 +150,13 @@ async function sendMail(to: string, subject: string, htmlBody: string, textBody:
   }
 }
 
+const LOGO_URL = "https://raw.githubusercontent.com/patterba/autograph-hero/main/assets/email-logo.png";
+// Logo band at the top of every email. Hosted on GitHub (not autographhero.com) because the
+// site's Cloudflare bot check can block the servers email apps use to load images.
+const emailHeader = () =>
+  `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F1E7;border-bottom:2px solid #16181D;margin:0 0 20px"><tr><td style="padding:12px 16px"><a href="https://autographhero.com/"><img src="${LOGO_URL}" width="160" height="96" alt="Autograph Hero" style="display:block;border:0;outline:none;width:160px;height:96px"></a></td></tr></table>`;
 const wrap = (inner: string) =>
-  `<div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;color:#16181D;max-width:560px">${inner}<p style="font-size:14px;color:#5B5A55">— Autograph Hero</p></div>`;
+  `<div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;color:#16181D;max-width:560px">${emailHeader()}${inner}<p style="font-size:14px;color:#5B5A55">— Autograph Hero</p></div>`;
 const button = (href: string, label: string) =>
   `<p><a href="${html(href)}" style="display:inline-block;background:#C2410C;color:#FFFFFF;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px">${html(label)}</a></p>`;
 

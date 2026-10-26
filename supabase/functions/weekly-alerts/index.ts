@@ -123,6 +123,12 @@ ${list.map((m) => `<tr><td style="padding:10px 0;border-top:1px solid #E5DED0">
 </table>`;
 }
 
+const LOGO_URL = "https://raw.githubusercontent.com/patterba/autograph-hero/main/assets/email-logo.png";
+// Logo band at the top of every email. Hosted on GitHub (not autographhero.com) because the
+// site's Cloudflare bot check can block the servers email apps use to load images.
+const emailHeader = () =>
+  `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F1E7;border-bottom:2px solid #16181D;margin:0 0 20px"><tr><td style="padding:12px 16px"><a href="https://autographhero.com/"><img src="${LOGO_URL}" width="160" height="96" alt="Autograph Hero" style="display:block;border:0;outline:none;width:160px;height:96px"></a></td></tr></table>`;
+
 function digest(sub: { name: string; unsubscribe_token: string }, fresh: Signing[], upcoming: Signing[]) {
   const first = String(sub.name || "").split(" ")[0] || "there";
   const unsub = `${SITE}/unsubscribe/?t=${encodeURIComponent(sub.unsubscribe_token)}`;
@@ -131,6 +137,7 @@ function digest(sub: { name: string; unsubscribe_token: string }, fresh: Signing
     ? `New signing: ${names[0]}`
     : `${fresh.length} new signings for your favorites`;
   const body = `<div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;color:#16181D;max-width:560px">
+${emailHeader()}
 <p>Hi ${html(first)},</p>
 <p>${fresh.length === 1 ? "A new signing was" : `${fresh.length} new signings were`} added this week for your favorites.</p>
 <p style="font-size:20px;font-weight:700;margin:20px 0 4px">New this week</p>
