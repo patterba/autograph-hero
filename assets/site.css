@@ -391,11 +391,12 @@ h1, h2, h3, p { margin: 0; }
 .login-split > fieldset { grid-area: box; }
 .login-split > .login-note { grid-area: note; }
 .login-hello { grid-area: hello; display: flex; flex-direction: column; gap: 14px; }
-.login-hello-big { font-family: var(--display); font-weight: 400; font-size: clamp(52px, 7vw, 104px); line-height: 0.92; text-transform: uppercase; color: var(--ink); }
+.login-hello-big { font-family: var(--display); font-weight: 400; font-size: clamp(40px, 6vw, 82px); line-height: 1; white-space: nowrap; text-transform: uppercase; color: var(--ink); }
 .login-hello-sub { font-size: clamp(18px, 1.8vw, 24px); font-weight: 700; color: var(--accent); }
 @media (max-width: 800px) {
   .login-split { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'hello' 'box' 'note'; }
   .login-hello { gap: 8px; }
+  .login-hello-big { font-size: clamp(34px, 14vw, 72px); }
 }
 
 /* Type-ahead boxes (favorites, Fan Pass): no browser drop-down arrow; the list still opens as you type or click */
@@ -414,3 +415,8 @@ input[list]::-webkit-calendar-picker-indicator { display: none !important; }
 }
 .photo-large { background: var(--card); }
 .photo-large img { object-fit: contain; object-position: center; }
+
+/* Footer: logo with the X (Twitter) link beside it */
+.footer-brand { display: flex; align-items: center; gap: 16px 24px; flex-wrap: wrap; }
+.social { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); font-weight: 600; font-size: 15px; text-decoration: none; }
+.social:hover { background: var(--ink); color: var(--paper); }

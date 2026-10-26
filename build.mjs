@@ -247,7 +247,10 @@ function shape(row, athletes) {
 
 // ---------- components ----------
 
+const X_URL = 'https://x.com/autographheroX';
+
 const ICON = {
+  x: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
   search: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
   arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   out: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>',
@@ -393,7 +396,10 @@ ${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
 </div>
 <script>(function(){var bar=document.querySelector('.submit-bar'),top=document.querySelector('.header-actions');if(!bar||!top||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){bar.hidden=e[0].isIntersecting}).observe(top)})();</script>`}
 <footer class="site-footer">
-  <div class="brand">${ICON.logo}</div>
+  <div class="footer-brand">
+    <div class="brand">${ICON.logo}</div>
+    <a class="social" href="${X_URL}" rel="me noopener" target="_blank" aria-label="Autograph Hero on X (Twitter)">${ICON.x}<span>@autographheroX</span></a>
+  </div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
   <p class="small footer-links"><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
@@ -539,7 +545,7 @@ ${sports.length ? `<section class="band band-alt">
         url: abs('/'),
         potentialAction: { '@type': 'SearchAction', target: { '@type': 'EntryPoint', urlTemplate: `${abs('/events/')}?q={search_term_string}` }, 'query-input': 'required name=search_term_string' },
       },
-      { '@context': 'https://schema.org', '@type': 'Organization', name: SITE_NAME, url: abs('/'), logo: abs('/assets/email-logo.png') },
+      { '@context': 'https://schema.org', '@type': 'Organization', name: SITE_NAME, url: abs('/'), logo: abs('/assets/email-logo.png'), sameAs: [X_URL] },
     ],
   });
 }
