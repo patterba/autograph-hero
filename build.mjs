@@ -272,8 +272,9 @@ const ICON = {
 const badge = (s) => `<span class="badge badge-${esc(s.type)}">${esc(TYPE_LABEL[s.type])}</span>`;
 
 function photo(s, cls = '', id = '') {
+  // The whole photo is shown (nothing cropped off), over a blurred copy of itself that fills the box.
   const img = s.photo
-    ? `<img${id ? ` id="${id}"` : ''} src="${esc(s.photo.url)}"${s.photoFallback ? ` data-fallback="${esc(s.photoFallback.url)}"` : ''} alt="${esc(s.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="ahPhoto(this)">`
+    ? `<img class="photo-bg" src="${esc(s.photo.url)}" alt="" aria-hidden="true" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><img${id ? ` id="${id}"` : ''} src="${esc(s.photo.url)}"${s.photoFallback ? ` data-fallback="${esc(s.photoFallback.url)}"` : ''} alt="${esc(s.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="ahPhoto(this)">`
     : '';
   return `<div class="photo ${cls}">${img}</div>`;
 }
@@ -285,7 +286,7 @@ function creditLine(p, id, hidden = false) {
 }
 
 // Runs when a photo fails to load: switch to the backup photo (and its credit), or hide it.
-const PHOTO_SCRIPT = `<script>function ahPhoto(i){var f=i.getAttribute('data-fallback'),m=i.id==='main-photo',a=document.getElementById('credit-main'),b=document.getElementById('credit-fb');i.removeAttribute('data-fallback');if(f){i.onerror=function(){i.remove();if(m&&b)b.hidden=true};i.src=f;if(m){if(a)a.hidden=true;if(b)b.hidden=false}}else{i.remove();if(m&&a)a.hidden=true}}</script>`;
+const PHOTO_SCRIPT = `<script>function ahPhoto(i){var f=i.getAttribute('data-fallback'),m=i.id==='main-photo',a=document.getElementById('credit-main'),b=document.getElementById('credit-fb'),g=i.parentNode&&i.parentNode.querySelector('.photo-bg');i.removeAttribute('data-fallback');if(f){i.onerror=function(){i.remove();if(g)g.remove();if(m&&b)b.hidden=true};i.src=f;if(g){g.onerror=function(){g.remove()};g.src=f}if(m){if(a)a.hidden=true;if(b)b.hidden=false}}else{i.remove();if(g)g.remove();if(m&&a)a.hidden=true}}</script>`;
 
 function whereLine(s) {
   if (s.type === 'mail-in') return `Mail-in${s.source ? ` · ${s.source}` : ''}`;
