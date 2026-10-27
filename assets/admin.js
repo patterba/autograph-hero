@@ -413,18 +413,21 @@
     var grid = el('div', 'stats');
     stat(grid, num(d.totals.views), 'Page views');
     stat(grid, num(d.totals.visits), 'Visits');
-    var u = d.uniques || {};
-    if (typeof u.total === 'number') stat(grid, num(u.total), 'Unique visitors');
-    else {
-      // The saved token can't read the domain's traffic yet: say how to allow it.
-      var ub = el('div', 'stat stat-todo');
-      ub.appendChild(el('span', 'stat-n', '—'));
-      ub.appendChild(el('span', 'stat-l', 'Unique visitors'));
-      ub.appendChild(el('span', 'stat-note', u.missing
-        ? 'Needs one more Cloudflare permission: see "Turn on unique visitors" below.'
-        : "Cloudflare didn't send this number right now."));
-      grid.appendChild(ub);
-    }
+    // Unique visitors: our own cookie-free count (site-visit function), filled in when it arrives.
+    var ub = el('div', 'stat');
+    var un = el('span', 'stat-n', '…');
+    ub.appendChild(un);
+    ub.appendChild(el('span', 'stat-l', 'Unique visitors'));
+    var unote = el('span', 'stat-note');
+    unote.hidden = true;
+    ub.appendChild(unote);
+    grid.appendChild(ub);
+    rpc('admin_unique_visitors', { p_days: visitorDays }).then(function (r) {
+      var total = (r.byDay || []).reduce(function (n, x) { return n + (x.uniques || 0); }, 0);
+      un.textContent = num(total);
+      var first = (r.byDay || [])[0];
+      if (r.since && first && r.since > first.date) { unote.textContent = 'Counting since ' + shortDay(r.since) + '.'; unote.hidden = false; }
+    }).catch(function () { un.textContent = '—'; });
     var perDay = d.byDay && d.byDay.length ? Math.round(d.totals.views / d.byDay.length) : 0;
     stat(grid, num(perDay), 'Page views a day');
     box.appendChild(grid);
@@ -438,21 +441,8 @@
     cols.appendChild(topTable('Countries', d.countries, [function (r) { return r.label || 'Unknown'; }, function (r) { return num(r.views); }]));
     cols.appendChild(topTable('Devices', d.devices, [function (r) { return r.label ? r.label.charAt(0).toUpperCase() + r.label.slice(1) : 'Unknown'; }, function (r) { return num(r.views); }]));
     box.appendChild(cols);
-    box.appendChild(el('p', 'muted small', 'From Cloudflare. A visit is someone arriving from another site or typing the address; page views count every page they open. Unique visitors are counted by Cloudflare once per person per day (someone who comes back on another day counts again) and can include some automated traffic such as search engines. Cloudflare samples busy sites, so numbers are close estimates.'));
-    if (u.missing) {
-      var how = el('details', 'stat-connect');
-      how.appendChild(el('summary', null, 'Turn on unique visitors'));
-      var ol = el('ol', 'stat-steps');
-      [
-        'Log in at dash.cloudflare.com, click your profile icon (top right), then "My Profile" → "API Tokens".',
-        'Find "Autograph Hero analytics" and click the three dots → "Edit".',
-        'Click "+ Add more" under Permissions and pick: Zone → Analytics → Read.',
-        'Under Zone Resources pick: Include → Specific zone → autographhero.com.',
-        'Click "Continue to summary", then "Update token". Nothing to paste here: come back and click Refresh.',
-      ].forEach(function (t) { ol.appendChild(el('li', null, t)); });
-      how.appendChild(ol);
-      box.appendChild(how);
-    }
+    box.appendChild(el('p', 'muted small', 'From Cloudflare. A visit is someone arriving from another site or typing the address; page views count every page they open. Unique visitors are counted by the site itself, once per person per day (someone who comes back on another day counts again), without cookies; search engines and other robots are left out. Cloudflare samples busy sites, so numbers are close estimates.'));
+
     box.appendChild(connectForm(true));
   }
 

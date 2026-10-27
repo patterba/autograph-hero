@@ -29,7 +29,9 @@ const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.C
 // Contact address shown on the Terms and Privacy pages (GitHub variable CONTACT_EMAIL).
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 // Date the Terms and Privacy pages were last changed. Update it when you edit them.
-const POLICY_DATE = '2026-10-25';
+const POLICY_DATE = '2026-10-27';
+// Our own cookie-free unique visitor count (supabase/functions/site-visit). VISIT_COUNT=off turns it off.
+const COUNT_VISITS = process.env.VISIT_COUNT !== 'off';
 // The live address, for canonical links, the sitemap and share previews.
 const ORIGIN = (process.env.SITE_ORIGIN || 'https://autographhero.com').replace(/\/$/, '');
 // Search engine ownership checks (Google Search Console / Bing Webmaster Tools, "HTML tag" method).
@@ -413,6 +415,7 @@ ${forms ? `<script src="${esc(asset('/assets/forms.js'))}" defer></script>` : ''
 ${captcha ? '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>' : ''}
 ${account ? `<script src="${esc(asset('/assets/account.js'))}" defer></script>` : ''}
 ${admin ? `<script src="${esc(asset('/assets/admin.js'))}" defer></script>` : ''}
+${COUNT_VISITS && !admin && !NOINDEX ? `<script>try{navigator.sendBeacon(${JSON.stringify(`${SUPABASE_URL}/functions/v1/site-visit`)})}catch(e){}</script>` : ''}
 ${CF_ANALYTICS_TOKEN && !admin ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="${esc(JSON.stringify({ token: CF_ANALYTICS_TOKEN }))}"></script>` : ''}
 </body>
 </html>
@@ -1164,6 +1167,7 @@ function privacyPage() {
       <li><strong>To stop spam:</strong> a scrambled, one-way code made from your internet (IP) address, used to limit how many forms one visitor can send in an hour. The Submit a Signing form also uses a Cloudflare Turnstile check to tell people from bots.</li>
       <li><strong>Weekly alerts:</strong> once a week, if new signings were added for your favorites, we email you a short list with photos and links. Weeks with nothing new, you get nothing.</li>
       <li><strong>Site statistics:</strong> we use Cloudflare Web Analytics to count visits and popular pages. It does not use cookies and does not follow you to other websites.</li>
+      <li><strong>Unique visitor count:</strong> to count how many different people visit each day, each page sends us your IP address and browser name, which we immediately scramble together with a random code that changes every day. We keep only the scrambled result, which can't be turned back into your IP address or linked from one day to the next. No cookies are used.</li>
     </ul>`],
       ['What we don\'t do', `<p>We don't sell or rent your information, we don't show ads, and we don't use advertising or tracking cookies. We only email you about signings for the favorites you chose, and about your account (such as login links).</p>`],
       ['Who helps us run the site', `<p>These services handle some information on our behalf, only to run Autograph Hero:</p>
