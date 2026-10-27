@@ -724,7 +724,7 @@ ${crumbsNav(trail)}
     <h2>How this signing works</h2>
     <p class="lede">${esc(TYPE_BLURB[s.type])}</p>
     ${s.prices.length ? `<h2>Prices</h2>
-    <div class="prices">${s.prices.map((p) => `<div><span>${esc(p.item)}</span><span class="mono">${esc(p.price)}</span></div>`).join('')}</div>` : ''}
+    <div class="prices">${s.prices.map((p) => `<div><span>${esc(p.item).replace(/\//g, '/<wbr>')}</span><span class="mono">${esc(p.price)}</span></div>`).join('')}</div>` : ''}
     <p class="muted small">Listed from ${esc(s.source || 'the organizer')}. Autograph Hero does not sell tickets or handle orders.</p>
     <a class="inline-submit" href="${esc(link('/add/'))}">
       <span>${ICON.plus}</span>

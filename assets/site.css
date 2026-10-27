@@ -165,6 +165,9 @@ h1, h2, h3, p { margin: 0; }
 .prices { display: flex; flex-direction: column; border: 1.5px solid var(--ink); border-radius: 16px; background: var(--card); overflow: hidden; }
 .prices div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 20px; }
 .prices div + div { border-top: 1.5px dashed #C9BFAC; }
+/* Long item names (e.g. "Card/Ticket/Baseball/Magazine/Photo") wrap instead of pushing the price off screen. */
+.prices div > span:first-child { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.prices div > .mono { flex: 0 0 auto; white-space: nowrap; }
 .ticket { flex: 0 0 min(460px, 40vw); background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; box-shadow: 8px 8px 0 var(--ink); position: sticky; top: 24px; }
 .ticket-top { display: flex; flex-direction: column; gap: 12px; padding: 28px 28px 24px; }
 .ticket-top h1 { font-family: var(--display); font-weight: 400; font-size: clamp(40px, 4.2vw, 58px); line-height: 0.97; text-transform: uppercase; overflow-wrap: anywhere; }
