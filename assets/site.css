@@ -458,3 +458,4 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 /* Signing Archives */
 .archive-month { padding-top: 24px; }
 .archive-month .section-head h2 { font-size: clamp(30px, 3.4vw, 44px); }
+.stat-note { font-size: 13px; color: var(--muted); line-height: 1.35; margin-top: 4px; }

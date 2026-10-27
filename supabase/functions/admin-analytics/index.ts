@@ -61,6 +61,27 @@ const lit = (v: unknown): string => Array.isArray(v) ? `[${v.map(lit).join(',')}
   : v && typeof v === 'object' ? `{${Object.entries(v).map(([k, x]) => `${k}:${lit(x)}`).join(',')}}`
   : JSON.stringify(v);
 
+// Unique visitors come from the domain's own traffic numbers (Cloudflare counts them once a day
+// per visitor). That needs the token to also have "Zone → Analytics → Read"; without it the tab
+// shows how to add it. Never fails the rest of the tab.
+async function uniqueVisitors(token: string, start: Date, end: Date) {
+  try {
+    const z = await cf(token, `/zones?name=${HOST}`).catch(() => null);
+    const zone = z?.result?.[0]?.id;
+    if (!zone) return { missing: 'permission' };
+    const d = await gql(token, `query($z:String!){viewer{zones(filter:{zoneTag:$z}){
+      httpRequests1dGroups(limit:40,filter:${lit({ date_geq: day(start), date_leq: day(end) })},orderBy:[date_ASC]){dimensions{date} uniq{uniques}}}}}`, { z: zone });
+    const days = d?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
+    return {
+      total: days.reduce((n: number, g: any) => n + (g.uniq?.uniques ?? 0), 0),
+      byDay: days.map((g: any) => ({ date: g.dimensions?.date, uniques: g.uniq?.uniques ?? 0 })),
+    };
+  } catch (e) {
+    if (e instanceof CfError && /turned down|not authorized|permission|access|authenticat/i.test(e.message)) return { missing: 'permission' };
+    return { error: e instanceof Error ? e.message : 'unavailable' };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return reply({ error: 'POST only' }, 405);
@@ -112,11 +133,13 @@ Deno.serve(async (req) => {
       ${top('browsers', 'userAgentBrowser', 'count_DESC', 6)}
     }}}`, { a: account });
     const a = data?.viewer?.accounts?.[0] || {};
+    const uniques = await uniqueVisitors(token, start, end);
     const rows = (list: any[]) => (list || []).map((g) => ({ label: g.dimensions?.metric ?? '', views: g.count ?? 0, visits: g.sum?.visits ?? 0 }));
     return reply({
       connected: true,
       days,
       totals: { views: a.total?.[0]?.count ?? 0, visits: a.total?.[0]?.sum?.visits ?? 0 },
+      uniques,
       byDay: (a.byDay || []).map((g: any) => ({ date: g.dimensions?.date, views: g.count ?? 0, visits: g.sum?.visits ?? 0 })),
       pages: rows(a.pages),
       referrers: rows(a.referrers).filter((r) => r.label && r.label.replace(/^www\./, '') !== HOST),
