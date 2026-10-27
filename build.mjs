@@ -43,7 +43,7 @@ const COLUMNS = [
   'id', 'title', 'athlete_names', 'signing_type', 'event_date', 'event_date_text',
   'event_time_text', 'order_deadline', 'venue', 'city', 'state', 'price_min', 'price_max',
   'prices', 'sport', 'team_city', 'listing_url', 'image_url', 'image_source',
-  'image_credit', 'image_license', 'image_page_url',
+  'image_credit', 'image_license', 'image_page_url', 'status',
 ];
 
 const TYPE_LABEL = { public: 'In person', private: 'Private signing', 'mail-in': 'Mail-in', unknown: 'Signing' };
@@ -110,9 +110,10 @@ const asset = (p) => {
 async function loadSignings() {
   const qs = new URLSearchParams({
     select: COLUMNS.join(','),
-    status: 'eq.published',
+    // 'past' rows are signings that were on the site and have happened (Signing Archives).
+    status: 'in.(published,past)',
     order: 'event_date.asc.nullslast,id.asc',
-    limit: '1000',
+    limit: '5000',
   });
   const res = await fetch(`${SUPABASE_URL}/rest/v1/signings?${qs}`, { headers: { apikey: SUPABASE_KEY } });
   if (!res.ok) throw new Error(`Supabase returned ${res.status}: ${(await res.text()).slice(0, 300)}`);
@@ -223,6 +224,8 @@ function shape(row, athletes) {
     deadline,
     deadlinePassed: Boolean(deadline && deadline < TODAY),
     sortDate,
+    // Over: the date has gone by, or the weekly crawl has marked it past.
+    past: row.status === 'past' || !(sortDate && sortDate >= TODAY),
     venue: row.venue || null,
     city: row.city || null,
     state: row.state || null,
@@ -289,6 +292,7 @@ function whereLine(s) {
 }
 
 function whenLine(s) {
+  if (s.past) return s.eventDate ? mdy(s.eventDate) : s.deadline ? `Ended ${mdy(s.deadline)}` : 'Past signing';
   if (s.eventDate) return shortDate(s.eventDate);
   if (s.deadline) return `Order by ${fmt(s.deadline, { month: 'short', day: 'numeric' })}`;
   return s.eventDateText || 'Date to be announced';
@@ -401,7 +405,7 @@ ${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
     <a class="social" href="${X_URL}" rel="me noopener" target="_blank" aria-label="Autograph Hero on X (Twitter)">${ICON.x}<span>@autographheroX</span></a>
   </div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
-  <p class="small footer-links"><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
+  <p class="small footer-links"><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''}
@@ -656,6 +660,14 @@ function signingMeta(s) {
     unknown: `${s.name} autograph signing${on}.`,
   }[s.type];
   const price = s.priceMin ? ` Autographs from ${s.priceMin}.` : '';
+  if (s.past) {
+    return {
+      title: `${title} – Past Signing`,
+      description: `Past signing: ${lead.replace(/^Meet /, 'Fans met ').replace(/^Get an autograph from /, 'Autographs from ')}${price.replace('from', 'were from')} See what's coming up next.`,
+      image: s.photo?.url || null,
+      imageAlt: s.name,
+    };
+  }
   return {
     title,
     description: `${lead}${by}${price}`,
@@ -697,7 +709,7 @@ function eventLd(s) {
 }
 
 function signingPage(s, list) {
-  const cal = calendarFor(s);
+  const cal = s.past ? null : calendarFor(s);
   // 5 related + the "See more" card = 6, which fills complete rows at 3, 2 or 1 per row.
   const more = list.filter((o) => o.id !== s.id && ((s.sport && o.sport === s.sport) || (s.state && o.state === s.state))).slice(0, 5);
   const mapUrl = s.location && s.type !== 'mail-in' ? `https://www.google.com/maps/search/?${new URLSearchParams({ api: '1', query: s.location })}` : null;
@@ -740,10 +752,11 @@ ${crumbsNav(trail)}
     </div>
     <div class="tear"></div>
     <div class="ticket-body">
-      ${s.deadlinePassed ? '<p class="notice">The order deadline listed for this signing has passed. Check with the organizer for late availability.</p>' : ''}
+      ${s.past ? `<p class="notice">This signing is over${s.sortDate ? ` (${esc(longDate(s.sortDate))})` : ''}. It's kept in the <a href="${esc(link('/archive/'))}">Signing Archives</a>.</p>`
+    : s.deadlinePassed ? '<p class="notice">The order deadline listed for this signing has passed. Check with the organizer for late availability.</p>' : ''}
       <dl>${rows.map(([k, v, wide]) => `<div${wide ? ' class="wide"' : ''}><dt>${esc(k)}</dt><dd>${v?.html ?? esc(v)}</dd></div>`).join('')}</dl>
       ${s.priceMin ? `<div class="from"><span class="eyebrow">Price</span><span class="from-n">${esc(s.priceMax && s.priceMax !== s.priceMin ? `${s.priceMin} to ${s.priceMax}` : s.priceMin)}</span></div>` : ''}
-      ${s.listingUrl ? `<a class="btn btn-accent btn-block" href="${esc(s.listingUrl)}" rel="noopener" target="_blank">${s.type === 'public' ? 'Get tickets' : 'Order'} at ${esc(s.host)} ${ICON.out}</a>` : ''}
+      ${s.listingUrl && !s.past ? `<a class="btn btn-accent btn-block" href="${esc(s.listingUrl)}" rel="noopener" target="_blank">${s.type === 'public' ? 'Get tickets' : 'Order'} at ${esc(s.host)} ${ICON.out}</a>` : ''}
       ${cal ? `<div class="cal">
         <span class="eyebrow">${cal.isDeadline ? 'Save the order deadline' : 'Add to calendar'}</span>
         <div class="cal-row">
@@ -751,7 +764,7 @@ ${crumbsNav(trail)}
           <a class="btn btn-ghost" href="${esc(link(`/signing/${s.slug}/event.ics`))}" download="${esc(s.slug)}.ics">${ICON.cal}Apple / Outlook</a>
         </div>
       </div>` : ''}
-      ${mapUrl ? `<a class="maplink" href="${esc(mapUrl)}" rel="noopener" target="_blank">${ICON.pin}Open in Google Maps</a>` : ''}
+      ${mapUrl && !s.past ? `<a class="maplink" href="${esc(mapUrl)}" rel="noopener" target="_blank">${ICON.pin}Open in Google Maps</a>` : ''}
       ${s.names.length ? `<a class="maplink" href="${esc(link(`/signup/?fav=${encodeURIComponent(s.names[0])}`))}">${ICON.bell}Email me when ${esc(s.names[0])} signs again</a>` : ''}
       ${s.names.filter((n) => slugify(n)).map((n) => `<a class="maplink" href="${esc(link(signerPath(slugify(n))))}">${ICON.arrow}All ${esc(n)} signings</a>`).join('\n      ')}
       <p class="muted small">Details can change. Confirm with the organizer before you order or travel.</p>
@@ -765,7 +778,7 @@ ${moreCard(list.length, null, s.sport)}</div>
 </section>` : ''}`;
 
   return {
-    html: page({ ...signingMeta(s), pathname: `/signing/${s.slug}/`, body, ld: [breadcrumbLd(trail), eventLd(s)] }),
+    html: page({ ...signingMeta(s), pathname: `/signing/${s.slug}/`, body, ld: [breadcrumbLd(trail), s.past ? null : eventLd(s)] }),
     ics: cal ? cal.file : null,
   };
 }
@@ -1215,6 +1228,34 @@ function creditsPage(list) {
   return page({ title: 'Photo credits', description: 'Credits for the player photos used on Autograph Hero.', pathname: '/photo-credits/', body });
 }
 
+// "Signing Archives": signings that have happened, newest first, a section per month.
+function archivePage(archive) {
+  const months = new Map();
+  for (const s of archive) {
+    const key = s.sortDate.slice(0, 7);
+    months.set(key, [...(months.get(key) || []), s]);
+  }
+  const monthName = (k) => fmt(`${k}-01`, { month: 'long', year: 'numeric' });
+  const body = `
+${crumbsNav([['Home', '/'], ['Signing Archives', '/archive/']])}
+<section class="page-head">
+  <div class="eyebrow accent">Past signings</div>
+  <h1>Signing Archives</h1>
+  <p class="lede">Autograph signings and meet &amp; greets we've listed that have already happened, newest first. Don't miss the next one: <a href="${esc(link('/signup/'))}">sign up for alerts</a> or <a href="${esc(link('/events/'))}">see what's coming up</a>.</p>
+</section>
+${archive.length ? [...months.entries()].map(([k, items]) => `<section class="band band-tight archive-month">
+  <div class="section-head"><h2>${esc(monthName(k))}</h2><span class="muted">${items.length} signing${items.length === 1 ? '' : 's'}</span></div>
+  <div class="grid">${items.map(card).join('\n')}</div>
+</section>`).join('\n') : `<section class="band band-tight"><p class="empty">No past signings yet. Signings move here after their date.</p></section>`}`;
+  return page({
+    title: 'Signing Archives: Past Autograph Signings',
+    description: `${archive.length} past autograph signings and meet & greets, newest first${archive[0] ? `, including ${[...new Set(archive.flatMap((s) => s.names))].slice(0, 3).join(', ')}` : ''}.`,
+    pathname: '/archive/',
+    body,
+    ld: [breadcrumbLd([['Home', '/'], ['Signing Archives', '/archive/']])],
+  });
+}
+
 // ---------- hub pages: one per signer, team and sport ----------
 // People search "<name> autograph signing" or "<team> autograph signings", so each gets a page
 // with its upcoming signings. Pages come from public.athletes as well as the signings, so a
@@ -1225,14 +1266,14 @@ const signerPath = (slug) => `/autographs/${slug}/`;
 const teamPath = (slug) => `/teams/${slug}/`;
 const sportPath = (sport) => `/sports/${slugify(sport)}/`;
 
-function buildHubs(list, athletes) {
+function buildHubs(list, athletes, archive = []) {
   const signers = new Map();
   const teams = new Map();
   const sports = new Map();
   const signer = (name, sport) => {
     const slug = slugify(name);
     if (!slug) return null;
-    if (!signers.has(slug)) signers.set(slug, { slug, name: name.trim(), sport: null, list: [] });
+    if (!signers.has(slug)) signers.set(slug, { slug, name: name.trim(), sport: null, list: [], past: [] });
     const h = signers.get(slug);
     if (!h.sport && sport) h.sport = sport;
     return h;
@@ -1240,7 +1281,7 @@ function buildHubs(list, athletes) {
   const team = (name) => {
     const slug = slugify(name);
     if (!slug) return null;
-    if (!teams.has(slug)) teams.set(slug, { slug, name: name.trim(), sports: new Map(), list: [], signers: new Set() });
+    if (!teams.has(slug)) teams.set(slug, { slug, name: name.trim(), sports: new Map(), list: [], past: [], signers: new Set() });
     return teams.get(slug);
   };
   const sport = (name) => {
@@ -1255,6 +1296,10 @@ function buildHubs(list, athletes) {
     for (const n of new Set(s.names)) signer(n, s.sport)?.list.push(s);
     for (const t of new Set(s.teams)) team(t)?.list.push(s);
     if (s.sport) sport(s.sport)?.list.push(s);
+  }
+  for (const s of archive) {
+    for (const n of new Set(s.names)) signer(n, s.sport)?.past.push(s);
+    for (const t of new Set(s.teams)) team(t)?.past.push(s);
   }
   for (const h of signers.values()) {
     const { teams: ts, primary } = teamsFor([h.name], h.sport, athletes);
@@ -1296,7 +1341,7 @@ function crumbsNav(trail) {
     : `<span>${esc(name)}</span>`)).join('')}</nav>`;
 }
 
-function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, list, sections = [], title, description }) {
+function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, list, past = [], sections = [], title, description }) {
   const cards = list.length
     ? `<div class="grid">${list.map(card).join('\n')}</div>`
     : `<div class="empty"><p><strong>Nothing is listed right now.</strong> Signings are added every week. Sign up and we'll email you when one is announced.</p></div>`;
@@ -1315,6 +1360,10 @@ ${crumbsNav(trail)}
   <div class="section-head"><h2>Upcoming signings</h2></div>
   ${cards}
 </section>
+${past.length ? `<section class="band">
+  <div class="section-head"><h2>Past signings</h2><a class="more" href="${esc(link('/archive/'))}">Signing Archives ${ICON.arrow}</a></div>
+  <div class="grid">${past.slice(0, 8).map(card).join('\n')}</div>
+</section>` : ''}
 ${sections.filter((x) => x && x.items.length).map((x) => `<section class="band band-alt">
   <div class="section-head"><h2>${esc(x.title)}</h2></div>
   ${chipList(x.items, x.path)}
@@ -1365,6 +1414,7 @@ function signerPage(h) {
     photo: h.photo,
     favorite: h.name,
     list: h.list,
+    past: h.past,
     sections: [
       { title: h.teams.length === 1 ? 'Team' : 'Teams', items: h.teams, path: (t) => teamPath(t.slug) },
       related.length ? { title: `More ${h.primary.name} signers`, items: related, path: (o) => signerPath(o.slug) } : null,
@@ -1390,6 +1440,7 @@ function teamPage(t) {
     favorite: t.name,
     alertText: `Get ${t.name} signing alerts`,
     list: t.list,
+    past: t.past,
     sections: [{ title: `${t.name} signers`, items: people, path: (o) => signerPath(o.slug) }],
     title: `${t.name} Autograph Signings ${THIS_YEAR}${n ? ` (${n} upcoming)` : ''}`,
     description: n
@@ -1450,10 +1501,10 @@ async function put(rel, content) {
 
 async function main() {
   const [rows, athletes] = await Promise.all([loadSignings(), loadAthletes()]);
-  const list = rows
-    .map((row) => shape(row, athletes))
-    .filter((s) => s.sortDate && s.sortDate >= TODAY)
-    .sort((a, b) => a.sortDate.localeCompare(b.sortDate) || a.id - b.id);
+  const all = rows.map((row) => shape(row, athletes)).filter((s) => s.sortDate);
+  const list = all.filter((s) => !s.past).sort((a, b) => a.sortDate.localeCompare(b.sortDate) || a.id - b.id);
+  // Signing Archives: newest first.
+  const archive = all.filter((s) => s.past).sort((a, b) => b.sortDate.localeCompare(a.sortDate) || b.id - a.id);
 
   await rm(OUT, { recursive: true, force: true });
   await mkdir(OUT, { recursive: true });
@@ -1466,8 +1517,11 @@ async function main() {
     await put(`signing/${s.slug}/index.html`, html);
     if (ics) await put(`signing/${s.slug}/event.ics`, ics);
   }
-  await put('photo-credits/index.html', creditsPage(list));
-  const hubs = buildHubs(list, athletes);
+  // Past signings keep their pages, so old links and search results still work.
+  for (const s of archive) await put(`signing/${s.slug}/index.html`, signingPage(s, list).html);
+  await put('archive/index.html', archivePage(archive));
+  await put('photo-credits/index.html', creditsPage([...list, ...archive]));
+  const hubs = buildHubs(list, athletes, archive);
   for (const h of hubs.signers.values()) await put(`autographs/${h.slug}/index.html`, signerPage(h));
   for (const t of hubs.teams.values()) await put(`teams/${t.slug}/index.html`, teamPage(t));
   for (const sp of hubs.sports.values()) await put(`sports/${sp.slug}/index.html`, sportPage(sp));
@@ -1508,11 +1562,12 @@ async function main() {
   // Only pages meant for search results: hub pages with nothing coming up are left out.
   const live = (m) => [...m.values()].filter((h) => h.list.length);
   const pages = [
-    '/', '/events/', '/autographs/', '/teams/', '/add/', '/signup/', '/terms/', '/privacy/', '/photo-credits/',
+    '/', '/events/', '/archive/', '/autographs/', '/teams/', '/add/', '/signup/', '/terms/', '/privacy/', '/photo-credits/',
     ...live(hubs.sports).map((sp) => sportPath(sp.name)),
     ...live(hubs.signers).map((h) => signerPath(h.slug)),
     ...live(hubs.teams).map((t) => teamPath(t.slug)),
     ...list.map((s) => `/signing/${s.slug}/`),
+    ...archive.map((s) => `/signing/${s.slug}/`),
   ];
   await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nDisallow: ${link('/admin/')}\nAllow: /\nSitemap: ${ORIGIN}${link('/sitemap.xml')}\n`);
   if (!NOINDEX) {
@@ -1545,7 +1600,7 @@ async function main() {
     '',
   ].join('\n'));
 
-  console.log(`Built ${list.length} upcoming signings (of ${rows.length} published rows) into dist/`);
+  console.log(`Built ${list.length} upcoming and ${archive.length} past signings (of ${rows.length} rows) into dist/`);
 }
 
 main().catch((err) => {

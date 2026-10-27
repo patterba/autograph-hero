@@ -454,3 +454,7 @@ details.stat-connect summary { cursor: pointer; font-weight: 600; text-decoratio
 details.stat-connect[open] summary { margin-bottom: 12px; }
 .stat-steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
 .stat-connect input { width: 100%; border: 1.5px solid var(--ink); background: #FFFFFF; color: var(--ink); font: 500 16px var(--body); padding: 10px 12px; border-radius: 12px; min-height: 46px; }
+
+/* Signing Archives */
+.archive-month { padding-top: 24px; }
+.archive-month .section-head h2 { font-size: clamp(30px, 3.4vw, 44px); }
