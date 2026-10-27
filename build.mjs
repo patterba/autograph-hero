@@ -1525,6 +1525,8 @@ async function main() {
   // Past signings keep their pages, so old links and search results still work.
   for (const s of archive) await put(`signing/${s.slug}/index.html`, signingPage(s, list).html);
   await put('archive/index.html', archivePage(archive));
+  // Google Search Console ownership file (HTML file method). Keep it: removing it can lose Search Console access.
+  await put('google9017fd775e03a772.html', 'google-site-verification: google9017fd775e03a772.html');
   await put('photo-credits/index.html', creditsPage([...list, ...archive]));
   const hubs = buildHubs(list, athletes, archive);
   for (const h of hubs.signers.values()) await put(`autographs/${h.slug}/index.html`, signerPage(h));
