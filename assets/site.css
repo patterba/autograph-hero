@@ -477,13 +477,14 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .app-foot { max-width: 70ch; }
 
 .app-banner { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 30; max-width: 520px; max-height: calc(100vh - 24px); overflow-y: auto; margin: 0 auto; background: var(--card); border: 1.5px solid var(--ink); border-radius: 18px; box-shadow: 4px 4px 0 var(--ink); overflow: hidden; }
-.app-banner-row { display: flex; align-items: center; gap: 12px; padding: 12px 6px 12px 12px; }
-.app-banner-row img { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; }
-.app-banner-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.25; }
+.app-banner-row { display: grid; grid-template-columns: 52px minmax(0, 1fr) 44px; align-items: center; gap: 12px; padding: 12px 6px 12px 12px; }
+.app-banner-row img { grid-column: 1; grid-row: 1; width: 52px; height: 52px; border-radius: 12px; }
+.app-banner-copy { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 2px; line-height: 1.25; }
+/* The button gets its own full-width row, so the text never gets squeezed on small phones. */
+.app-banner-row .btn { grid-column: 1 / -1; grid-row: 2; width: calc(100% - 6px); }
 .app-banner-copy strong { font-family: var(--display); font-weight: 400; font-size: 20px; text-transform: uppercase; }
 .app-banner-copy span { font-size: 14px; color: var(--ink-2); }
-.app-banner .btn { flex-shrink: 0; }
-.app-banner-close { flex-shrink: 0; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.app-banner-close { grid-column: 3; grid-row: 1; align-self: start; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .app-banner-close:hover { background: var(--paper-alt); }
 .app-banner-steps { border-top: 1.5px dashed var(--line); background: var(--paper); padding: 14px 16px 16px; font-size: 15px; }
 .has-app-banner .submit-bar { display: none !important; }
