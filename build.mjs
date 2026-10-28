@@ -1300,7 +1300,7 @@ function appPage() {
       <h2 class="app-card-title">iPhone &amp; iPad</h2>
       <ol class="app-steps">
         <li>Open <strong>autographhero.com</strong> in <strong>Safari</strong>.</li>
-        <li>Tap <strong>Share</strong>. On newer iPhones, tap <strong>•••</strong> first, then Share.</li>
+        <li>Tap <strong>Share</strong>. Don't see it? Tap <strong>•••</strong> or <strong>☰</strong> to open the menu, then tap Share.</li>
         <li>Scroll down, tap <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li>
       </ol>
     </div>

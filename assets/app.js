@@ -29,7 +29,7 @@
 
   var SHARE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M7 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg>';
   var ADD = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></svg>';
-  var IOS_STEPS = '<ol class="app-steps"><li>Tap <strong>Share</strong> ' + SHARE + ' in Safari. On newer iPhones, tap <strong>•••</strong> first, then Share.</li><li>Scroll down and tap <strong>Add to Home Screen</strong> ' + ADD + '</li><li>Tap <strong>Add</strong>. Autograph Hero opens full screen from your home screen.</li></ol>';
+  var IOS_STEPS = '<ol class="app-steps"><li>Tap <strong>Share</strong> ' + SHARE + ' in Safari. Don\'t see it? Tap <strong>•••</strong> or <strong>☰</strong> to open the menu, then tap Share.</li><li>Scroll down and tap <strong>Add to Home Screen</strong> ' + ADD + '</li><li>Tap <strong>Add</strong>. Autograph Hero opens full screen from your home screen.</li></ol>';
 
   function install() {
     if (!deferred) return Promise.resolve('unavailable');
@@ -68,7 +68,7 @@
       '<div class="app-banner-copy"><strong>Get the app</strong><span>Signings, one tap from your home screen.</span></div>' +
       (android && deferred
         ? '<button type="button" class="btn btn-accent btn-sm" data-act="install">Install</button>'
-        : '<button type="button" class="btn btn-ink btn-sm" data-act="how" aria-expanded="false">How</button>') +
+        : '<button type="button" class="btn btn-ink btn-sm" data-act="how" aria-expanded="false">How to install</button>') +
       '<button type="button" class="app-banner-close" data-act="close" aria-label="Not now"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '</div><div class="app-banner-steps" hidden>' + IOS_STEPS + '</div>';
     document.body.appendChild(el);
@@ -83,7 +83,7 @@
       if (a === 'how') {
         var steps = el.querySelector('.app-banner-steps');
         steps.hidden = !steps.hidden;
-        act.textContent = steps.hidden ? 'How' : 'Hide';
+        act.textContent = steps.hidden ? 'How to install' : 'Hide steps';
         act.setAttribute('aria-expanded', String(!steps.hidden));
       }
     });
