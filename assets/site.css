@@ -461,3 +461,32 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .archive-month { padding-top: 24px; }
 .archive-month .section-head h2 { font-size: clamp(30px, 3.4vw, 44px); }
 .stat-note { font-size: 13px; color: var(--muted); line-height: 1.35; margin-top: 4px; }
+
+/* Installable app: "Get the app" page and the install banner (assets/app.js) */
+.app-panel { padding-top: 8px; }
+.app-panel:empty { display: none; }
+.app-how { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); max-width: 980px; }
+.app-card { background: var(--card); border: 1.5px solid var(--ink); border-radius: 18px; padding: 22px 24px; box-shadow: 4px 4px 0 var(--ink); display: flex; flex-direction: column; gap: 14px; max-width: 560px; }
+.app-card-title { font-size: 22px; font-weight: 700; }
+.app-steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+.app-steps li { counter-increment: step; position: relative; padding: 3px 0 0 40px; min-height: 28px; line-height: 1.4; }
+.app-steps li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--paper); font: 600 13px/28px var(--mono); text-align: center; }
+.app-steps svg { vertical-align: -3px; }
+.app-note { max-width: 60ch; color: var(--ink-2); }
+.app-done { font-weight: 700; color: #15803D; }
+.app-foot { max-width: 70ch; }
+
+.app-banner { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 30; max-width: 520px; max-height: calc(100vh - 24px); overflow-y: auto; margin: 0 auto; background: var(--card); border: 1.5px solid var(--ink); border-radius: 18px; box-shadow: 4px 4px 0 var(--ink); overflow: hidden; }
+.app-banner-row { display: flex; align-items: center; gap: 12px; padding: 12px 6px 12px 12px; }
+.app-banner-row img { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; }
+.app-banner-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.25; }
+.app-banner-copy strong { font-family: var(--display); font-weight: 400; font-size: 20px; text-transform: uppercase; }
+.app-banner-copy span { font-size: 14px; color: var(--ink-2); }
+.app-banner .btn { flex-shrink: 0; }
+.app-banner-close { flex-shrink: 0; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.app-banner-close:hover { background: var(--paper-alt); }
+.app-banner-steps { border-top: 1.5px dashed var(--line); background: var(--paper); padding: 14px 16px 16px; font-size: 15px; }
+.has-app-banner .submit-bar { display: none !important; }
+
+/* Running from the home screen: keep content clear of the iPhone's rounded corners and home bar. */
+.is-app .site-footer { padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
