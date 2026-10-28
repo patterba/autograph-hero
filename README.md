@@ -27,6 +27,13 @@ This pulls the latest signings from Supabase, builds the site and serves it at h
 - **Spam check on Submit a signing:** Cloudflare Turnstile. It switches on when both keys are set: the site key as the GitHub repository variable `TURNSTILE_SITE_KEY` (Settings → Secrets and variables → Actions → Variables), and the secret key as the Supabase Edge Function secret `TURNSTILE_SECRET_KEY`. Add the GitHub variable first; if only the secret is set, the function rejects submissions because the form has no check to send.
 - Both go through the Supabase function `site-forms`, which validates, drops bots (hidden field, minimum fill time) and limits each visitor to 5 sends an hour. Both tables are private.
 
+## Reminders
+
+Every upcoming signing page has **Email me a reminder** under the calendar buttons. Logged-in members get it in one tap; anyone else types an email. One email goes out 24 hours before an in-person signing starts (9 AM the day before if the listing has no readable start time), or for mail-in and private signings at 9 AM Pacific the day before the order deadline. People get a confirmation email with a cancel link (`/reminder/?cancel=…`). The Apple / Outlook calendar file also carries its own alert at 9 AM the day before.
+
+- `assets/remind.js`: the button and email box. `remindBox()` / `remindable()` in `build.mjs` decide where it appears.
+- Supabase function `signing-reminders` (source in `supabase/functions/signing-reminders/`): saves requests into the private `public.reminders` table, sends the confirmation, and every hour (pg_cron job `signing-reminders`, 7 minutes past) sends what's due through Resend. Sent rows are deleted after 30 days, and deleting an account removes its reminders.
+
 ## The app (Add to Home Screen)
 
 The site installs as an app on iPhone, iPad and Android: its own icon, a launch screen, full screen with no browser bars, and pages you've opened keep working with no signal. People install it from the browser (Safari: Share → Add to Home Screen; Chrome: Install). Phones get a small "Get the app" banner a few seconds after a page opens (closing it hides it for two weeks), and **/app/** explains it, linked as "Get the App" in the footer.
@@ -45,6 +52,7 @@ The site installs as an app on iPhone, iPad and Android: its own icon, a launch 
 | `assets/site.js` | The search and filters on the "All signings" page |
 | `assets/forms.js` | Sends the "Submit a signing" and "Sign Up" forms |
 | `assets/app.js` | Install banner, /app/ page and offline worker registration |
+| `assets/remind.js` | The "Email me a reminder" button on signing pages |
 | `assets/app/` | App icons and launch screens |
 | `serve.mjs` | Small local web server used by `npm start` |
 
