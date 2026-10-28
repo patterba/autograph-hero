@@ -36,7 +36,7 @@ Every upcoming signing page has **Email me a reminder** under the calendar butto
 
 ## The app (Add to Home Screen)
 
-The site installs as an app on iPhone, iPad and Android: its own icon, a launch screen, full screen with no browser bars, and pages you've opened keep working with no signal. People install it from the browser (Safari: Share → Add to Home Screen; Chrome: Install). Phones get a small "Get the app" banner a few seconds after a page opens (closing it hides it for two weeks), and **/app/** explains it, linked as "Get the App" in the footer.
+The site installs as an app on iPhone, iPad and Android: its own icon, a launch screen, full screen with no browser bars, and pages you've opened keep working with no signal. People install it from the browser (Safari: Share → Add to Home Screen; Chrome: Install). On phones, the bar that slides up from the bottom while scrolling asks people to install the app instead of "Submit A Signing" (closing it brings the submit bar back for two weeks; inside the installed app it stays the submit bar), and **/app/** explains it, linked as "Get the App" in the footer.
 
 - `manifest.webmanifest`, `sw.js` (the offline worker) and `/offline/` are written by `build.mjs` (`manifest()`, `serviceWorker()`, `offlinePage()`), and iOS tags by `appHead()` in every page's `<head>`.
 - `assets/app.js` registers the worker and runs the banner and the /app/ page.
@@ -51,7 +51,7 @@ The site installs as an app on iPhone, iPad and Android: its own icon, a launch 
 | `assets/site.css` | All styling. Colors and fonts are variables at the top |
 | `assets/site.js` | The search and filters on the "All signings" page |
 | `assets/forms.js` | Sends the "Submit a signing" and "Sign Up" forms |
-| `assets/app.js` | Install banner, /app/ page and offline worker registration |
+| `assets/app.js` | Install prompt in the bottom bar, /app/ page and offline worker registration |
 | `assets/remind.js` | The "Email me a reminder" button on signing pages |
 | `assets/app/` | App icons and launch screens |
 | `serve.mjs` | Small local web server used by `npm start` |
