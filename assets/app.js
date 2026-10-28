@@ -1,5 +1,6 @@
 // Installable app: registers the offline worker (/sw.js) and offers "Add to Home Screen".
-// Android/Chrome get a one-tap Install button; iPhone/iPad get the Share → Add to Home Screen steps.
+// Android/Chrome get a one-tap Install button; iPhone/iPad get the Share → Add to Home Screen steps,
+// both in the bar that slides up from the bottom of the screen on phones.
 (function () {
   var root = document.documentElement;
   var base = root.getAttribute('data-base') || '';
@@ -53,35 +54,45 @@
     if (btn) btn.addEventListener('click', install);
   }
 
-  // Bottom banner on phones, a few seconds after the page opens.
-  var NO_BANNER = /\/(app|add|signup|admin|offline|unsubscribe|reminder)\/$/;
-  function showBanner() {
-    if (standalone || dismissedRecently() || NO_BANNER.test(location.pathname)) return;
-    if (!((ios && !inApp) || (android && deferred))) return;
-    if (document.querySelector('.app-banner')) return;
-    var el = document.createElement('section');
-    el.className = 'app-banner';
-    el.setAttribute('aria-label', 'Install the Autograph Hero app');
-    el.innerHTML =
-      '<div class="app-banner-row">' +
-      '<img src="' + base + '/assets/app/icon-192.png" alt="" width="52" height="52">' +
-      '<div class="app-banner-copy"><strong>Get the app</strong><span>Signings, one tap from your home screen.</span></div>' +
+  // The bar that slides up from the bottom on phones once the header scrolls away (built into
+  // every page as .submit-bar, shown and hidden by its own script). When the app can be installed,
+  // it asks for that instead of "Submit A Signing"; closing it brings the submit bar back.
+  var NO_INSTALL = /\/(app|add|signup|admin|offline|unsubscribe|reminder)\/$/;
+  var bar = document.querySelector('.submit-bar');
+  var submitHtml = bar ? bar.innerHTML : '';
+  function canAsk() {
+    return !standalone && !dismissedRecently() && !NO_INSTALL.test(location.pathname) && ((ios && !inApp) || (android && deferred));
+  }
+  function showSubmit() {
+    if (!bar || !bar.classList.contains('is-install')) return;
+    bar.classList.remove('is-install');
+    bar.removeAttribute('aria-label');
+    bar.innerHTML = submitHtml;
+  }
+  function showInstall() {
+    if (!bar || bar.classList.contains('is-install') || !canAsk()) return;
+    bar.classList.add('is-install');
+    bar.setAttribute('aria-label', 'Install the Autograph Hero app');
+    bar.innerHTML =
+      '<div class="flyup-steps" hidden>' + IOS_STEPS + '</div>' +
+      '<div class="flyup-row">' +
+      '<img src="' + base + '/assets/app/icon-192.png" alt="" width="40" height="40">' +
+      '<span class="flyup-copy"><strong>Get the app</strong><span>Free. Signings one tap away.</span></span>' +
       (android && deferred
         ? '<button type="button" class="btn btn-accent btn-sm" data-act="install">Install</button>'
-        : '<button type="button" class="btn btn-ink btn-sm" data-act="how" aria-expanded="false">How to install</button>') +
-      '<button type="button" class="app-banner-close" data-act="close" aria-label="Not now"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
-      '</div><div class="app-banner-steps" hidden>' + IOS_STEPS + '</div>';
-    document.body.appendChild(el);
-    root.classList.add('has-app-banner');
-    function close() { el.remove(); root.classList.remove('has-app-banner'); }
-    el.addEventListener('click', function (e) {
+        : '<button type="button" class="btn btn-accent btn-sm" data-act="how" aria-expanded="false">How to install</button>') +
+      '<button type="button" class="flyup-close" data-act="close" aria-label="Not now"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      '</div>';
+  }
+  if (bar) {
+    bar.addEventListener('click', function (e) {
       var act = e.target.closest('[data-act]');
-      if (!act) return;
+      if (!act || !bar.classList.contains('is-install')) return;
       var a = act.getAttribute('data-act');
-      if (a === 'close') { rememberDismiss(); close(); }
-      if (a === 'install') install().then(function (o) { if (o === 'dismissed') rememberDismiss(); if (o !== 'unavailable') close(); });
+      if (a === 'close') { rememberDismiss(); showSubmit(); }
+      if (a === 'install') install().then(function (o) { if (o === 'dismissed') rememberDismiss(); if (o !== 'unavailable') showSubmit(); });
       if (a === 'how') {
-        var steps = el.querySelector('.app-banner-steps');
+        var steps = bar.querySelector('.flyup-steps');
         steps.hidden = !steps.hidden;
         act.textContent = steps.hidden ? 'How to install' : 'Hide steps';
         act.setAttribute('aria-expanded', String(!steps.hidden));
@@ -93,15 +104,13 @@
     e.preventDefault();
     deferred = e;
     refreshButtons();
-    setTimeout(showBanner, 2500);
+    showInstall();
   });
   window.addEventListener('appinstalled', function () {
     deferred = null;
-    var b = document.querySelector('.app-banner');
-    if (b) b.remove();
-    root.classList.remove('has-app-banner');
+    showSubmit();
   });
 
   refreshButtons();
-  if (ios) setTimeout(showBanner, 2500);
+  if (ios) showInstall();
 })();
