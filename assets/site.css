@@ -186,6 +186,15 @@ h1, h2, h3, p { margin: 0; }
 .cal { display: flex; flex-direction: column; gap: 10px; }
 .cal-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .cal-row .btn { padding: 11px 12px; font-size: 15px; }
+/* "Email me a reminder" under the calendar buttons (assets/remind.js) */
+.remind { display: flex; flex-direction: column; gap: 10px; }
+.remind .btn.is-set { border-color: #14532D; color: #14532D; opacity: 1; cursor: default; }
+.remind-form { display: flex; flex-direction: column; gap: 8px; }
+.remind-form label { font-size: 15px; font-weight: 600; }
+.remind-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.remind-row input { flex: 1 1 180px; min-width: 0; min-height: 48px; border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; font: 500 16px var(--body); background: #fff; color: var(--ink); }
+.remind-row input[aria-invalid='true'] { border-color: #8A1C12; box-shadow: 0 0 0 1px #8A1C12; }
+.remind-row .btn { flex: 0 0 auto; }
 .maplink { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; text-underline-offset: 4px; padding: 8px 0; }
 .notice { background: #FDE7C4; border: 1.5px solid #7A3E00; color: #4A2600; border-radius: 12px; padding: 12px 14px; font-size: 15px; }
 

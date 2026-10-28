@@ -20,6 +20,8 @@ const NOINDEX = process.env.SITE_NOINDEX === '1';
 const SITE_NAME = 'Autograph Hero';
 // Public endpoint for the "Submit a signing" and sign-up forms (Supabase function site-forms).
 const FORMS_URL = process.env.FORMS_URL || `${SUPABASE_URL}/functions/v1/site-forms`;
+// "Email me a reminder" on signing pages and its cancel link (supabase/functions/signing-reminders).
+const REMIND_URL = process.env.REMIND_URL || `${SUPABASE_URL}/functions/v1/signing-reminders`;
 // Cloudflare Turnstile site key (public) for the check on "Submit a signing".
 // Set as the GitHub repository variable TURNSTILE_SITE_KEY; empty = no check shown.
 const TURNSTILE_SITE_KEY = (process.env.TURNSTILE_SITE_KEY || '').trim();
@@ -498,7 +500,7 @@ self.addEventListener('notificationclick', (e) => {
 
 // noindex: true keeps a page out of search results; 'follow' does the same but lets search engines follow its links.
 // image: an absolute photo URL for share previews (defaults to assets/social.png). ld: structured data objects.
-function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false, noindex = false, image = null, imageAlt = null, ld = [], ogType = 'website' }) {
+function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false, remind = false, noindex = false, image = null, imageAlt = null, ld = [], ogType = 'website' }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: Autograph Signings, Meet & Greets and Mail-Ins`;
   const hidden = NOINDEX || admin || noindex;
   const robots = NOINDEX || admin ? 'noindex, nofollow' : noindex === 'follow' ? 'noindex, follow' : noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
@@ -569,6 +571,7 @@ ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''
 ${forms ? `<script src="${esc(asset('/assets/forms.js'))}" defer></script>` : ''}
 ${captcha ? '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>' : ''}
 ${account ? `<script src="${esc(asset('/assets/account.js'))}" defer></script>` : ''}
+${remind ? `<script src="${esc(asset('/assets/remind.js'))}" defer></script>` : ''}
 ${admin ? `<script src="${esc(asset('/assets/admin.js'))}" defer></script>` : `<script src="${esc(asset('/assets/app.js'))}" defer></script>`}
 ${COUNT_VISITS && !admin && !NOINDEX ? `<script>try{navigator.sendBeacon(${JSON.stringify(`${SUPABASE_URL}/functions/v1/site-visit`)})}catch(e){}</script>` : ''}
 ${CF_ANALYTICS_TOKEN && !admin ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="${esc(JSON.stringify({ token: CF_ANALYTICS_TOKEN }))}"></script>` : ''}
@@ -798,6 +801,8 @@ function calendarFor(s) {
     `SUMMARY:${ics(title)}`,
     `DESCRIPTION:${ics(details)}`,
     s.location ? `LOCATION:${ics(s.location)}` : null,
+    // The calendar app's own reminder: 9 AM the day before (the event is all-day, starting at midnight).
+    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${ics(isDeadline ? `Order deadline tomorrow: ${s.name}` : `Tomorrow: ${s.name} autograph signing`)}`, 'TRIGGER:-PT15H', 'END:VALARM',
     'END:VEVENT', 'END:VCALENDAR',
   ].filter(Boolean).join('\r\n') + '\r\n';
   return { google: `https://calendar.google.com/calendar/render?${g}`, file, isDeadline };
@@ -866,6 +871,33 @@ function eventLd(s) {
   };
 }
 
+// Whether "Email me a reminder" makes sense: mail-in and private signings remind before the order
+// deadline (so only while it's open); others before the signing day. signing-reminders decides the exact time.
+function remindable(s) {
+  if (s.past) return false;
+  if ((s.type === 'mail-in' || s.type === 'private') && s.deadline) return !s.deadlinePassed;
+  return Boolean((s.eventDate && s.eventDate >= TODAY) || (s.deadline && !s.deadlinePassed));
+}
+
+function remindBox(s) {
+  const deadline = (s.type === 'mail-in' || s.type === 'private') && s.deadline;
+  const when = deadline ? 'the day before the order deadline' : 'the day before';
+  return `<div class="remind" data-remind data-signing="${esc(s.id)}" data-endpoint="${esc(REMIND_URL)}" data-path="${esc(BASE)}" data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}"${TURNSTILE_SITE_KEY ? ` data-sitekey="${esc(TURNSTILE_SITE_KEY)}"` : ''}>
+        <button class="btn btn-ghost btn-block" type="button" data-remind-open>${ICON.bell}Email me a reminder</button>
+        <form class="remind-form" data-remind-form hidden novalidate>
+          <label for="remind-email-${esc(s.id)}">Email me ${esc(when)}</label>
+          <div class="remind-row">
+            <input id="remind-email-${esc(s.id)}" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
+            <button class="btn btn-accent" type="submit">Remind me</button>
+          </div>
+          <div class="hp" aria-hidden="true"><label for="remind-website-${esc(s.id)}">Leave this empty</label><input id="remind-website-${esc(s.id)}" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+          <div class="remind-captcha"></div>
+          <p class="small muted">One email about this signing. No newsletter, and you can cancel from the confirmation email.</p>
+        </form>
+        <p class="f-status" role="status" aria-live="polite" hidden></p>
+      </div>`;
+}
+
 function signingPage(s, list) {
   const cal = s.past ? null : calendarFor(s);
   // 5 related + the "See more" card = 6, which fills complete rows at 3, 2 or 1 per row.
@@ -921,6 +953,7 @@ ${crumbsNav(trail)}
           <a class="btn btn-ghost" href="${esc(cal.google)}" rel="noopener" target="_blank">${ICON.cal}Google</a>
           <a class="btn btn-ghost" href="${esc(link(`/signing/${s.slug}/event.ics`))}" download="${esc(s.slug)}.ics">${ICON.cal}Apple / Outlook</a>
         </div>
+        ${remindable(s) ? remindBox(s) : ''}
       </div>` : ''}
       ${mapUrl && !s.past ? `<a class="maplink" href="${esc(mapUrl)}" rel="noopener" target="_blank">${ICON.pin}Open in Google Maps</a>` : ''}
       ${s.names.length ? `<a class="maplink" href="${esc(link(`/signup/?fav=${encodeURIComponent(s.names[0])}`))}">${ICON.bell}Email me when ${esc(s.names[0])} signs again</a>` : ''}
@@ -936,7 +969,7 @@ ${moreCard(list.length, null, s.sport)}</div>
 </section>` : ''}`;
 
   return {
-    html: page({ ...signingMeta(s), pathname: `/signing/${s.slug}/`, body, ld: [breadcrumbLd(trail), s.past ? null : eventLd(s)] }),
+    html: page({ ...signingMeta(s), pathname: `/signing/${s.slug}/`, body, remind: !s.past && remindable(s), ld: [breadcrumbLd(trail), s.past ? null : eventLd(s)] }),
     ics: cal ? cal.file : null,
   };
 }
@@ -1285,6 +1318,45 @@ function unsubscribePage() {
   return page({ title: 'Stop alert emails', description: 'Stop Autograph Hero alert emails.', pathname: '/unsubscribe/', body, admin: false, noindex: true });
 }
 
+// The cancel link in a reminder's confirmation email: /reminder/?cancel=<token>.
+function reminderPage() {
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">Reminders</div>
+  <h1>Cancel this reminder?</h1>
+  <p class="lede">You won't get the reminder email for this signing. Nothing else changes.</p>
+</section>
+<section class="band band-tight">
+  <div class="f-form f-narrow" data-cancel data-endpoint="${esc(REMIND_URL)}">
+    <div class="f-actions">
+      <button class="btn btn-accent" type="button" data-cancel-go>Yes, cancel it</button>
+      <a class="btn btn-ghost" href="${esc(link('/events/'))}">Keep it and see signings</a>
+    </div>
+    <p class="f-status" role="status" aria-live="polite" hidden></p>
+    <noscript><p class="notice">This needs JavaScript turned on.</p></noscript>
+  </div>
+</section>
+<script>
+(function () {
+  var box = document.querySelector('[data-cancel]');
+  var go = box.querySelector('[data-cancel-go]');
+  var st = box.querySelector('.f-status');
+  var t = new URLSearchParams(location.search).get('cancel') || '';
+  function show(m, k) { st.hidden = false; st.className = 'f-status ' + (k || ''); st.textContent = m; }
+  if (!t) { go.disabled = true; show('This link is missing its code. Open the link from your confirmation email again.', 'is-error'); return; }
+  go.addEventListener('click', function () {
+    go.disabled = true;
+    show('Working…', '');
+    fetch(box.getAttribute('data-endpoint'), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify({ form: 'cancel_reminder', token: t }) })
+      .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+      .then(function (r) { show((r && r.message) || 'Something went wrong. Please try again.', r && r.ok ? 'is-success' : 'is-error'); if (!(r && r.ok)) go.disabled = false; })
+      .catch(function () { show("We couldn't reach the server. Please try again.", 'is-error'); go.disabled = false; });
+  });
+})();
+</script>`;
+  return page({ title: 'Cancel a reminder', description: 'Cancel an Autograph Hero reminder email.', pathname: '/reminder/', body, noindex: true });
+}
+
 // "Get the app": install steps for iPhone and Android. assets/app.js fills [data-app-panel] for the device in hand.
 function appPage() {
   const body = `
@@ -1363,6 +1435,7 @@ function privacyPage() {
       ['What we collect and why', `<ul>
       <li><strong>When you sign up:</strong> your name, email address, a password, the teams, players and people you pick, and when you agreed to receive alerts. We use these to email you when your favorites have a signing and to let you log in and manage your account. Your password is stored only in scrambled (hashed) form by our login provider; nobody at Autograph Hero can see it.</li>
       <li><strong>When you log in:</strong> your login is remembered in your browser's storage on that device until you log out. If you forget your password, we email you a link to set a new one.</li>
+      <li><strong>Reminders:</strong> if you ask for a reminder on a signing page, we keep your email and which signing it's for, send one reminder email (plus a confirmation with a cancel link), and delete the record 30 days after it's sent. Deleting your account removes your reminders too.</li>
       <li><strong>The app and offline pages:</strong> your browser keeps copies of the pages you open so they work without a signal, and remembers if you closed the "Get the app" banner. These stay on your device and are never sent to us. Clearing the site's data in your browser removes them.</li>
       <li><strong>When you submit a signing:</strong> the event details you enter, plus your name (optional) and email address so we can follow up. We check every submission before it goes on the calendar. Your name and email are never shown on the site.</li>
       <li><strong>To stop spam:</strong> a scrambled, one-way code made from your internet (IP) address, used to limit how many forms one visitor can send in an hour. The Submit a Signing form also uses a Cloudflare Turnstile check to tell people from bots.</li>
@@ -1760,6 +1833,7 @@ async function main() {
   await put('admin/index.html', adminPage());
   await put('unsubscribe/index.html', unsubscribePage());
   await put('app/index.html', appPage());
+  await put('reminder/index.html', reminderPage());
   await put('offline/index.html', offlinePage());
   await put('manifest.webmanifest', manifest());
   await put('sw.js', serviceWorker());

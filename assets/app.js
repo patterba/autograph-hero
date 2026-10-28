@@ -54,7 +54,7 @@
   }
 
   // Bottom banner on phones, a few seconds after the page opens.
-  var NO_BANNER = /\/(app|add|signup|admin|offline|unsubscribe)\/$/;
+  var NO_BANNER = /\/(app|add|signup|admin|offline|unsubscribe|reminder)\/$/;
   function showBanner() {
     if (standalone || dismissedRecently() || NO_BANNER.test(location.pathname)) return;
     if (!((ios && !inApp) || (android && deferred))) return;
