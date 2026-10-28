@@ -14,6 +14,10 @@ const TYPES = {
   '.js': 'text/javascript; charset=utf-8',
   '.ics': 'text/calendar; charset=utf-8',
   '.txt': 'text/plain; charset=utf-8',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.webmanifest': 'application/manifest+json',
+  '.xml': 'application/xml; charset=utf-8',
 };
 
 async function resolve(urlPath) {
@@ -39,7 +43,10 @@ http.createServer(async (req, res) => {
     res.writeHead(404, { 'content-type': TYPES['.html'] });
     return res.end(await readFile(path.join(DIST, '404.html')).catch(() => 'Not found'));
   }
-  res.writeHead(200, { 'content-type': TYPES[path.extname(file)] || 'application/octet-stream' });
+  const headers = { 'content-type': TYPES[path.extname(file)] || 'application/octet-stream' };
+  // Like the live host: the offline worker must never be served from a cache.
+  if (path.basename(file) === 'sw.js') headers['cache-control'] = 'no-cache, no-store, must-revalidate';
+  res.writeHead(200, headers);
   res.end(await readFile(file));
 }).listen(PORT, () => {
   console.log(`Autograph Hero is running at http://localhost:${PORT}  (press Ctrl+C to stop)`);

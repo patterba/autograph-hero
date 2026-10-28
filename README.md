@@ -27,6 +27,15 @@ This pulls the latest signings from Supabase, builds the site and serves it at h
 - **Spam check on Submit a signing:** Cloudflare Turnstile. It switches on when both keys are set: the site key as the GitHub repository variable `TURNSTILE_SITE_KEY` (Settings → Secrets and variables → Actions → Variables), and the secret key as the Supabase Edge Function secret `TURNSTILE_SECRET_KEY`. Add the GitHub variable first; if only the secret is set, the function rejects submissions because the form has no check to send.
 - Both go through the Supabase function `site-forms`, which validates, drops bots (hidden field, minimum fill time) and limits each visitor to 5 sends an hour. Both tables are private.
 
+## The app (Add to Home Screen)
+
+The site installs as an app on iPhone, iPad and Android: its own icon, a launch screen, full screen with no browser bars, and pages you've opened keep working with no signal. People install it from the browser (Safari: Share → Add to Home Screen; Chrome: Install). Phones get a small "Get the app" banner a few seconds after a page opens (closing it hides it for two weeks), and **/app/** explains it, linked as "Get the App" in the footer.
+
+- `manifest.webmanifest`, `sw.js` (the offline worker) and `/offline/` are written by `build.mjs` (`manifest()`, `serviceWorker()`, `offlinePage()`), and iOS tags by `appHead()` in every page's `<head>`.
+- `assets/app.js` registers the worker and runs the banner and the /app/ page.
+- `assets/app/` holds the icons and iPhone/iPad launch screens, drawn from the caped H in `assets/logo.svg`. Re-render them if the logo changes.
+- Pages are always fetched fresh when online, so the hourly rebuild reaches installed apps. Bump `VERSION` in `serviceWorker()` only to drop everyone's saved copies.
+
 ## Where things live
 
 | File | What it is |
@@ -35,6 +44,8 @@ This pulls the latest signings from Supabase, builds the site and serves it at h
 | `assets/site.css` | All styling. Colors and fonts are variables at the top |
 | `assets/site.js` | The search and filters on the "All signings" page |
 | `assets/forms.js` | Sends the "Submit a signing" and "Sign Up" forms |
+| `assets/app.js` | Install banner, /app/ page and offline worker registration |
+| `assets/app/` | App icons and launch screens |
 | `serve.mjs` | Small local web server used by `npm start` |
 
 ## Settings
