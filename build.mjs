@@ -563,8 +563,12 @@ ${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
     <div class="brand">${ICON.logo}</div>
     <a class="social" href="${X_URL}" rel="me noopener" target="_blank" aria-label="Autograph Hero on X (Twitter)">${ICON.x}<span>@autographheroX</span></a>
   </div>
+  <div class="footer-about">
+    <h2>About Autograph Hero</h2>
+    <p>Autograph Hero is a passion project built by a lifelong autograph and sports card collector. I made it so fans can find every signing, meet &amp; greet and mail-in in one place, and never miss the chance to get something signed by the people they root for. <a href="${esc(link('/about/'))}">Read the story</a> · <a href="${esc(link('/contact/'))}">Contact us</a></p>
+  </div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
-  <p class="small footer-links"><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
+  <p class="small footer-links"><a href="${esc(link('/about/'))}">About</a><a href="${esc(link('/contact/'))}">Contact</a><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''}
@@ -1405,7 +1409,7 @@ function offlinePage() {
 function contactLine() {
   return CONTACT_EMAIL
     ? `email us at <a href="mailto:${esc(CONTACT_EMAIL)}">${esc(CONTACT_EMAIL)}</a>`
-    : `use the <a href="${esc(link('/account/'))}">account page</a> to manage or delete your details`;
+    : `use our <a href="${esc(link('/contact/'))}">contact form</a>, or the <a href="${esc(link('/account/'))}">account page</a> to manage or delete your details`;
 }
 
 function policyPage({ title, pathname, description, eyebrow, intro, sections }) {
@@ -1438,6 +1442,7 @@ function privacyPage() {
       <li><strong>Reminders:</strong> if you ask for a reminder on a signing page, we keep your email and which signing it's for, send one reminder email (plus a confirmation with a cancel link), and delete the record 30 days after it's sent. Deleting your account removes your reminders too.</li>
       <li><strong>The app and offline pages:</strong> your browser keeps copies of the pages you open so they work without a signal, and remembers if you closed the "Get the app" banner. These stay on your device and are never sent to us. Clearing the site's data in your browser removes them.</li>
       <li><strong>When you submit a signing:</strong> the event details you enter, plus your name (optional) and email address so we can follow up. We check every submission before it goes on the calendar. Your name and email are never shown on the site.</li>
+      <li><strong>When you contact us:</strong> your name (optional), email address, topic and message. We email it to ourselves so we can reply, and keep a copy to keep track of conversations. We don't add you to any mailing list.</li>
       <li><strong>To stop spam:</strong> a scrambled, one-way code made from your internet (IP) address, used to limit how many forms one visitor can send in an hour. The Submit a Signing form also uses a Cloudflare Turnstile check to tell people from bots.</li>
       <li><strong>Weekly alerts:</strong> once a week, if new signings were added for your favorites, we email you a short list with photos and links. Weeks with nothing new, you get nothing.</li>
       <li><strong>Site statistics:</strong> we use Cloudflare Web Analytics to count visits and popular pages. It does not use cookies and does not follow you to other websites.</li>
@@ -1504,6 +1509,98 @@ function creditsPage(list) {
   ${items.length ? `<ul class="credits">${items.map((p) => `<li><strong>${esc(p.name)}</strong>: ${p.page ? `<a href="${esc(p.page)}" rel="noopener">${esc(p.credit)}</a>` : esc(p.credit)}${p.license ? `, ${esc(p.license)}` : ''}</li>`).join('')}</ul>` : '<p class="muted">No Wikimedia Commons photos are in use right now.</p>'}
 </section>`;
   return page({ title: 'Photo credits', description: 'Credits for the player photos used on Autograph Hero.', pathname: '/photo-credits/', body });
+}
+
+// Contact: a form that site-forms emails to the owner (CONTACT_TO, autographhero@gmail.com).
+const CONTACT_TOPICS = ['General question', 'A signing is missing or wrong', 'Promoter or shop: list our signings', 'Account or email alerts', 'Something else'];
+function contactPage() {
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">Contact</div>
+  <h1>Get in touch</h1>
+  <p class="lede">Questions, ideas, a signing we got wrong, or you run signings and want them listed? Send a message and we'll reply by email.</p>
+</section>
+<section class="band band-tight">
+  <form class="f-form f-narrow" data-form="contact" data-endpoint="${esc(FORMS_URL)}" novalidate>
+    <fieldset>
+      <legend>Send us a message</legend>
+      <div class="f-row">
+        ${field('c-name', 'Your name', '<input id="c-name" name="name" type="text" maxlength="120" autocomplete="name">')}
+        ${field('c-email', 'Email <span class="req">Required</span>', '<input id="c-email" name="email" type="email" required maxlength="254" autocomplete="email">', "So we can write back. We won't add you to any list.")}
+      </div>
+      ${field('c-topic', 'What is it about?', `<select id="c-topic" name="topic">${CONTACT_TOPICS.map((t) => `<option>${esc(t)}</option>`).join('')}</select>`)}
+      ${field('c-message', 'Message <span class="req">Required</span>', '<textarea id="c-message" name="message" rows="6" required minlength="10" maxlength="4000"></textarea>')}
+      ${honeypot}
+      ${captchaBox()}
+      <div class="f-actions"><button class="btn btn-accent" type="submit">Send message</button></div>
+      ${formStatus}
+    </fieldset>
+    <p class="muted small">Know about a signing we don't have? The fastest way is <a href="${esc(link('/add/'))}">Submit A Signing</a>. You can also find us on <a href="${X_URL}" rel="noopener" target="_blank">X @autographheroX</a>.</p>
+  </form>
+</section>`;
+  return page({
+    title: 'Contact Autograph Hero',
+    description: 'Questions, corrections or signings to list? Send Autograph Hero a message.',
+    pathname: '/contact/',
+    body,
+    forms: true,
+    captcha: Boolean(TURNSTILE_SITE_KEY),
+    ld: [breadcrumbLd([['Home', '/'], ['Contact', '/contact/']]), { '@context': 'https://schema.org', '@type': 'ContactPage', name: 'Contact Autograph Hero', url: abs('/contact/') }],
+  });
+}
+
+// About: the owner's story and what the site does.
+function aboutPage() {
+  const body = `
+<section class="page-head about-head">
+  <div class="eyebrow accent">About</div>
+  <h1>Built by a collector, for collectors</h1>
+  <p class="lede">Autograph Hero started with a simple love of autographs and sports cards, and a wish that finding the next signing were easier.</p>
+</section>
+<section class="band band-tight">
+  <div class="prose">
+    <h2>Why autographs</h2>
+    <p>Autographs and sports cards have always been my passion. A signature turns a card, a ball or a jersey into something personal: a moment with a player you grew up watching, a piece of a championship season, a story you get to tell every time someone asks about it. Opening a pack and pulling a player you love is a thrill. Getting that same card signed is even better.</p>
+    <p>Every collector knows the feeling: waiting in line at a show for your few seconds with an athlete you've cheered for, or opening the mail to find a piece back from a mail-in signing, signed and ready for the shelf.</p>
+    <h2>Why I built this</h2>
+    <p>The hard part was never the waiting in line. It was knowing the signing was happening at all. Signings are spread across dozens of promoter sites, card shop pages and social media posts. Order deadlines come and go quietly, and it's easy to hear about a signing for a player you collect only after it's too late.</p>
+    <p>So I built Autograph Hero: one place to see upcoming autograph signings, meet &amp; greets and mail-in signings, with dates, prices and order deadlines side by side.</p>
+    <h2>What you'll find here</h2>
+    <ul>
+      <li><strong>Every kind of signing.</strong> In-person signings at shows and card shops, private signings where you send your item in, and mail-in signings you can order from home.</li>
+      <li><strong>Updated every week.</strong> Listings are gathered from promoter and shop websites, and fans <a href="${esc(link('/add/'))}">send in the ones we miss</a>. Every submission is checked before it goes live.</li>
+      <li><strong>Alerts for your favorites.</strong> <a href="${esc(link('/signup/'))}">Sign up</a>, pick your teams, players and people, and get an email when they have a signing.</li>
+      <li><strong>Player and team pages.</strong> Browse <a href="${esc(link('/autographs/'))}">signers A–Z</a> and <a href="${esc(link('/teams/'))}">teams</a>, or look back through the <a href="${esc(link('/archive/'))}">Signing Archives</a>.</li>
+    </ul>
+    <h2>A fan site, not a store</h2>
+    <p>Autograph Hero doesn't sell tickets, take orders or handle anyone's items. Every listing links straight to the promoter or shop running the signing, and they handle the rest. Always check the details with them before you order or travel.</p>
+    <h2>Say hello</h2>
+    <p>If you collect too, I'd love to hear from you. <a href="${esc(link('/contact/'))}">Send me a message</a> or follow along on <a href="${X_URL}" rel="me noopener" target="_blank">X @autographheroX</a>. And if you know about a signing that isn't here yet, <a href="${esc(link('/add/'))}">send it in</a>.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="cta-pair">
+    <div class="cta cta-dark">
+      <div class="eyebrow">Alerts</div>
+      <h2>Never miss a signing</h2>
+      <p>Tell us your favorite teams, players and people. We'll email you when one of them has a signing.</p>
+      <a class="btn btn-accent" href="${esc(link('/signup/'))}">${ICON.bell}Sign Up</a>
+    </div>
+    <div class="cta">
+      <div class="eyebrow">Coming up</div>
+      <h2>See every upcoming signing</h2>
+      <p>In person, private and mail-in signings, soonest first.</p>
+      <a class="btn btn-ink" href="${esc(link('/events/'))}">${ICON.arrow}All Signings</a>
+    </div>
+  </div>
+</section>`;
+  return page({
+    title: 'About Autograph Hero',
+    description: 'Autograph Hero is built by a lifelong autograph and sports card collector to put every autograph signing, meet & greet and mail-in signing in one place.',
+    pathname: '/about/',
+    body,
+    ld: [breadcrumbLd([['Home', '/'], ['About', '/about/']]), { '@context': 'https://schema.org', '@type': 'AboutPage', name: 'About Autograph Hero', url: abs('/about/') }],
+  });
 }
 
 // "Signing Archives": signings that have happened, newest first, a section per month.
@@ -1798,6 +1895,8 @@ async function main() {
   // Past signings keep their pages, so old links and search results still work.
   for (const s of archive) await put(`signing/${s.slug}/index.html`, signingPage(s, list).html);
   await put('archive/index.html', archivePage(archive));
+  await put('about/index.html', aboutPage());
+  await put('contact/index.html', contactPage());
   // Google Search Console ownership file (HTML file method). Keep it: removing it can lose Search Console access.
   await put('google9017fd775e03a772.html', 'google-site-verification: google9017fd775e03a772.html');
   await put('photo-credits/index.html', creditsPage([...list, ...archive]));
@@ -1847,7 +1946,7 @@ async function main() {
   // Only pages meant for search results: hub pages with nothing coming up are left out.
   const live = (m) => [...m.values()].filter((h) => h.list.length);
   const pages = [
-    '/', '/events/', '/archive/', '/autographs/', '/teams/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/',
+    '/', '/events/', '/about/', '/contact/', '/archive/', '/autographs/', '/teams/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/',
     ...live(hubs.sports).map((sp) => sportPath(sp.name)),
     ...live(hubs.signers).map((h) => signerPath(h.slug)),
     ...live(hubs.teams).map((t) => teamPath(t.slug)),

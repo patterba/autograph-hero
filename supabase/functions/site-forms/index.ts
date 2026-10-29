@@ -11,6 +11,8 @@
 //   form = "delete_account": a logged-in member deletes their sign-up and their login.
 //   form = "unsubscribe": the "stop these emails" link in alert emails (token from the
 //                     subscriber row) turns alerts off without logging in.
+//   form = "contact": the Contact page; saved to public.contact_messages and emailed to
+//                     CONTACT_TO (default autographhero@gmail.com), Reply-To = the sender.
 // These are public forms. JWT verification is off on purpose (the site's anon key is
 // public anyway); protection is validation, a hidden honeypot field, a minimum fill
 // time, a per-visitor hourly limit and, for submitted signings and sign-ups, a
@@ -31,6 +33,9 @@ const TURNSTILE_SECRET = (Deno.env.get("TURNSTILE_SECRET_KEY") || "").trim();
 const RESEND_ENV = (Deno.env.get("RESEND_API_KEY") || "").trim();
 let resendKey: string | null = RESEND_ENV || null;
 const MAIL_FROM = (Deno.env.get("MAIL_FROM") || "Autograph Hero <alerts@autographhero.com>").trim();
+// Where Contact page messages go (the sender's address is set as Reply-To).
+const CONTACT_TO = (Deno.env.get("CONTACT_TO") || "autographhero@gmail.com").trim();
+const TOPICS = ["General question", "A signing is missing or wrong", "Promoter or shop: list our signings", "Account or email alerts", "Something else"];
 const HOURLY_LIMIT = 5;
 const LOGIN_HOURLY_LIMIT = 8;
 const MIN_FILL_MS = 2500;
@@ -132,14 +137,14 @@ async function getResendKey() {
   return resendKey;
 }
 
-async function sendMail(to: string, subject: string, htmlBody: string, textBody: string, label: string) {
+async function sendMail(to: string, subject: string, htmlBody: string, textBody: string, label: string, replyTo?: string) {
   const key = await getResendKey();
   if (!key) { console.warn(`${label} email skipped: no Resend key (function secret or Vault)`); return false; }
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: MAIL_FROM, to: [to], subject, html: htmlBody, text: textBody }),
+      body: JSON.stringify({ from: MAIL_FROM, to: [to], subject, html: htmlBody, text: textBody, ...(replyTo ? { reply_to: replyTo } : {}) }),
     });
     if (!r.ok) { console.error(`${label} email failed`, r.status, await r.text()); return false; }
     console.log(`${label} email sent`);
@@ -304,6 +309,51 @@ async function listing(b: Record<string, unknown>, hash: string, req: Request) {
     return fail("We couldn't save that just now. Please try again in a minute.", 500);
   }
   return reply(200, { ok: true, message: "Thanks! We'll check the details and add it to the calendar once it's confirmed." });
+}
+
+// ---------- contact page ----------
+
+async function contact(b: Record<string, unknown>, hash: string, req: Request) {
+  if (!(await captchaOk(b.captcha_token, req))) return fail(CAPTCHA_FAIL);
+  const email = text(b.email, 254)?.toLowerCase() || null;
+  if (!isEmail(email)) return fail("Please enter a valid email address so we can write back.");
+  const name = text(b.name, 120);
+  const topic = TOPICS.includes(String(b.topic)) ? String(b.topic) : "General question";
+  // Keep line breaks in the message (text() would flatten them).
+  const message = typeof b.message === "string"
+    ? b.message.replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000b-\u001f\u007f]+/g, " ").replace(/\n{3,}/g, "\n\n").trim().slice(0, 4000)
+    : "";
+  if (message.length < 10) return fail("Please write a short message (at least 10 characters).");
+
+  const r = await db("contact_messages", {
+    method: "POST",
+    body: JSON.stringify({ name, email, topic, message, ip_hash: hash }),
+    headers: { Prefer: "return=representation" },
+  });
+  if (!r.ok) {
+    console.error("contact insert failed", r.status, await r.text());
+    return fail("We couldn't send that just now. Please try again in a minute.", 500);
+  }
+  const [row] = await r.json().catch(() => [null]);
+  const who = name ? `${name} <${email}>` : email!;
+  const sent = await sendMail(
+    CONTACT_TO,
+    `Autograph Hero contact: ${topic}${name ? ` from ${name}` : ""}`,
+    `<div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;color:#16181D;max-width:600px">
+      <p style="margin:0 0 4px;font-size:13px;color:#5B5A55;text-transform:uppercase;letter-spacing:.06em">New message from the Contact page</p>
+      <p style="margin:0 0 12px"><strong>${html(topic)}</strong></p>
+      <p style="margin:0 0 12px">From: ${html(who)}</p>
+      <div style="white-space:pre-wrap;border-left:3px solid #C2410C;padding:8px 14px;background:#F6F1E7">${html(message)}</div>
+      <p style="font-size:14px;color:#5B5A55">Reply to this email to answer them directly.</p>
+    </div>`,
+    `New message from the Contact page\n\nTopic: ${topic}\nFrom: ${who}\n\n${message}\n\nReply to this email to answer them directly.`,
+    "contact",
+    email!,
+  );
+  if (sent && row?.id) {
+    await db(`contact_messages?id=eq.${row.id}`, { method: "PATCH", body: JSON.stringify({ emailed: true }), headers: { Prefer: "return=minimal" } });
+  }
+  return reply(200, { ok: true, message: "Thanks for reaching out! We got your message and will reply by email." });
 }
 
 async function sendWelcome(name: string, email: string, favorites: string[], path: string, updated: boolean) {
@@ -522,8 +572,9 @@ Deno.serve(async (req) => {
     if (await overLimit("login_requests", hash, LOGIN_HOURLY_LIMIT)) return fail("Too many requests. Please try again later.", 429);
     return b.form === "reset" ? reset(b, hash) : login(b, hash);
   }
-  const table = b.form === "listing" ? "submissions" : b.form === "signup" ? "subscribers" : null;
+  const table = b.form === "listing" ? "submissions" : b.form === "signup" ? "subscribers" : b.form === "contact" ? "contact_messages" : null;
   if (!table) return fail("Unknown form.");
   if (await overLimit(table, hash)) return fail("You've sent a lot in the last hour. Please try again later.", 429);
+  if (table === "contact_messages") return contact(b, hash, req);
   return table === "submissions" ? listing(b, hash, req) : signup(b, hash, req);
 });

@@ -1,4 +1,4 @@
-// Sends the "Submit a signing" and "Sign Up" forms to the site-forms Supabase function.
+// Sends the "Submit a signing", "Sign Up" and "Contact" forms to the site-forms Supabase function.
 // The JSON goes as text/plain so the browser doesn't need a CORS preflight.
 (function () {
   var forms = document.querySelectorAll('form[data-form]');
@@ -96,6 +96,10 @@
         if (!/^https?:\/\/\S+\.\S+/.test(value('source_url'))) return invalid(form.elements.source_url, 'Please add a link to the official announcement or order page, starting with https://');
         if (!email.test(value('submitter_email'))) return invalid(form.elements.submitter_email, 'Please enter a valid email address so we can follow up.');
         if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
+      } else if (kind === 'contact') {
+        if (!email.test(value('email'))) return invalid(form.elements.email, 'Please enter a valid email address so we can write back.');
+        if (value('message').length < 10) return invalid(form.elements.message, 'Please write a short message (at least 10 characters).');
+        if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
       } else {
         if (favInput && favInput.value.trim()) addFavorite(favInput.value);
         if (!value('name')) return invalid(form.elements.name, 'Please enter your name.');
@@ -128,6 +132,9 @@
           .forEach(function (k) { data[k] = value(k) || null; });
         data.captcha_token = captchaToken() || null;
         data.athlete_names = value('athlete_names').split(',').map(function (n) { return n.trim(); }).filter(Boolean);
+      } else if (kind === 'contact') {
+        ['name', 'email', 'topic', 'message'].forEach(function (k) { data[k] = value(k) || null; });
+        data.captcha_token = captchaToken() || null;
       } else {
         data.name = value('name');
         data.email = value('email');
