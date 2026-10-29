@@ -422,15 +422,25 @@
     unote.hidden = true;
     ub.appendChild(unote);
     grid.appendChild(ub);
+    var uchart = el('div', 'stat-chart');
+    uchart.hidden = true;
     rpc('admin_unique_visitors', { p_days: visitorDays }).then(function (r) {
       var total = (r.byDay || []).reduce(function (n, x) { return n + (x.uniques || 0); }, 0);
       un.textContent = num(total);
       var first = (r.byDay || [])[0];
       if (r.since && first && r.since > first.date) { unote.textContent = 'Counting since ' + shortDay(r.since) + '.'; unote.hidden = false; }
+      // Chart from the first day we counted (or the whole range once there's enough history).
+      var days = (r.byDay || []).filter(function (x) { return !r.since || x.date >= r.since; });
+      if (days.length) {
+        uchart.appendChild(el('h3', 'stat-sub', 'Unique visitors by day'));
+        uchart.appendChild(bars(days, function (x) { return shortDay(x.date); }, function (x) { return x.uniques || 0; }, 'Unique visitors by day'));
+        uchart.hidden = false;
+      }
     }).catch(function () { un.textContent = '—'; });
     var perDay = d.byDay && d.byDay.length ? Math.round(d.totals.views / d.byDay.length) : 0;
     stat(grid, num(perDay), 'Page views a day');
     box.appendChild(grid);
+    box.appendChild(uchart);
     if (d.byDay && d.byDay.length) {
       box.appendChild(el('h3', 'stat-sub', 'Page views by day'));
       box.appendChild(bars(d.byDay, function (x) { return shortDay(x.date); }, function (x) { return x.views; }, 'Page views by day'));
