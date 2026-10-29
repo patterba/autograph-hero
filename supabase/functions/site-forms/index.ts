@@ -16,7 +16,7 @@
 // These are public forms. JWT verification is off on purpose (the site's anon key is
 // public anyway); protection is validation, a hidden honeypot field, a minimum fill
 // time, a per-visitor hourly limit and, for submitted signings and sign-ups, a
-// Cloudflare Turnstile check once TURNSTILE_SECRET_KEY is set. Account deletion checks
+// Cloudflare Turnstile check once a Turnstile secret is set (function secret or admin page). Account deletion checks
 // the member's own login token with Supabase Auth. Passwords are never stored or logged
 // here; they go straight to Supabase Auth.
 // The browser sends JSON as text/plain so no CORS preflight is needed.
@@ -26,7 +26,6 @@ const BASE_URL = Deno.env.get("SUPABASE_URL")!;
 const DB = `${BASE_URL}/rest/v1`;
 const AUTH = `${BASE_URL}/auth/v1`;
 const KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const TURNSTILE_SECRET = (Deno.env.get("TURNSTILE_SECRET_KEY") || "").trim();
 // Emails go through Resend. The key comes from the RESEND_API_KEY function secret or, if
 // that isn't set, from Vault ('resend_api_key', read with the service role through
 // public.site_resend_key()). No key = no email.
@@ -105,11 +104,33 @@ async function overLimit(table: string, hash: string, limit = HOURLY_LIMIT) {
   return total >= limit;
 }
 
-// Cloudflare Turnstile. Off until the TURNSTILE_SECRET_KEY secret is set on this function.
+// The Turnstile secret: the TURNSTILE_SECRET_KEY function secret if set, else the one saved from the
+// admin page into Vault (read through public.site_turnstile_secret(), checked again every minute).
+const TURNSTILE_ENV = (Deno.env.get("TURNSTILE_SECRET_KEY") || "").trim();
+let turnstileSecret: string | null = null;
+let turnstileAt = 0;
+async function getTurnstileSecret() {
+  if (TURNSTILE_ENV) return TURNSTILE_ENV;
+  if (Date.now() - turnstileAt < 60_000) return turnstileSecret;
+  try {
+    const r = await db("rpc/site_turnstile_secret", { method: "POST", body: "{}" });
+    if (r.ok) {
+      const k = await r.json();
+      turnstileSecret = typeof k === "string" && k.trim() ? k.trim() : null;
+      turnstileAt = Date.now();
+    }
+  } catch (err) {
+    console.error("reading the Turnstile secret failed", String(err));
+  }
+  return turnstileSecret;
+}
+
+// Cloudflare Turnstile. Off until a secret is set (function secret or admin page).
 async function captchaOk(token: unknown, req: Request) {
-  if (!TURNSTILE_SECRET) return true;
+  const secret = await getTurnstileSecret();
+  if (!secret) return true;
   if (typeof token !== "string" || !token || token.length > 2048) return false;
-  const form = new URLSearchParams({ secret: TURNSTILE_SECRET, response: token });
+  const form = new URLSearchParams({ secret, response: token });
   const ip = clientIp(req);
   if (ip) form.set("remoteip", ip);
   try {

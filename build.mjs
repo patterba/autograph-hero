@@ -1256,6 +1256,7 @@ function adminPage() {
         <button role="tab" type="button" data-tab="reviewed" aria-selected="false">Reviewed</button>
         <button role="tab" type="button" data-tab="fans" aria-selected="false">Sign-ups <span class="admin-count" data-count="fans"></span></button>
         <button role="tab" type="button" data-tab="analytics" aria-selected="false">Analytics</button>
+        <button role="tab" type="button" data-tab="captcha" aria-selected="false">Captcha</button>
         <button role="tab" type="button" data-tab="settings" aria-selected="false">Password</button>
       </div>
       <div class="admin-actions">
@@ -1268,6 +1269,16 @@ function adminPage() {
     <div data-pane="reviewed" hidden></div>
     <div data-pane="fans" hidden></div>
     <div data-pane="analytics" hidden></div>
+    <form class="f-form f-narrow" data-pane="captcha" hidden novalidate>
+      <fieldset>
+        <legend>Spam check (Cloudflare Turnstile)</legend>
+        <p data-captcha-state class="notice">Checking…</p>
+        <p class="muted">The "Quick check that you're a person" box on Submit A Signing, Sign Up, Contact and reminders. Paste the <strong>Secret Key</strong> from your Turnstile widget in Cloudflare (Turnstile → Autograph Hero → Settings) to turn the check on. It's saved securely and never shown again.</p>
+        ${field('ad-ts', 'Turnstile secret key', '<input id="ad-ts" name="secret" type="password" autocomplete="off" spellcheck="false" maxlength="200">')}
+        <div class="f-actions"><button class="btn btn-accent" type="submit">Save and turn on</button><button class="btn btn-ghost" type="button" data-captcha-off>Turn off</button></div>
+        <p class="f-status" role="status" aria-live="polite" hidden></p>
+      </fieldset>
+    </form>
     <form class="f-form f-narrow" data-pane="settings" hidden novalidate>
       <fieldset>
         <legend>Change your password</legend>

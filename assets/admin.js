@@ -140,6 +140,7 @@
     Array.prototype.forEach.call(tabs, function (t) { t.setAttribute('aria-selected', String(t.getAttribute('data-tab') === name)); });
     Object.keys(panes).forEach(function (k) { panes[k].hidden = k !== name; });
     if (name === 'analytics' && !analyticsLoaded) loadAnalytics();
+    if (name === 'captcha') loadCaptcha();
   }
 
   // ---- data
@@ -546,6 +547,41 @@
     cols.appendChild(topTable('Upcoming by type', l.by_type, [function (r) { return TYPE_PLURAL[r.label] || r.label; }, function (r) { return num(r.n); }]));
     box.appendChild(cols);
   }
+
+  // ---- captcha: the Turnstile secret is saved to the database's secret store (admin_set_turnstile)
+  var captchaForm = panes.captcha;
+  var captchaState = captchaForm.querySelector('[data-captcha-state]');
+  function showCaptcha(on) {
+    captchaState.className = 'notice ' + (on ? 'notice-ok' : '');
+    captchaState.textContent = on
+      ? 'On: forms check that visitors are people. Paste a new key below only if you change it in Cloudflare.'
+      : 'Off: the check box shows on the forms, but nothing is checked yet.';
+  }
+  function loadCaptcha() {
+    rpc('admin_turnstile_on').then(showCaptcha).catch(function (e) {
+      if (e.expired) loggedOut(e.message); else captchaState.textContent = e.message;
+    });
+  }
+  function saveCaptcha(secret) {
+    var st = captchaForm.querySelector('.f-status');
+    var buttons = captchaForm.querySelectorAll('button');
+    Array.prototype.forEach.call(buttons, function (b) { b.disabled = true; });
+    status(st, 'Saving…', '');
+    rpc('admin_set_turnstile', { p_secret: secret }).then(function (r) {
+      captchaForm.reset();
+      showCaptcha(r && r.on);
+      status(st, r && r.on ? 'Saved. The check is on (it can take a minute to kick in).' : 'Turned off.', 'is-success');
+    }).catch(function (e) {
+      if (e.expired) loggedOut(e.message); else status(st, e.message, 'is-error');
+    }).then(function () { Array.prototype.forEach.call(buttons, function (b) { b.disabled = false; }); });
+  }
+  captchaForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = captchaForm.elements.secret.value.trim();
+    if (!/^0x[A-Za-z0-9_-]{18,}$/.test(v)) { status(captchaForm.querySelector('.f-status'), 'Paste the whole Secret Key from Cloudflare. It starts with 0x.', 'is-error'); return; }
+    saveCaptcha(v);
+  });
+  captchaForm.querySelector('[data-captcha-off]').addEventListener('click', function () { saveCaptcha(''); });
 
   // ---- password change
   panes.settings.addEventListener('submit', function (e) {

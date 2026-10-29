@@ -4,7 +4,7 @@
 //   1. The signing page (assets/remind.js) posts {form: "remind", signing_id, email | access_token}
 //      or, from the cancel link, {form: "cancel_reminder", token}. Public, like site-forms: JSON
 //      sent as text/plain (no CORS preflight), honeypot, minimum time on the page, hourly limit per
-//      visitor, Turnstile for logged-out visitors once TURNSTILE_SECRET_KEY is set. Logged-in members
+//      visitor, Turnstile for logged-out visitors once a Turnstile secret is set. Logged-in members
 //      send their login token instead of an email. Saved to public.reminders (private), with a
 //      confirmation email carrying a cancel link (/reminder/?cancel=<token>).
 //   2. pg_cron, hourly, with the header x-cron-secret (see below), which sends what's due.
@@ -28,7 +28,6 @@ const DB = `${BASE_URL}/rest/v1`;
 const KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const AUTH = `${BASE_URL}/auth/v1`;
 const MAIL_FROM = (Deno.env.get("MAIL_FROM") || "Autograph Hero <alerts@autographhero.com>").trim();
-const TURNSTILE_SECRET = (Deno.env.get("TURNSTILE_SECRET_KEY") || "").trim();
 const SITE = "https://autographhero.com";
 const SITE_PATHS = ["", "/new"]; // where the site may live
 const REMIND_HOURLY_LIMIT = 12;
@@ -242,11 +241,33 @@ async function overLimit(hash: string) {
   const r = await db(`reminders?select=id&ip_hash=eq.${hash}&created_at=gte.${encodeURIComponent(since)}`, { headers: { Prefer: "count=exact", Range: "0-0" } });
   return Number((r.headers.get("content-range") || "*/0").split("/")[1]) >= REMIND_HOURLY_LIMIT;
 }
-// Cloudflare Turnstile, as on site-forms. Off until TURNSTILE_SECRET_KEY is set on this function.
+// The Turnstile secret: the TURNSTILE_SECRET_KEY function secret if set, else the one saved from the
+// admin page into Vault (read through public.site_turnstile_secret(), checked again every minute).
+const TURNSTILE_ENV = (Deno.env.get("TURNSTILE_SECRET_KEY") || "").trim();
+let turnstileSecret: string | null = null;
+let turnstileAt = 0;
+async function getTurnstileSecret() {
+  if (TURNSTILE_ENV) return TURNSTILE_ENV;
+  if (Date.now() - turnstileAt < 60_000) return turnstileSecret;
+  try {
+    const r = await db("rpc/site_turnstile_secret", { method: "POST", body: "{}" });
+    if (r.ok) {
+      const k = await r.json();
+      turnstileSecret = typeof k === "string" && k.trim() ? k.trim() : null;
+      turnstileAt = Date.now();
+    }
+  } catch (err) {
+    console.error("reading the Turnstile secret failed", String(err));
+  }
+  return turnstileSecret;
+}
+
+// Cloudflare Turnstile, as on site-forms. Off until a secret is set (function secret or admin page).
 async function captchaOk(token: unknown, req: Request) {
-  if (!TURNSTILE_SECRET) return true;
+  const secret = await getTurnstileSecret();
+  if (!secret) return true;
   if (typeof token !== "string" || !token || token.length > 2048) return false;
-  const form = new URLSearchParams({ secret: TURNSTILE_SECRET, response: token });
+  const form = new URLSearchParams({ secret, response: token });
   const ip = clientIp(req);
   if (ip) form.set("remoteip", ip);
   try {

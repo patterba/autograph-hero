@@ -507,3 +507,4 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .footer-about h2 { font-family: var(--display); font-weight: 400; font-size: 24px; line-height: 1; text-transform: uppercase; color: var(--ink); }
 .footer-about a { font-weight: 600; text-underline-offset: 3px; white-space: nowrap; }
 .stat-chart { display: flex; flex-direction: column; gap: 16px; }
+.notice.notice-ok { background: #E3F1E0; border-color: #2F6B2A; color: #1E4A1A; }
