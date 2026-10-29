@@ -22,9 +22,10 @@ const SITE_NAME = 'Autograph Hero';
 const FORMS_URL = process.env.FORMS_URL || `${SUPABASE_URL}/functions/v1/site-forms`;
 // "Email me a reminder" on signing pages and its cancel link (supabase/functions/signing-reminders).
 const REMIND_URL = process.env.REMIND_URL || `${SUPABASE_URL}/functions/v1/signing-reminders`;
-// Cloudflare Turnstile site key (public) for the check on "Submit a signing".
-// Set as the GitHub repository variable TURNSTILE_SITE_KEY; empty = no check shown.
-const TURNSTILE_SITE_KEY = (process.env.TURNSTILE_SITE_KEY || '').trim();
+// Cloudflare Turnstile "are you a person" check on Submit a Signing, Sign Up, Contact and reminders.
+// The site key is public (widget "Autograph Hero" in the owner's Cloudflare account); the matching
+// secret is the TURNSTILE_SECRET_KEY Supabase secret. The GitHub variable TURNSTILE_SITE_KEY overrides it.
+const TURNSTILE_SITE_KEY = (process.env.TURNSTILE_SITE_KEY || '0x4AAAAAAFqb9fLxUdjBVuqy').trim();
 // Cloudflare Web Analytics token for autographhero.com. It is public (it sits in every page).
 // The GitHub variable CF_ANALYTICS_TOKEN overrides it; set ANALYTICS=off to build without it.
 const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.CF_ANALYTICS_TOKEN || '35d2f0b32d714998a1157305df2b7064').trim();
