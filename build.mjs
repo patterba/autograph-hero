@@ -1512,7 +1512,7 @@ function creditsPage(list) {
 }
 
 // Contact: a form that site-forms emails to the owner (CONTACT_TO, autographhero@gmail.com).
-const CONTACT_TOPICS = ['General question', 'A signing is missing or wrong', 'Promoter or shop: list our signings', 'Account or email alerts', 'Something else'];
+const CONTACT_TOPICS = ['General question', 'Advertise with us', 'A signing is missing or wrong', 'Promoter or shop: list our signings', 'Account or email alerts', 'Something else'];
 function contactPage() {
   const body = `
 <section class="page-head">

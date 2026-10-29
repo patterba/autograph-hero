@@ -35,7 +35,7 @@ let resendKey: string | null = RESEND_ENV || null;
 const MAIL_FROM = (Deno.env.get("MAIL_FROM") || "Autograph Hero <alerts@autographhero.com>").trim();
 // Where Contact page messages go (the sender's address is set as Reply-To).
 const CONTACT_TO = (Deno.env.get("CONTACT_TO") || "autographhero@gmail.com").trim();
-const TOPICS = ["General question", "A signing is missing or wrong", "Promoter or shop: list our signings", "Account or email alerts", "Something else"];
+const TOPICS = ["General question", "Advertise with us", "A signing is missing or wrong", "Promoter or shop: list our signings", "Account or email alerts", "Something else"];
 const HOURLY_LIMIT = 5;
 const LOGIN_HOURLY_LIMIT = 8;
 const MIN_FILL_MS = 2500;
