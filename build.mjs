@@ -544,6 +544,7 @@ ${PHOTO_SCRIPT}
     <a href="${esc(link('/events/'))}"${pathname === '/events/' ? ' aria-current="page"' : ''}>All Signings</a>
     <a href="${esc(link('/events/?type=public'))}">In Person</a>
     <a href="${esc(link('/events/?type=mail-in'))}">Mail-In</a>
+    <a href="${esc(link('/contact/?topic=advertise'))}">Advertise<span class="nav-long"> With Us</span></a>
     <a class="nav-login" href="${esc(link('/account/'))}"${pathname === '/account/' ? ' aria-current="page"' : ''}>${ICON.user}Log In</a>
   </nav>
   <div class="header-actions">

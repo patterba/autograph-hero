@@ -14,6 +14,17 @@
     var captcha = form.querySelector('.cf-turnstile');
     var favList = form.querySelector('[data-fav-list]');
 
+    // /contact/?topic=advertise (the "Advertise With Us" link) picks that topic.
+    if (kind === 'contact' && form.elements.topic) {
+      var want = new URLSearchParams(location.search).get('topic');
+      if (want) {
+        Array.prototype.some.call(form.elements.topic.options, function (o) {
+          if (o.value.toLowerCase().indexOf(want.toLowerCase()) === 0) { form.elements.topic.value = o.value; return true; }
+          return false;
+        });
+      }
+    }
+
     if (favInput) {
       var params = new URLSearchParams(location.search);
       params.getAll('fav').forEach(addFavorite);

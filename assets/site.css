@@ -508,3 +508,8 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .footer-about a { font-weight: 600; text-underline-offset: 3px; white-space: nowrap; }
 .stat-chart { display: flex; flex-direction: column; gap: 16px; }
 .notice.notice-ok { background: #E3F1E0; border-color: #2F6B2A; color: #1E4A1A; }
+@media (max-width: 1180px) { .nav-long { display: none; } }
+@media (min-width: 901px) and (max-width: 1240px) {
+  .site-header { column-gap: 14px; }
+  .site-header nav { column-gap: 14px; font-size: 16px; }
+}
