@@ -513,3 +513,14 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
   .site-header { column-gap: 14px; }
   .site-header nav { column-gap: 14px; font-size: 16px; }
 }
+
+/* Home page "All signings / My favorites" toggle (logged-in members, assets/myfeed.js) */
+.home-head-end { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; }
+.view-toggle { display: inline-flex; padding: 3px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); }
+.view-toggle button { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 8px 16px; border: none; border-radius: 999px; background: none; color: var(--ink); font: 600 15px var(--body); cursor: pointer; }
+.view-toggle button svg { width: 16px; height: 16px; }
+.view-toggle button[aria-pressed='true'] { background: var(--ink); color: var(--paper); }
+.view-toggle button:not([aria-pressed='true']):hover { background: var(--paper); }
+.view-toggle button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+[data-my-favs] { margin: 0 0 24px; }
+@media (max-width: 520px) { .view-toggle button { font-size: 14px; padding: 6px 12px; min-height: 36px; } }
