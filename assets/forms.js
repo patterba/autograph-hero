@@ -104,6 +104,9 @@
         if (!value('athlete_names')) return invalid(form.elements.athlete_names, 'Please enter who is signing.');
         if (!value('signing_type')) return invalid(form.querySelector('input[name="signing_type"]'), 'Please choose how the signing works.');
         if (!value('event_date') && !value('order_deadline')) return invalid(form.elements.event_date, 'Please enter the signing date or the order deadline.');
+        // In-person signings need a place so they show up under their state.
+        if (value('signing_type') === 'public' && !value('city')) return invalid(form.elements.city, 'Please enter the city for an in-person signing.');
+        if (value('signing_type') === 'public' && !value('state')) return invalid(form.elements.state, 'Please choose the state for an in-person signing.');
         if (!/^https?:\/\/\S+\.\S+/.test(value('source_url'))) return invalid(form.elements.source_url, 'Please add a link to the official announcement or order page, starting with https://');
         if (!email.test(value('submitter_email'))) return invalid(form.elements.submitter_email, 'Please enter a valid email address so we can follow up.');
         if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
