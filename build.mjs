@@ -1060,8 +1060,8 @@ function addPage() {
       </div>
       ${field('f-venue', 'Venue', '<input id="f-venue" name="venue" type="text" maxlength="200" placeholder="Card shop, convention center, stadium…">')}
       <div class="f-row">
-        ${field('f-city', 'City', '<input id="f-city" name="city" type="text" maxlength="100">')}
-        ${field('f-state', 'State', `<select id="f-state" name="state"><option value="">Choose one</option>${US_STATES.map((x) => `<option>${x}</option>`).join('')}</select>`)}
+        ${field('f-city', 'City <span class="req">In person</span>', '<input id="f-city" name="city" type="text" maxlength="100" autocomplete="address-level2">')}
+        ${field('f-state', 'State <span class="req">In person</span>', `<select id="f-state" name="state" autocomplete="address-level1"><option value="">Choose one</option>${US_STATES.map((x) => `<option>${x}</option>`).join('')}</select>`)}
       </div>
     </fieldset>
     <fieldset>
