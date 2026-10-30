@@ -1,7 +1,8 @@
 // Receives the public forms on autographhero.com:
 //   form = "listing": a fan submits a signing; saved to public.submissions as 'pending'
 //                     for the owner to approve. Nothing goes live from here.
-//   form = "signup":  a fan signs up for alerts about favorite teams and people;
+//   form = "signup":  a fan signs up for alerts about favorite teams and people (first and
+//                     last name required: first_name + last_name, saved together as name);
 //                     saved to public.subscribers (one row per email, updated on repeat).
 //                     A new email also gets an email + password login (Supabase Auth),
 //                     active right away (the page then logs them in). Welcome email via Resend.
@@ -413,8 +414,19 @@ ${button(`${site}/events/`, matches.length ? "See all upcoming signings" : "See 
 
 async function signup(b: Record<string, unknown>, hash: string, req: Request) {
   if (!(await captchaOk(b.captcha_token, req))) return fail(CAPTCHA_FAIL);
-  const name = text(b.name, 120);
-  if (!name) return fail("Please enter your name.");
+  // First and last name are both required (no one-word names). Older cached pages send
+  // only "name"; that must then have at least two words.
+  let name: string | null;
+  if (b.first_name !== undefined || b.last_name !== undefined) {
+    const first = text(b.first_name, 60);
+    const last = text(b.last_name, 60);
+    if (!first) return fail("Please enter your first name.");
+    if (!last) return fail("Please enter your last name.");
+    name = `${first} ${last}`.slice(0, 120);
+  } else {
+    name = text(b.name, 120);
+    if (!name || name.split(" ").length < 2) return fail("Please enter your first and last name.");
+  }
   const email = text(b.email, 254)?.toLowerCase() || null;
   if (!isEmail(email)) return fail("Please enter a valid email address.");
   const password = typeof b.password === "string" ? b.password : "";

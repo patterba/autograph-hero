@@ -1072,7 +1072,10 @@ function signupPage(list, athletes) {
     <fieldset>
       <legend><span class="f-n">01</span>Your account</legend>
       <div class="f-row">
-        ${field('s-name', 'Name <span class="req">Required</span>', '<input id="s-name" name="name" type="text" required maxlength="120" autocomplete="name">')}
+        ${field('s-first', 'First name <span class="req">Required</span>', '<input id="s-first" name="first_name" type="text" required maxlength="60" autocomplete="given-name">')}
+        ${field('s-last', 'Last name <span class="req">Required</span>', '<input id="s-last" name="last_name" type="text" required maxlength="60" autocomplete="family-name">')}
+      </div>
+      <div class="f-row">
         ${field('s-email', 'Email (your login) <span class="req">Required</span>', '<input id="s-email" name="email" type="email" required maxlength="254" autocomplete="username">')}
       </div>
       <div class="f-row">
@@ -1183,7 +1186,10 @@ function accountPage(list, athletes) {
     <fieldset>
       <legend><span class="f-n">01</span>Your details</legend>
       <div class="f-row">
-        ${field('m-name', 'Name', '<input id="m-name" name="name" type="text" required maxlength="120" autocomplete="name">')}
+        ${field('m-first', 'First name', '<input id="m-first" name="first_name" type="text" required maxlength="60" autocomplete="given-name">')}
+        ${field('m-last', 'Last name', '<input id="m-last" name="last_name" type="text" required maxlength="60" autocomplete="family-name">')}
+      </div>
+      <div class="f-row">
         <div class="f-field"><span class="f-label">Email (your login)</span><p class="account-email" data-email></p></div>
       </div>
     </fieldset>

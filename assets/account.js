@@ -279,7 +279,10 @@
   }
 
   function fill(data) {
-    acct.elements.name.value = data.name || '';
+    // Stored as one "First Last" string: the first word is the first name, the rest the last name.
+    var parts = String(data.name || '').trim().split(/\s+/);
+    acct.elements.first_name.value = parts[0] || '';
+    acct.elements.last_name.value = parts.slice(1).join(' ');
     acct.querySelector('[data-email]').textContent = data.email || '';
     acct.elements.alerts.checked = !!data.alerts;
     favorites = Array.isArray(data.favorites) ? data.favorites.slice() : [];
@@ -310,8 +313,11 @@
     e.preventDefault();
     var st = acct.querySelector('[data-save-status]');
     if (favInput.value.trim()) addFavorite(favInput.value);
-    var name = acct.elements.name.value.trim();
-    if (!name) { acct.elements.name.focus(); status(st, 'Please enter your name.', 'is-error'); return; }
+    var firstName = acct.elements.first_name.value.trim();
+    var lastName = acct.elements.last_name.value.trim();
+    if (!firstName) { acct.elements.first_name.focus(); status(st, 'Please enter your first name.', 'is-error'); return; }
+    if (!lastName) { acct.elements.last_name.focus(); status(st, 'Please enter your last name.', 'is-error'); return; }
+    var name = firstName + ' ' + lastName;
     var button = acct.querySelector('button[type="submit"]');
     button.disabled = true;
     status(st, 'Saving…', '');

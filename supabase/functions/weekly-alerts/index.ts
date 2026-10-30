@@ -8,6 +8,10 @@
 // Called by pg_cron once a week with the header x-cron-secret (Vault 'weekly_alerts_secret').
 // For a test, POST {"only": "someone@example.com"} with the same header; add "force": true
 // to send even when nothing is new, or "dry": true to only report what would be sent.
+// Add "roundup": N (1-4) to also email fans with nothing new an "Upcoming for your favorites"
+// email listing their next N matches (fans with no matches at all are still skipped).
+// Add "copy_to": "you@example.com" (with "only") to send a copy of that fan's email to you
+// instead: subject marked as a copy, unsubscribe link disabled, and the fan's record untouched.
 // JWT verification is off; the shared secret is the check.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
@@ -129,6 +133,18 @@ const LOGO_URL = "https://raw.githubusercontent.com/patterba/autograph-hero/main
 const emailHeader = () =>
   `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F1E7;border-bottom:2px solid #16181D;margin:0 0 20px"><tr><td width="124" valign="middle" style="padding:10px 0 10px 12px"><a href="https://autographhero.com/"><img src="${LOGO_URL}" width="124" height="74" alt="Autograph Hero" style="display:block;border:0;outline:none;width:124px;height:74px"></a></td><td valign="middle" align="right" style="padding:10px 12px 10px 8px;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.2;font-weight:800;color:#C2410C;font-style:italic;white-space:nowrap">Never miss a signing!</td></tr></table>`;
 
+const footerHtml = (unsub: string) =>
+  `<p><a href="${SITE}/events/" style="display:inline-block;background:#C2410C;color:#FFFFFF;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px">See all upcoming signings</a></p>
+<p style="font-size:13px;color:#5B5A55;margin-top:24px">You're getting this because you signed up for alerts on Autograph Hero.
+<a href="${SITE}/account/" style="color:#C2410C">Change your favorites</a> or <a href="${html(unsub)}" style="color:#C2410C">stop these emails</a>.</p>`;
+const footerText = (unsub: string) => [
+  "",
+  `All upcoming signings: ${SITE}/events/`,
+  `Change your favorites: ${SITE}/account/`,
+  `Stop these emails: ${unsub}`,
+];
+const line = (s: Signing) => `- ${s.name}, ${s.when}${s.where ? `, ${s.where}` : ""}: ${s.href}`;
+
 function digest(sub: { name: string; unsubscribe_token: string }, fresh: Signing[], upcoming: Signing[]) {
   const first = String(sub.name || "").split(" ")[0] || "there";
   const unsub = `${SITE}/unsubscribe/?t=${encodeURIComponent(sub.unsubscribe_token)}`;
@@ -143,20 +159,39 @@ ${emailHeader()}
 <p style="font-size:20px;font-weight:700;margin:20px 0 4px">New this week</p>
 ${cards(fresh)}
 ${upcoming.length ? `<p style="font-size:18px;font-weight:700;margin:24px 0 4px">Also coming up</p>${cards(upcoming)}` : ""}
-<p><a href="${SITE}/events/" style="display:inline-block;background:#C2410C;color:#FFFFFF;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px">See all upcoming signings</a></p>
-<p style="font-size:13px;color:#5B5A55;margin-top:24px">You're getting this because you signed up for alerts on Autograph Hero.
-<a href="${SITE}/account/" style="color:#C2410C">Change your favorites</a> or <a href="${html(unsub)}" style="color:#C2410C">stop these emails</a>.</p>
+${footerHtml(unsub)}
 </div>`;
   const text = [
     `Hi ${first},`,
     "",
     `New this week for your favorites:`,
-    ...fresh.map((s) => `- ${s.name}, ${s.when}${s.where ? `, ${s.where}` : ""}: ${s.href}`),
-    ...(upcoming.length ? ["", "Also coming up:", ...upcoming.map((s) => `- ${s.name}, ${s.when}${s.where ? `, ${s.where}` : ""}: ${s.href}`)] : []),
+    ...fresh.map(line),
+    ...(upcoming.length ? ["", "Also coming up:", ...upcoming.map(line)] : []),
+    ...footerText(unsub),
+  ].join("\n");
+  return { subject, html: body, text, unsub };
+}
+
+// For fans with nothing new this week: their next few matching signings.
+function roundup(sub: { name: string; unsubscribe_token: string }, upcoming: Signing[]) {
+  const first = String(sub.name || "").split(" ")[0] || "there";
+  const unsub = `${SITE}/unsubscribe/?t=${encodeURIComponent(sub.unsubscribe_token)}`;
+  const names = [...new Set(upcoming.map((s) => s.name))];
+  const subject = names.length === 1 ? `Coming up: ${names[0]}` : `${upcoming.length} upcoming signings for your favorites`;
+  const body = `<div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;color:#16181D;max-width:560px">
+${emailHeader()}
+<p>Hi ${html(first)},</p>
+<p>Here ${upcoming.length === 1 ? "is an upcoming signing" : "are upcoming signings"} that match${upcoming.length === 1 ? "es" : ""} your favorites.</p>
+<p style="font-size:20px;font-weight:700;margin:20px 0 4px">Coming up for your favorites</p>
+${cards(upcoming)}
+${footerHtml(unsub)}
+</div>`;
+  const text = [
+    `Hi ${first},`,
     "",
-    `All upcoming signings: ${SITE}/events/`,
-    `Change your favorites: ${SITE}/account/`,
-    `Stop these emails: ${unsub}`,
+    `Coming up for your favorites:`,
+    ...upcoming.map(line),
+    ...footerText(unsub),
   ].join("\n");
   return { subject, html: body, text, unsub };
 }
@@ -165,9 +200,12 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json(404, { ok: false });
   const secret = await rpcText("site_cron_secret");
   if (!secret || req.headers.get("x-cron-secret") !== secret) return json(401, { ok: false });
-  const opts = await req.json().catch(() => ({})) as { only?: string; force?: boolean; dry?: boolean };
+  const opts = await req.json().catch(() => ({})) as { only?: string; force?: boolean; dry?: boolean; roundup?: number; copy_to?: string };
   const resendKey = (Deno.env.get("RESEND_API_KEY") || "").trim() || (await rpcText("site_resend_key"));
   if (!resendKey) return json(500, { ok: false, error: "no Resend key" });
+  const copyTo = typeof opts.copy_to === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(opts.copy_to) ? opts.copy_to.trim() : "";
+  if (opts.copy_to && (!copyTo || !opts.only)) return json(400, { ok: false, error: "copy_to needs a valid email and only" });
+  const roundupN = Math.min(Math.max(Math.floor(Number(opts.roundup) || 0), 0), MAX_UPCOMING);
 
   const all = await loadSignings();
   let q = "subscribers?select=id,name,email,favorites,unsubscribe_token,last_digest_at,created_at&status=eq.active&limit=10000";
@@ -178,27 +216,39 @@ Deno.serve(async (req) => {
 
   const weekAgo = Date.now() - 8 * 24 * 3600_000;
   const outgoing: { id: number; email: string; payload: Record<string, unknown> }[] = [];
-  const report: { email: string; fresh: number; upcoming: number; sent: boolean }[] = [];
-  for (const s of subs) {
+  const report: { email: string; kind?: string; fresh: number; upcoming: number; sent: boolean }[] = [];
+  for (const s0 of subs) {
+    const s = copyTo ? { ...s0, unsubscribe_token: "copy-preview" } : s0;
     const matches = matchesFor(Array.isArray(s.favorites) ? s.favorites : [], all);
     // New = went live since this fan's last weekly email (or sign-up), looking back at most 8 days.
     const since = Math.max(Date.parse(s.last_digest_at || s.created_at || 0) || 0, weekAgo);
     let fresh = matches.filter((m) => Date.parse(m.publishedAt) > since);
     if (!fresh.length && opts.force) fresh = matches.slice(0, 2);
-    if (!fresh.length) { report.push({ email: s.email, fresh: 0, upcoming: matches.length, sent: false }); continue; }
-    fresh = fresh.slice(0, MAX_NEW);
-    const freshIds = new Set(fresh.map((f) => f.id));
-    const upcoming = matches.filter((m) => !freshIds.has(m.id)).slice(0, MAX_UPCOMING);
-    const d = digest(s, fresh, upcoming);
+    let d: { subject: string; html: string; text: string; unsub: string };
+    let kind = "digest";
+    let upcoming: Signing[] = [];
+    if (fresh.length) {
+      fresh = fresh.slice(0, MAX_NEW);
+      const freshIds = new Set(fresh.map((f) => f.id));
+      upcoming = matches.filter((m) => !freshIds.has(m.id)).slice(0, MAX_UPCOMING);
+      d = digest(s, fresh, upcoming);
+    } else if (roundupN && matches.length) {
+      kind = "roundup";
+      upcoming = matches.slice(0, roundupN);
+      d = roundup(s, upcoming);
+    } else {
+      report.push({ email: s.email, fresh: 0, upcoming: matches.length, sent: false });
+      continue;
+    }
     outgoing.push({
       id: s.id,
       email: s.email,
       payload: {
-        from: MAIL_FROM, to: [s.email], subject: d.subject, html: d.html, text: d.text,
+        from: MAIL_FROM, to: [copyTo || s.email], subject: copyTo ? `[Copy of ${s.name || s.email}'s email] ${d.subject}` : d.subject, html: d.html, text: d.text,
         headers: { "List-Unsubscribe": `<${d.unsub}>` },
       },
     });
-    report.push({ email: s.email, fresh: fresh.length, upcoming: upcoming.length, sent: !opts.dry });
+    report.push({ email: s.email, kind, fresh: fresh.length, upcoming: upcoming.length, sent: !opts.dry });
   }
 
   if (!opts.dry) {
@@ -215,6 +265,7 @@ Deno.serve(async (req) => {
         for (const c of chunk) { const row = report.find((x) => x.email === c.email); if (row) row.sent = false; }
         continue;
       }
+      if (copyTo) continue; // a copy doesn't count as the fan's weekly email
       const ids = chunk.map((c) => c.id).join(",");
       await db(`subscribers?id=in.(${ids})`, {
         method: "PATCH",
@@ -226,5 +277,5 @@ Deno.serve(async (req) => {
   }
   const sent = report.filter((r) => r.sent).length;
   console.log(`weekly alerts: ${sent} sent, ${report.length - sent} skipped`);
-  return json(200, { ok: true, sent, checked: report.length, report: opts.only || opts.dry ? report : undefined });
+  return json(200, { ok: true, sent, checked: report.length, report: opts.only || opts.dry || roundupN ? report : undefined });
 });

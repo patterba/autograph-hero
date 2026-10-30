@@ -113,7 +113,8 @@
         if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
       } else {
         if (favInput && favInput.value.trim()) addFavorite(favInput.value);
-        if (!value('name')) return invalid(form.elements.name, 'Please enter your name.');
+        if (!value('first_name')) return invalid(form.elements.first_name, 'Please enter your first name.');
+        if (!value('last_name')) return invalid(form.elements.last_name, 'Please enter your last name.');
         if (!email.test(value('email'))) return invalid(form.elements.email, 'Please enter a valid email address.');
         var pw = form.elements.password ? form.elements.password.value : '';
         if (form.elements.password && pw.length < 8) return invalid(form.elements.password, 'Please choose a password of at least 8 characters.');
@@ -147,7 +148,9 @@
         ['name', 'email', 'topic', 'message'].forEach(function (k) { data[k] = value(k) || null; });
         data.captcha_token = captchaToken() || null;
       } else {
-        data.name = value('name');
+        data.first_name = value('first_name');
+        data.last_name = value('last_name');
+        data.name = (data.first_name + ' ' + data.last_name).trim();
         data.email = value('email');
         data.consent = value('consent') === true;
         data.favorites = favorites.slice();
