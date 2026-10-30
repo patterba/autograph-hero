@@ -177,6 +177,7 @@
               access_token: j.access_token,
               refresh_token: j.refresh_token,
               expires_at: j.expires_at || Math.floor(Date.now() / 1000) + (j.expires_in || 3600),
+              signed_in_at: Math.floor(Date.now() / 1000), // logins last 72 hours (account.js)
             }));
           } catch (e) { return false; }
           return true;

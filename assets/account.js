@@ -63,10 +63,21 @@
   function writeStore(s) {
     session = s;
     try { if (s) localStorage.setItem(STORE, JSON.stringify(s)); else localStorage.removeItem(STORE); } catch (e) { /* blocked */ }
+    if (!s) cacheFavorites(null);
   }
-  function keep(j) {
-    writeStore({ access_token: j.access_token, refresh_token: j.refresh_token, expires_at: j.expires_at || now() + (j.expires_in || 3600) });
+  // The home page's "My favorites" toggle (assets/myfeed.js) shows these right away, then checks them.
+  function cacheFavorites(f) {
+    try { if (f) localStorage.setItem('ah-favorites', JSON.stringify(f)); else localStorage.removeItem('ah-favorites'); } catch (e) { /* blocked */ }
   }
+  // A login lasts 72 hours from when the member logged in (renewing the 1-hour access token
+  // doesn't extend it); then they log in again. signed_in_at is kept across renewals.
+  var MAX_AGE = 72 * 3600;
+  var TOO_OLD = 'For your security, logins last 3 days. Please log in again.';
+  function keep(j, fresh) {
+    var started = fresh || !session || !session.signed_in_at ? now() : session.signed_in_at;
+    writeStore({ access_token: j.access_token, refresh_token: j.refresh_token, expires_at: j.expires_at || now() + (j.expires_in || 3600), signed_in_at: started });
+  }
+  function tooOld(s) { return !!(s && s.signed_in_at && now() - s.signed_in_at > MAX_AGE); }
   function auth(path, body, method, token) {
     var headers = { apikey: KEY, 'Content-Type': 'application/json' };
     if (token) headers.Authorization = 'Bearer ' + token;
@@ -77,10 +88,20 @@
   }
   function expired() { var e = new Error('Your login has expired. Please log in again.'); e.expired = true; return e; }
   function token() {
+    // Another tab or page (reminders) may have renewed the login since this page loaded.
+    var stored = readStore();
+    if (stored && stored.access_token) session = stored;
     if (!session) return Promise.reject(expired());
+    if (tooOld(session)) { var e = expired(); e.message = TOO_OLD; return Promise.reject(e); }
     if (session.expires_at - 60 > now()) return Promise.resolve(session.access_token);
-    return auth('token?grant_type=refresh_token', { refresh_token: session.refresh_token }).then(function (r) {
-      if (!r.ok) throw expired();
+    var used = session.refresh_token;
+    return auth('token?grant_type=refresh_token', { refresh_token: used }).then(function (r) {
+      if (!r.ok) {
+        // Two tabs renewing at once: the other one may have won; use its fresh login.
+        var again = readStore();
+        if (again && again.refresh_token !== used && again.expires_at - 60 > now()) { session = again; return session.access_token; }
+        throw expired();
+      }
       keep(r.body);
       return session.access_token;
     });
@@ -135,7 +156,7 @@
           : 'Wrong email or password. Forgot it? Use "Forgot password?" to set a new one.', 'is-error');
         return;
       }
-      keep(r.body);
+      keep(r.body, true);
       f.elements.password.value = '';
       status(st, '', '');
       loadAccount();
@@ -288,6 +309,7 @@
     favorites = Array.isArray(data.favorites) ? data.favorites.slice() : [];
     renderFavorites();
     renderFeed(favorites);
+    cacheFavorites(favorites);
   }
 
   function loadAccount(message) {
@@ -401,7 +423,7 @@
         loggedOut('That link has expired or was already used. Use "Forgot password?" to get a new one.');
         return;
       }
-      keep(r.body);
+      keep(r.body, true);
       showView('setpw');
       views.setpw.elements.password.focus();
     }).catch(function () { loggedOut("We couldn't reach the server. Please try the link again."); });
@@ -419,10 +441,14 @@
       access_token: hash.get('access_token'),
       refresh_token: hash.get('refresh_token') || '',
       expires_at: Number(hash.get('expires_at')) || now() + Number(hash.get('expires_in') || 3600),
+      signed_in_at: now(),
     });
   } else {
     session = readStore();
+    // Logins saved before the 72-hour rule have no start time: count from now.
+    if (session && !session.signed_in_at) { session.signed_in_at = now(); writeStore(session); }
   }
+  if (tooOld(session)) { loggedOut(TOO_OLD); return; }
   if (welcome) clearAddress();
   if (session) loadAccount(welcome ? "Welcome! You're signed up and logged in." : '');
   else showView('login');

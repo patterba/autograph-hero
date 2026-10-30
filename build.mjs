@@ -32,7 +32,7 @@ const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.C
 // Contact address shown on the Terms and Privacy pages (GitHub variable CONTACT_EMAIL).
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 // Date the Terms and Privacy pages were last changed. Update it when you edit them.
-const POLICY_DATE = '2026-10-28';
+const POLICY_DATE = '2026-10-30';
 // Our own cookie-free unique visitor count (supabase/functions/site-visit). VISIT_COUNT=off turns it off.
 const COUNT_VISITS = process.env.VISIT_COUNT !== 'off';
 // The live address, for canonical links, the sitemap and share previews.
@@ -537,7 +537,7 @@ self.addEventListener('notificationclick', (e) => {
 
 // noindex: true keeps a page out of search results; 'follow' does the same but lets search engines follow its links.
 // image: an absolute photo URL for share previews (defaults to assets/social.png). ld: structured data objects.
-function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false, remind = false, noindex = false, image = null, imageAlt = null, ld = [], ogType = 'website' }) {
+function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false, remind = false, myfeed = false, noindex = false, image = null, imageAlt = null, ld = [], ogType = 'website' }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: Autograph Signings, Meet & Greets and Mail-Ins`;
   const hidden = NOINDEX || admin || noindex;
   const robots = NOINDEX || admin ? 'noindex, nofollow' : noindex === 'follow' ? 'noindex, follow' : noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
@@ -614,6 +614,7 @@ ${forms ? `<script src="${esc(asset('/assets/forms.js'))}" defer></script>` : ''
 ${captcha ? '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>' : ''}
 ${account ? `<script src="${esc(asset('/assets/account.js'))}" defer></script>` : ''}
 ${remind ? `<script src="${esc(asset('/assets/remind.js'))}" defer></script>` : ''}
+${myfeed ? `<script src="${esc(asset('/assets/myfeed.js'))}" defer></script>` : ''}
 ${admin ? `<script src="${esc(asset('/assets/admin.js'))}" defer></script>` : `<script src="${esc(asset('/assets/app.js'))}" defer></script>`}
 ${COUNT_VISITS && !admin && !NOINDEX ? `<script>try{navigator.sendBeacon(${JSON.stringify(`${SUPABASE_URL}/functions/v1/site-visit`)})}catch(e){}</script>` : ''}
 ${CF_ANALYTICS_TOKEN && !admin ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="${esc(JSON.stringify({ token: CF_ANALYTICS_TOKEN }))}"></script>` : ''}
@@ -699,12 +700,29 @@ function homePage(list) {
   <div class="section-head">
     <div>
       <h2>Coming up</h2>
-      <p class="muted">${list.length} upcoming signing${list.length === 1 ? '' : 's'}, soonest first.</p>
+      <p class="muted" data-home-pane="all">${list.length} upcoming signing${list.length === 1 ? '' : 's'}, soonest first.</p>
+      <p class="muted" data-home-pane="mine" data-my-count hidden></p>
     </div>
-    <a class="more" href="${esc(link('/events/'))}">See all signings ${ICON.arrow}</a>
+    <div class="home-head-end">
+      <div class="view-toggle" role="group" aria-label="Show signings" data-my-toggle data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}" hidden>
+        <button type="button" data-view="all" aria-pressed="true">All signings</button>
+        <button type="button" data-view="mine" aria-pressed="false">${ICON.bell}My favorites</button>
+      </div>
+      <a class="more" href="${esc(link('/events/'))}">See all signings ${ICON.arrow}</a>
+    </div>
   </div>
+  <div data-home-pane="all">
   ${soon.length ? `<div class="grid grid-feed">${soon.map(card).join('\n')}
 ${moreCard(list.length, list.length - soon.length)}</div>` : '<p class="empty">No upcoming signings are listed right now. Check back after the next weekly update.</p>'}
+  </div>
+  <div data-home-pane="mine" hidden>
+    <ul class="feed-favs" aria-label="Your favorites" data-my-favs></ul>
+    <div class="grid grid-feed" data-my-feed>${favoriteCards(list)}</div>
+    <div class="empty" data-my-empty hidden>
+      <p><strong>None of your favorites have an upcoming signing yet.</strong> We'll email you when one does. Want to follow more teams, players or people?</p>
+      <a class="btn btn-accent" href="${esc(link('/account/'))}">Edit your favorites</a>
+    </div>
+  </div>
 </section>
 
 ${sports.length ? `<section class="band band-alt">
@@ -745,6 +763,7 @@ ${sports.length ? `<section class="band band-alt">
     description: `Find ${list.length} upcoming autograph signings, meet & greets and mail-in signings with athletes and celebrities. Dates, prices and order deadlines, plus email alerts for your favorites.`,
     pathname: '/',
     body,
+    myfeed: true,
     ld: [
       {
         '@context': 'https://schema.org',
@@ -1156,14 +1175,19 @@ function signupPage(list, athletes) {
 
 // Member login and account. Static HTML; assets/account.js switches between the
 // "send me a login link" form and the account editor once the emailed link is used.
-function accountPage(list, athletes) {
-  const sorted = favOptions(list, athletes);
-  // "Your Feed": every upcoming signing is in the page (hidden), tagged with its signers and
-  // their teams; account.js shows the ones that match the member's favorites, soonest first.
-  const feedCards = list.map((s) => {
+// Every upcoming signing as a hidden card tagged with its signers and their teams, for the
+// favorites feeds (account page "Your Feed", home page "My favorites"). The scripts show the
+// ones matching the member's favorites with the same rule as the alert emails.
+function favoriteCards(list) {
+  return list.map((s) => {
     const terms = [...s.names, ...(s.teams || [])].map((t) => String(t).toLowerCase().trim()).filter(Boolean).join('|');
     return card(s).replace('<a class="card" ', `<a class="card" hidden data-terms="${esc(terms)}" `);
   }).join('\n');
+}
+
+function accountPage(list, athletes) {
+  const sorted = favOptions(list, athletes);
+  const feedCards = favoriteCards(list);
   const pw = (id, name, label, auto, hint = '') =>
     field(id, label, `<input id="${id}" name="${name}" type="password" required ${auto === 'new-password' ? 'minlength="8" ' : ''}maxlength="72" autocomplete="${auto}"${hint ? ` aria-describedby="${id}-hint"` : ''}>`, hint);
   const body = `
@@ -1504,7 +1528,7 @@ function privacyPage() {
     sections: [
       ['What we collect and why', `<ul>
       <li><strong>When you sign up:</strong> your name, email address, a password, the teams, players and people you pick, and when you agreed to receive alerts. We use these to email you when your favorites have a signing and to let you log in and manage your account. Your password is stored only in scrambled (hashed) form by our login provider; nobody at Autograph Hero can see it.</li>
-      <li><strong>When you log in:</strong> your login is remembered in your browser's storage on that device until you log out. If you forget your password, we email you a link to set a new one.</li>
+      <li><strong>When you log in:</strong> your login is remembered in your browser's storage on that device for up to 3 days, or until you log out, along with a copy of your favorites so the home page can show your signings. If you forget your password, we email you a link to set a new one.</li>
       <li><strong>Reminders:</strong> if you ask for a reminder on a signing page, we keep your email and which signing it's for, send one reminder email (plus a confirmation with a cancel link), and delete the record 30 days after it's sent. Deleting your account removes your reminders too.</li>
       <li><strong>The app and offline pages:</strong> your browser keeps copies of the pages you open so they work without a signal, and remembers if you closed the "Get the app" banner. These stay on your device and are never sent to us. Clearing the site's data in your browser removes them.</li>
       <li><strong>When you submit a signing:</strong> the event details you enter, plus your name (optional) and email address so we can follow up. We check every submission before it goes on the calendar. Your name and email are never shown on the site.</li>

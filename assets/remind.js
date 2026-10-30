@@ -42,19 +42,32 @@
     var s;
     try { s = JSON.parse(localStorage.getItem('ah-session') || 'null'); } catch (e) { s = null; }
     if (!s || !s.access_token) return Promise.resolve('');
-    if (s.expires_at && s.expires_at - 60 > Date.now() / 1000) return Promise.resolve(s.access_token);
+    var nowS = Math.floor(Date.now() / 1000);
+    // Logins last 72 hours from logging in (see account.js); older ones count from now.
+    if (!s.signed_in_at) s.signed_in_at = nowS;
+    if (nowS - s.signed_in_at > 72 * 3600) {
+      try { localStorage.removeItem('ah-session'); } catch (e) { /* storage blocked */ }
+      return Promise.resolve('');
+    }
+    if (s.expires_at && s.expires_at - 60 > nowS) return Promise.resolve(s.access_token);
     if (!s.refresh_token) return Promise.resolve('');
     return fetch(box.getAttribute('data-supabase') + '/auth/v1/token?grant_type=refresh_token', {
       method: 'POST',
       headers: { apikey: box.getAttribute('data-key'), 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: s.refresh_token }),
     }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
-      if (!j || !j.access_token) return '';
+      if (!j || !j.access_token) {
+        // Another tab may have renewed the login a moment ago; use that one.
+        var again = null;
+        try { again = JSON.parse(localStorage.getItem('ah-session') || 'null'); } catch (e) { again = null; }
+        return again && again.refresh_token !== s.refresh_token && again.expires_at - 60 > Date.now() / 1000 ? again.access_token : '';
+      }
       try {
         localStorage.setItem('ah-session', JSON.stringify({
           access_token: j.access_token,
           refresh_token: j.refresh_token,
           expires_at: j.expires_at || Math.floor(Date.now() / 1000) + (j.expires_in || 3600),
+          signed_in_at: s.signed_in_at,
         }));
       } catch (e) { /* storage blocked */ }
       return j.access_token;
