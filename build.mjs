@@ -581,7 +581,7 @@ ${PHOTO_SCRIPT}
     <a href="${esc(link('/events/?type=public'))}">In Person</a>
     <a href="${esc(link('/events/?type=mail-in'))}">Mail-In</a>
     <a href="${esc(link('/contact/?topic=advertise'))}">Advertise<span class="nav-long"> With Us</span></a>
-    <a class="nav-login" href="${esc(link('/account/'))}"${pathname === '/account/' ? ' aria-current="page"' : ''}>${ICON.user}Log In</a>
+    <a class="nav-login" data-login-link href="${esc(link('/account/'))}"${pathname === '/account/' ? ' aria-current="page"' : ''}>${ICON.user}<span data-login-label>Log In</span></a>
   </nav>
   <div class="header-actions">
     <a class="btn btn-accent btn-sm btn-pop" href="${esc(link('/add/'))}"${pathname === '/add/' ? ' aria-current="page"' : ''}>${ICON.plus}Submit A Signing</a>
@@ -606,7 +606,7 @@ ${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
     <p>Autograph Hero is a passion project built by a lifelong autograph and sports card collector. I made it so fans can find every signing, meet &amp; greet and mail-in in one place, and never miss the chance to get something signed by the people they root for. <a href="${esc(link('/about/'))}">Read the story</a> · <a href="${esc(link('/contact/'))}">Contact us</a></p>
   </div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
-  <p class="small footer-links"><a href="${esc(link('/about/'))}">About</a><a href="${esc(link('/contact/'))}">Contact</a><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/states/'))}">Signings by State</a><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
+  <p class="small footer-links"><a href="${esc(link('/about/'))}">About</a><a href="${esc(link('/contact/'))}">Contact</a><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/states/'))}">Signings by State</a><a href="${esc(link('/account/'))}" data-login-link data-login-short><span data-login-label>Log In</span></a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''}

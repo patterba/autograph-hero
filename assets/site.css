@@ -9,6 +9,7 @@
   --line: #D8CFBE;
   --accent: #C2410C;
   --accent-ink: #FFFFFF;
+  --ok: #1F9D55;
   --display: 'Anton', 'Impact', sans-serif;
   --body: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, monospace;
@@ -307,6 +308,12 @@ h1, h2, h3, p { margin: 0; }
 
 /* Log In link in the main nav */
 .site-header nav .nav-login { display: inline-flex; align-items: center; gap: 6px; }
+/* Logged in (assets/app.js): the Log In link becomes a highlighted "Hi, Brett" pill */
+.site-header nav .nav-login.is-logged-in { padding: 6px 14px 6px 10px; margin: 4px 0; border: 1.5px solid var(--accent); border-radius: 999px; background: var(--card); color: var(--accent); font-weight: 700; max-width: 16ch; }
+.site-header nav .nav-login.is-logged-in span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.site-header nav .nav-login.is-logged-in::before { content: ''; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); order: -1; }
+.site-header nav .nav-login.is-logged-in:hover { background: var(--accent); color: var(--paper); }
+.site-header nav .nav-login.is-logged-in[aria-current='page'] { text-decoration: none; background: var(--accent); color: var(--paper); }
 .footer-links { display: flex; flex-wrap: wrap; gap: 6px 20px; }
 
 /* Terms and Privacy */
