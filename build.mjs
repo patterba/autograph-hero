@@ -687,6 +687,7 @@ function homePage(list) {
       <label for="h-state">Where</label>
       <select id="h-state" name="state">
         <option value="">Any state</option>
+        ${mailInOption(list)}
         ${states.map(([st]) => `<option value="${esc(st)}">${esc(st)}</option>`).join('')}
       </select>
     </div>
@@ -757,6 +758,13 @@ ${sports.length ? `<section class="band band-alt">
   });
 }
 
+// "Mail-in" sits at the top of the state pickers: mail-ins have no state because they ship
+// anywhere. assets/site.js treats state=mail-in as "mail-in signings".
+const MAIL_IN_STATE = 'mail-in';
+function mailInOption(list) {
+  return list.some((s) => s.type === 'mail-in') ? `<option value="${MAIL_IN_STATE}">Mail-in · ships anywhere</option>` : '';
+}
+
 function countBy(list, fn) {
   const m = new Map();
   for (const s of list) {
@@ -799,6 +807,7 @@ function eventsPage(list) {
       <label for="f-state">State</label>
       <select id="f-state" name="state">
         <option value="">Any state</option>
+        ${mailInOption(list)}
         ${states.map(([st]) => `<option value="${esc(st)}">${esc(st)}</option>`).join('')}
       </select>
     </div>

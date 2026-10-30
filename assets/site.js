@@ -33,7 +33,8 @@
       var ok = q.every(function (w) { return hay.indexOf(w) !== -1; }) &&
         (!type || c.getAttribute('data-type') === type) &&
         (!sport || c.getAttribute('data-sport') === sport) &&
-        (!state || c.getAttribute('data-state') === state);
+        // "Mail-in" in the state picker: mail-ins have no state, they ship anywhere.
+        (!state || (state === 'mail-in' ? c.getAttribute('data-type') === 'mail-in' : c.getAttribute('data-state') === state));
       c.hidden = !ok;
       if (ok) shown++;
     });
