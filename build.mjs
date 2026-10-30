@@ -85,6 +85,13 @@ const nextDay = (s) => new Date(toUTC(s).getTime() + 86400000).toISOString().sli
 // "Today" on the US west coast, so a listing stays up through its whole day nationwide.
 const TODAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date());
 
+// Price add-ons that aren't the price of an autograph: authentication (JSA, PSA, Beckett,
+// holograms, grading) and inscriptions. They stay in the full price list on the signing page
+// but never set the "From $xx" teaser, the price range or the description.
+const ADDON_CATEGORIES = new Set(['authentication', 'inscription']);
+const ADDON_ITEM = /authenticat|certificat|hologram|\bcoa\b|\bgrading\b|inscription/i;
+const isAddon = (p) => (typeof p.category === 'string' && ADDON_CATEGORIES.has(p.category.toLowerCase())) || (!p.category && ADDON_ITEM.test(p.item));
+
 function money(n) {
   if (n === null || n === undefined || n === '') return null;
   const v = Number(n);
@@ -201,8 +208,17 @@ function shape(row, athletes) {
   const host = listingUrl ? new URL(listingUrl).hostname.replace(/^www\./, '') : null;
   const source = row.image_source === 'promoter' && row.image_credit ? row.image_credit : host;
   const place = [row.city, row.state].filter(Boolean).join(', ');
-  const priceMin = money(row.price_min);
-  const priceMax = money(row.price_max);
+  // The teaser range comes from the itemized prices without add-ons when there are any;
+  // otherwise from the stored price_min / price_max.
+  const itemized = Array.isArray(row.prices)
+    ? row.prices.filter((p) => p && typeof p.item === 'string' && Number.isFinite(Number(p.price)) && p.price !== null && p.price !== '')
+    : [];
+  const real = itemized.filter((p) => !isAddon(p)).map((p) => Number(p.price));
+  const [low, high] = itemized.length
+    ? (real.length ? [Math.min(...real), Math.max(...real)] : [null, null])
+    : [row.price_min, row.price_max].map((v) => (v !== null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null));
+  const priceMin = money(low);
+  const priceMax = money(high);
   const { teams, primary } = teamsFor(names, row.sport, athletes);
   // Promoter photo first; a free Commons photo of the player is the backup, used when
   // there is no promoter photo or it fails to load in the browser.
@@ -238,8 +254,8 @@ function shape(row, athletes) {
     location: [row.venue, row.city, row.state].filter(Boolean).join(', '),
     priceMin,
     priceMax,
-    priceLow: Number.isFinite(Number(row.price_min)) && row.price_min !== null ? Number(row.price_min) : null,
-    priceHigh: Number.isFinite(Number(row.price_max)) && row.price_max !== null ? Number(row.price_max) : null,
+    priceLow: low,
+    priceHigh: high,
     prices,
     sport: row.sport || null,
     teamCity: row.team_city || null,
