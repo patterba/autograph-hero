@@ -63,7 +63,15 @@
   function writeStore(s) {
     session = s;
     try { if (s) localStorage.setItem(STORE, JSON.stringify(s)); else localStorage.removeItem(STORE); } catch (e) { /* blocked */ }
-    if (!s) cacheFavorites(null);
+    if (!s) { cacheFavorites(null); cacheFirstName(''); }
+    loginChanged();
+  }
+  // The header's "Hi, <first name>" (assets/app.js) reads this; tell it when the login changes.
+  function cacheFirstName(n) {
+    try { if (n) localStorage.setItem('ah-first-name', n); else localStorage.removeItem('ah-first-name'); } catch (e) { /* blocked */ }
+  }
+  function loginChanged() {
+    try { window.dispatchEvent(new Event('ah-login')); } catch (e) { /* old browser */ }
   }
   // The home page's "My favorites" toggle (assets/myfeed.js) shows these right away, then checks them.
   function cacheFavorites(f) {
@@ -310,6 +318,8 @@
     renderFavorites();
     renderFeed(favorites);
     cacheFavorites(favorites);
+    cacheFirstName(parts[0] || '');
+    loginChanged();
   }
 
   function loadAccount(message) {

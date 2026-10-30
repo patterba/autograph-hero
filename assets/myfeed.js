@@ -111,6 +111,11 @@
     if (!data || !Array.isArray(data.favorites)) return;
     favorites = data.favorites;
     write('ah-favorites', favorites);
+    // The header's "Hi, <first name>" (assets/app.js).
+    var first = String(data.name || '').trim().split(/\s+/)[0];
+    if (first) {
+      try { localStorage.setItem('ah-first-name', first); window.dispatchEvent(new Event('ah-login')); } catch (e) { /* blocked */ }
+    }
     render();
   }).catch(function () { /* offline: keep the saved copy */ });
 })();

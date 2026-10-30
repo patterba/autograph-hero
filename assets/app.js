@@ -14,6 +14,24 @@
     });
   }
 
+  // Logged-in members: "Log In" in the header becomes a highlighted "Hi, <first name>" (or
+  // "My Account") and the footer link "My Account". Same 72-hour rule as account.js.
+  function loginState() {
+    var s = null, first = '';
+    try { s = JSON.parse(localStorage.getItem('ah-session') || 'null'); first = localStorage.getItem('ah-first-name') || ''; } catch (e) { s = null; }
+    var ok = !!(s && s.access_token && (!s.signed_in_at || Date.now() / 1000 - s.signed_in_at <= 72 * 3600));
+    Array.prototype.forEach.call(document.querySelectorAll('[data-login-link]'), function (a) {
+      var label = a.querySelector('[data-login-label]');
+      if (!label) return;
+      a.classList.toggle('is-logged-in', ok);
+      label.textContent = !ok ? 'Log In' : (first && !a.hasAttribute('data-login-short') ? 'Hi, ' + first : 'My Account');
+      if (ok) a.setAttribute('aria-label', 'My account'); else a.removeAttribute('aria-label');
+    });
+  }
+  loginState();
+  window.addEventListener('ah-login', loginState);
+  window.addEventListener('storage', function (e) { if (!e.key || e.key === 'ah-session' || e.key === 'ah-first-name') loginState(); });
+
   var ua = navigator.userAgent;
   var ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var android = /Android/i.test(ua);
