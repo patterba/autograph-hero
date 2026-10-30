@@ -606,7 +606,7 @@ ${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
     <p>Autograph Hero is a passion project built by a lifelong autograph and sports card collector. I made it so fans can find every signing, meet &amp; greet and mail-in in one place, and never miss the chance to get something signed by the people they root for. <a href="${esc(link('/about/'))}">Read the story</a> · <a href="${esc(link('/contact/'))}">Contact us</a></p>
   </div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
-  <p class="small footer-links"><a href="${esc(link('/about/'))}">About</a><a href="${esc(link('/contact/'))}">Contact</a><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
+  <p class="small footer-links"><a href="${esc(link('/about/'))}">About</a><a href="${esc(link('/contact/'))}">Contact</a><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/states/'))}">Signings by State</a><a href="${esc(link('/account/'))}">Log In</a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''}
@@ -951,7 +951,9 @@ function signingPage(s, list) {
     s.timeText ? ['Time', s.timeText] : null,
     s.deadline ? ['Order by', `${longDate(s.deadline)}${s.deadlinePassed ? ' (passed)' : ''}`] : null,
     s.venue ? ['Venue', s.venue] : null,
-    s.place ? ['City', s.place] : null,
+    s.place ? ['City', s.city && stateCode(s.state) && s.type !== 'mail-in'
+      ? { html: `${esc(s.city)}, <a href="${esc(link(statePath(stateCode(s.state))))}">${esc(s.state)}</a>` }
+      : s.place] : null,
     s.teams.length ? [s.teams.length === 1 ? 'Team' : 'Teams', { html: s.teams.map((t) => (hasTeamPage(t) ? `<a href="${esc(link(teamPath(slugify(t))))}">${esc(t)}</a>` : esc(t))).join(', ') }, 'wide'] : null,
   ].filter(Boolean);
   const trail = [['Home', '/'], ...(s.sport ? [[s.sport, sportPath(s.sport)]] : [['All signings', '/events/']]), [s.name, `/signing/${s.slug}/`]];
@@ -1696,10 +1698,37 @@ const signerPath = (slug) => `/autographs/${slug}/`;
 const teamPath = (slug) => `/teams/${slug}/`;
 const sportPath = (sport) => `/sports/${slugify(sport)}/`;
 
+// State pages (/states/<name>/) answer "autograph signings in <state>" searches. They hold the
+// signings that have a place in that state; mail-in signings have no place and stay off them.
+const STATE_NAMES = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado', CT: 'Connecticut',
+  DE: 'Delaware', DC: 'Washington, D.C.', FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois',
+  IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
+  MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri', MT: 'Montana',
+  NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York',
+  NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania',
+  RI: 'Rhode Island', SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah',
+  VT: 'Vermont', VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
+};
+// "PA", "pa" or "Pennsylvania" -> "PA"; anything else (other countries, typos) -> null.
+function stateCode(v) {
+  const t = String(v || '').trim();
+  if (STATE_NAMES[t.toUpperCase()]) return t.toUpperCase();
+  return Object.keys(STATE_NAMES).find((k) => STATE_NAMES[k].toLowerCase() === t.toLowerCase()) || null;
+}
+const statePath = (code) => `/states/${slugify(STATE_NAMES[code])}/`;
+
 function buildHubs(list, athletes, archive = []) {
   const signers = new Map();
   const teams = new Map();
   const sports = new Map();
+  const states = new Map();
+  const state = (v) => {
+    const code = stateCode(v);
+    if (!code) return null;
+    if (!states.has(code)) states.set(code, { code, slug: slugify(STATE_NAMES[code]), name: STATE_NAMES[code], list: [], past: [] });
+    return states.get(code);
+  };
   const signer = (name, sport) => {
     const slug = slugify(name);
     if (!slug) return null;
@@ -1726,10 +1755,12 @@ function buildHubs(list, athletes, archive = []) {
     for (const n of new Set(s.names)) signer(n, s.sport)?.list.push(s);
     for (const t of new Set(s.teams)) team(t)?.list.push(s);
     if (s.sport) sport(s.sport)?.list.push(s);
+    if (s.type !== 'mail-in') state(s.state)?.list.push(s);
   }
   for (const s of archive) {
     for (const n of new Set(s.names)) signer(n, s.sport)?.past.push(s);
     for (const t of new Set(s.teams)) team(t)?.past.push(s);
+    if (s.type !== 'mail-in') state(s.state)?.past.push(s);
   }
   for (const h of signers.values()) {
     const { teams: ts, primary } = teamsFor([h.name], h.sport, athletes);
@@ -1747,7 +1778,10 @@ function buildHubs(list, athletes, archive = []) {
     t.sport = [...t.sports.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
     if (t.sport) sport(t.sport)?.teams.add(t);
   }
-  return { signers, teams, sports };
+  for (const st of states.values()) {
+    st.signers = new Set(st.list.flatMap((s) => s.names.map((n) => signers.get(slugify(n))).filter(Boolean)));
+  }
+  return { signers, teams, sports, states };
 }
 
 const byName = (a, b) => a.name.localeCompare(b.name);
@@ -1901,6 +1935,62 @@ function sportPage(sp) {
   });
 }
 
+function statePage(st, allStates, mailIn) {
+  const n = st.list.length;
+  const people = [...st.signers].filter((h) => h.list.length).sort(byName);
+  const cities = [...new Set(st.list.map((s) => s.city).filter(Boolean))].sort();
+  const others = [...allStates.values()].filter((o) => o !== st && o.list.length).sort(byName);
+  const mailLine = mailIn
+    ? ` Can't get there? <a href="${esc(link('/events/?type=mail-in'))}">${esc(String(mailIn))} mail-in signing${mailIn === 1 ? '' : 's'}</a> take orders from anywhere.`
+    : '';
+  return hubPage({
+    pathname: statePath(st.code),
+    trail: [['Home', '/'], ['Signings by state', '/states/'], [st.name, statePath(st.code)]],
+    eyebrow: 'Signings by state',
+    h1: `Autograph signings in ${st.name}`,
+    lede: (n
+      ? `${esc(plural(n, 'autograph signing'))} in ${esc(st.name)} (${esc(typeMix(st.list))}).${esc(nextLine(st.list))}${cities.length > 1 ? ` Signings are in ${esc(joinNames(cities))}.` : ''}`
+      : `No autograph signings in ${esc(st.name)} are listed right now.`) + mailLine,
+    list: st.list,
+    past: st.past,
+    sections: [
+      { title: `Signers in ${st.name}`, items: people, path: (o) => signerPath(o.slug) },
+      { title: 'Other states', items: others, path: (o) => statePath(o.code) },
+    ],
+    title: `Autograph Signings in ${st.name} ${THIS_YEAR}${n ? ` (${n} upcoming)` : ''}`,
+    description: n
+      ? `Upcoming autograph signings and meet & greets in ${st.name}${cities.length ? ` (${cities.slice(0, 3).join(', ')})` : ''}${people.length ? ` with ${people.slice(0, 3).map((p) => p.name).join(', ')}` : ''}. Dates, times, venues and prices.`
+      : `Autograph signings and meet & greets in ${st.name}. Get dates, venues and prices as soon as they are announced.`,
+  });
+}
+
+function statesIndexPage(states) {
+  const live = [...states.values()].filter((st) => st.list.length).sort(byName);
+  const rest = [...states.values()].filter((st) => !st.list.length).sort(byName);
+  const trail = [['Home', '/'], ['Signings by state', '/states/']];
+  const body = `
+${crumbsNav(trail)}
+<section class="page-head">
+  <div class="eyebrow accent">Signings by state</div>
+  <h1>Autograph signings by state</h1>
+  <p class="lede">In-person signings and meet &amp; greets, grouped by state. Numbers show upcoming signings. Mail-in signings take orders from anywhere: <a href="${esc(link('/events/?type=mail-in'))}">see them all</a>.</p>
+</section>
+<section class="band band-tight dir-group">
+  ${live.length ? chipList(live, (o) => statePath(o.code)) : '<p>No in-person signings are listed right now.</p>'}
+</section>
+${rest.length ? `<section class="band band-tight dir-group">
+  <h2 class="dir-h">Past signings only</h2>
+  ${chipList(rest, (o) => statePath(o.code))}
+</section>` : ''}`;
+  return page({
+    title: 'Autograph Signings by State',
+    description: `Upcoming in-person autograph signings and meet & greets by state${live.length ? `: ${live.map((st) => st.name).join(', ')}` : ''}.`,
+    pathname: '/states/',
+    body,
+    ld: [breadcrumbLd(trail)],
+  });
+}
+
 // A–Z lists of every signer and team, grouped by sport, so every hub page is linked from somewhere.
 function directoryPage({ pathname, eyebrow, h1, lede, items, path: pathFor, title, description }) {
   const groups = new Map();
@@ -1962,6 +2052,9 @@ async function main() {
   for (const h of hubs.signers.values()) await put(`autographs/${h.slug}/index.html`, signerPage(h));
   for (const t of hubs.teams.values()) await put(`teams/${t.slug}/index.html`, teamPage(t));
   for (const sp of hubs.sports.values()) await put(`sports/${sp.slug}/index.html`, sportPage(sp));
+  const mailIn = list.filter((s) => s.type === 'mail-in').length;
+  for (const st of hubs.states.values()) await put(`states/${st.slug}/index.html`, statePage(st, hubs.states, mailIn));
+  await put('states/index.html', statesIndexPage(hubs.states));
   await put('autographs/index.html', directoryPage({
     pathname: '/autographs/',
     eyebrow: 'Signers A–Z',
@@ -2009,11 +2102,12 @@ async function main() {
   const newest = (...lists) => lists.flat().reduce((m, s) => (s?.updated && (!m || s.updated > m) ? s.updated : m), null);
   const pages = [
     ['/', newest(list)], ['/events/', newest(list)], ['/archive/', newest(archive)],
-    ['/autographs/', newest(list)], ['/teams/', newest(list)],
+    ['/autographs/', newest(list)], ['/teams/', newest(list)], ['/states/', newest(list)],
     ...['/about/', '/contact/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/'].map((p) => [p, null]),
     ...live(hubs.sports).map((sp) => [sportPath(sp.name), newest(sp.list)]),
     ...live(hubs.signers).map((h) => [signerPath(h.slug), newest(h.list, h.past)]),
     ...live(hubs.teams).map((t) => [teamPath(t.slug), newest(t.list, t.past)]),
+    ...live(hubs.states).map((st) => [statePath(st.code), newest(st.list, st.past)]),
     ...list.map((s) => [`/signing/${s.slug}/`, s.updated]),
     ...archive.map((s) => [`/signing/${s.slug}/`, s.updated]),
   ];
