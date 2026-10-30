@@ -48,7 +48,7 @@ const COLUMNS = [
   'id', 'title', 'athlete_names', 'signing_type', 'event_date', 'event_date_text',
   'event_time_text', 'order_deadline', 'venue', 'city', 'state', 'price_min', 'price_max',
   'prices', 'sport', 'team_city', 'listing_url', 'image_url', 'image_source',
-  'image_credit', 'image_license', 'image_page_url', 'status',
+  'image_credit', 'image_license', 'image_page_url', 'status', 'updated_at',
 ];
 
 const TYPE_LABEL = { public: 'In person', private: 'Private signing', 'mail-in': 'Mail-in', unknown: 'Signing' };
@@ -157,6 +157,24 @@ async function loadAthletes() {
 
 const THIS_YEAR = Number(TODAY.slice(0, 4));
 
+// Team pages (/teams/<slug>/) are made only for teams in these leagues. Players' other teams
+// (barnstorming, overseas, minor leagues) still show as text and still match searches,
+// but a page for them would be near-empty and drag down how search engines rate the site.
+const HUB_LEAGUES = new Set(['MLB', 'NFL', 'NBA', 'NHL', 'WNBA', 'MLS']);
+let MAJOR_TEAMS = new Set();
+function majorTeams(athletes) {
+  const out = new Set();
+  for (const rows of athletes.values()) {
+    for (const a of rows) {
+      for (const t of a.teams || []) {
+        if (t && typeof t.team === 'string' && t.team.trim() && HUB_LEAGUES.has(t.league)) out.add(t.team.trim());
+      }
+    }
+  }
+  return out;
+}
+const hasTeamPage = (name) => MAJOR_TEAMS.has(String(name).trim());
+
 // All teams for the signers, in career order, plus the one they are best known for
 // (the most years across all stints).
 function teamsFor(names, sport, athletes) {
@@ -259,6 +277,8 @@ function shape(row, athletes) {
     prices,
     sport: row.sport || null,
     teamCity: row.team_city || null,
+    // Last time the crawl touched this row (YYYY-MM-DD), for the sitemap's lastmod.
+    updated: typeof row.updated_at === 'string' && isDate(row.updated_at.slice(0, 10)) ? row.updated_at.slice(0, 10) : null,
     teams,
     primaryTeam: primary,
     listingUrl,
@@ -932,7 +952,7 @@ function signingPage(s, list) {
     s.deadline ? ['Order by', `${longDate(s.deadline)}${s.deadlinePassed ? ' (passed)' : ''}`] : null,
     s.venue ? ['Venue', s.venue] : null,
     s.place ? ['City', s.place] : null,
-    s.teams.length ? [s.teams.length === 1 ? 'Team' : 'Teams', { html: s.teams.map((t) => `<a href="${esc(link(teamPath(slugify(t))))}">${esc(t)}</a>`).join(', ') }, 'wide'] : null,
+    s.teams.length ? [s.teams.length === 1 ? 'Team' : 'Teams', { html: s.teams.map((t) => (hasTeamPage(t) ? `<a href="${esc(link(teamPath(slugify(t))))}">${esc(t)}</a>` : esc(t))).join(', ') }, 'wide'] : null,
   ].filter(Boolean);
   const trail = [['Home', '/'], ...(s.sport ? [[s.sport, sportPath(s.sport)]] : [['All signings', '/events/']]), [s.name, `/signing/${s.slug}/`]];
 
@@ -1690,7 +1710,7 @@ function buildHubs(list, athletes, archive = []) {
   };
   const team = (name) => {
     const slug = slugify(name);
-    if (!slug) return null;
+    if (!slug || !hasTeamPage(name)) return null;
     if (!teams.has(slug)) teams.set(slug, { slug, name: name.trim(), sports: new Map(), list: [], past: [], signers: new Set() });
     return teams.get(slug);
   };
@@ -1713,6 +1733,7 @@ function buildHubs(list, athletes, archive = []) {
   }
   for (const h of signers.values()) {
     const { teams: ts, primary } = teamsFor([h.name], h.sport, athletes);
+    h.allTeams = ts;
     h.teams = ts.map((t) => team(t)).filter(Boolean);
     h.primary = (primary && team(primary)) || h.teams[0] || null;
     for (const t of h.teams) {
@@ -1809,7 +1830,8 @@ const nextLine = (list) => {
 
 function signerPage(h) {
   const n = h.list.length;
-  const teamText = h.teams.length ? `${h.name} has played for the ${joinNames(h.teams.map((t) => t.name))}.` : '';
+  // Every team they played for, including ones without a team page.
+  const teamText = h.allTeams?.length ? `${h.name} has played for the ${joinNames(h.allTeams)}.` : '';
   const lede = n
     ? `${esc(h.name)} has ${esc(plural(n, 'autograph signing'))} (${esc(typeMix(h.list))}).${esc(nextLine(h.list))} See dates, prices and order deadlines below.`
     : `There are no ${esc(h.name)} autograph signings listed right now.`;
@@ -1911,6 +1933,7 @@ async function put(rel, content) {
 
 async function main() {
   const [rows, athletes] = await Promise.all([loadSignings(), loadAthletes()]);
+  MAJOR_TEAMS = majorTeams(athletes);
   const all = rows.map((row) => shape(row, athletes)).filter((s) => s.sortDate);
   const list = all.filter((s) => !s.past).sort((a, b) => a.sortDate.localeCompare(b.sortDate) || a.id - b.id);
   // Signing Archives: newest first.
@@ -1980,17 +2003,23 @@ async function main() {
   // Search engines: a sitemap of every page, only once the site is meant to be indexed.
   // Only pages meant for search results: hub pages with nothing coming up are left out.
   const live = (m) => [...m.values()].filter((h) => h.list.length);
+  // lastmod is the newest crawl update among the signings a page shows, so search engines
+  // re-read the pages that changed. Pages that don't depend on signings get no lastmod
+  // (a date that changes every hourly build would teach search engines to ignore it).
+  const newest = (...lists) => lists.flat().reduce((m, s) => (s?.updated && (!m || s.updated > m) ? s.updated : m), null);
   const pages = [
-    '/', '/events/', '/about/', '/contact/', '/archive/', '/autographs/', '/teams/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/',
-    ...live(hubs.sports).map((sp) => sportPath(sp.name)),
-    ...live(hubs.signers).map((h) => signerPath(h.slug)),
-    ...live(hubs.teams).map((t) => teamPath(t.slug)),
-    ...list.map((s) => `/signing/${s.slug}/`),
-    ...archive.map((s) => `/signing/${s.slug}/`),
+    ['/', newest(list)], ['/events/', newest(list)], ['/archive/', newest(archive)],
+    ['/autographs/', newest(list)], ['/teams/', newest(list)],
+    ...['/about/', '/contact/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/'].map((p) => [p, null]),
+    ...live(hubs.sports).map((sp) => [sportPath(sp.name), newest(sp.list)]),
+    ...live(hubs.signers).map((h) => [signerPath(h.slug), newest(h.list, h.past)]),
+    ...live(hubs.teams).map((t) => [teamPath(t.slug), newest(t.list, t.past)]),
+    ...list.map((s) => [`/signing/${s.slug}/`, s.updated]),
+    ...archive.map((s) => [`/signing/${s.slug}/`, s.updated]),
   ];
   await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nDisallow: ${link('/admin/')}\nAllow: /\nSitemap: ${ORIGIN}${link('/sitemap.xml')}\n`);
   if (!NOINDEX) {
-    await put('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${esc(ORIGIN + link(p))}</loc><lastmod>${TODAY}</lastmod></url>`).join('\n')}\n</urlset>\n`);
+    await put('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(([p, mod]) => `  <url><loc>${esc(ORIGIN + link(p))}</loc>${mod ? `<lastmod>${mod}</lastmod>` : ''}</url>`).join('\n')}\n</urlset>\n`);
   }
   // Once the site lives at the domain root, the old /new preview folder sends people to the same page at the root.
   if (!BASE) await put('new/.htaccess', 'RedirectMatch 301 ^/new/?(.*)$ /$1\n');
