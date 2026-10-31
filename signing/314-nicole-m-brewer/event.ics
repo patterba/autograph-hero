@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-314@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261110
+DTEND;VALUE=DATE:20261111
+SUMMARY:Nicole M. Brewer autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://thirdplacebooks.com/event/2026-11-10/nicole-m-brewer\nConfirm details with the organizer before you go.
+LOCATION:Third Place Books Seward Park\, 5041 Wilson Ave S\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Nicole M. Brewer autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

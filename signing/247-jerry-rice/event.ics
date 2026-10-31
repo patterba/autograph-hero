@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-247@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261202
+DTEND;VALUE=DATE:20261203
+SUMMARY:Jerry Rice autograph signing
+DESCRIPTION:Time: 5:30 PM PT\nOrder deadline: Tuesday\, December 1\, 2026\nDetails: https://www.millcreeksports.com/jerry-rice-signing/\nConfirm details with the organizer before you go.
+LOCATION:Mill Creek Sports\, Mill Creek\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jerry Rice autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

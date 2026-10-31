@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-336@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261109
+DTEND;VALUE=DATE:20261110
+SUMMARY:Joey Clift autograph signing
+DESCRIPTION:Time: 7pm\nDetails: https://www.elliottbaybook.com/events/calendar#2026-11-09-joey-clift\nConfirm details with the organizer before you go.
+LOCATION:Elliott Bay Book Company\, 1521 10th Ave\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Joey Clift autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

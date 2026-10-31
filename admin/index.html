@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin | Autograph Hero</title>
+<meta name="description" content="Autograph Hero admin.">
+<meta name="robots" content="noindex, nofollow">
+
+
+
+<meta property="og:site_name" content="Autograph Hero">
+<meta property="og:title" content="Admin">
+<meta property="og:description" content="Autograph Hero admin.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://autographhero.com/admin/">
+<meta property="og:image" content="https://autographhero.com/assets/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Autograph Hero: never miss a signing">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Yellowtail&family=IBM+Plex+Mono:wght@500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/assets/site.css?v=67a42c83">
+<link rel="icon" type="image/svg+xml" href="/assets/logo.svg?v=b86cb869">
+
+<script>function ahPhoto(i){var f=i.getAttribute('data-fallback'),m=i.id==='main-photo',a=document.getElementById('credit-main'),b=document.getElementById('credit-fb'),g=i.parentNode&&i.parentNode.querySelector('.photo-bg');i.removeAttribute('data-fallback');if(f){i.onerror=function(){i.remove();if(g)g.remove();if(m&&b)b.hidden=true};i.src=f;if(g){g.onerror=function(){g.remove()};g.src=f}if(m){if(a)a.hidden=true;if(b)b.hidden=false}}else{i.remove();if(g)g.remove();if(m&&a)a.hidden=true}}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="/"><svg class="logo-lockup" viewBox="-170 -128 566 334" role="img" aria-label="Autograph Hero"><path d="M34 0 H8 C-50 -4 -110 24 -164 76 Q-138 84 -146 112 Q-118 114 -124 146 Q-96 142 -98 184 C-84 130 -44 70 0 44 H34 Z" fill="#FF6A00"/><path d="M0 0 H34 V83 H58 V0 H92 V200 H58 V117 H34 V200 H0 Z" fill="#0A0A0A"/><path d="M102 0 H180 V32 H136 V84 H172 V116 H136 V168 H180 V200 H102 Z" fill="#0A0A0A"/><path fill-rule="evenodd" d="M190 0 H250 A34 34 0 0 1 284 34 V82 A34 34 0 0 1 250 116 H190 Z M224 30 H244 A8 8 0 0 1 252 38 V78 A8 8 0 0 1 244 86 H224 Z" fill="#0A0A0A"/><path d="M190 0 H224 V200 H190 Z M230 110 H262 L286 200 H252 Z" fill="#0A0A0A"/><path fill-rule="evenodd" d="M330 0 H354 A34 34 0 0 1 388 34 V166 A34 34 0 0 1 354 200 H330 A34 34 0 0 1 296 166 V34 A34 34 0 0 1 330 0 Z M338 32 H346 A8 8 0 0 1 354 40 V160 A8 8 0 0 1 346 168 H338 A8 8 0 0 1 330 160 V40 A8 8 0 0 1 338 32 Z" fill="#0A0A0A"/><text x="-7" y="0" transform="rotate(-6 -7 21)">Autograph</text></svg></a>
+  <nav aria-label="Main">
+    <a href="/events/">All Signings</a>
+    <a href="/events/?type=public">In Person</a>
+    <a href="/events/?type=mail-in">Mail-In</a>
+    <a href="/contact/?topic=advertise">Advertise<span class="nav-long"> With Us</span></a>
+    <a class="nav-login" data-login-link href="/account/"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span data-login-label>Log In</span></a>
+  </nav>
+  <div class="header-actions">
+    <a class="btn btn-accent btn-sm btn-pop" href="/add/"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Submit A Signing</a>
+    <a class="btn btn-ink btn-sm btn-stack" href="/signup/"><span class="btn-main">Sign Up</span><span class="btn-sub">Never Miss A Signing</span></a>
+  </div>
+</header>
+<main id="main">
+
+<section class="page-head">
+  <div class="eyebrow accent">Admin</div>
+  <h1 data-admin-title>Admin log in</h1>
+</section>
+<section class="band band-tight" data-admin data-supabase="https://ravavlocylqvkmthevtv.supabase.co" data-key="sb_publishable_a6auUU4qDwaY0vcOpHG9YA_yTMtet1O" data-site="/" data-analytics="https://ravavlocylqvkmthevtv.supabase.co/functions/v1/admin-analytics">
+  <form class="f-form f-narrow" data-view="login" novalidate>
+    <fieldset>
+      <legend>Log in to review signings</legend>
+      <div class="f-field"><label for="ad-email">Email</label><input id="ad-email" name="email" type="email" required maxlength="254" autocomplete="username"></div>
+      <div class="f-field"><label for="ad-pass">Password</label><input id="ad-pass" name="password" type="password" required maxlength="200" autocomplete="current-password"></div>
+      <div class="f-actions"><button class="btn btn-accent" type="submit">Log in</button></div>
+      <p class="f-status" role="status" aria-live="polite" hidden></p>
+    </fieldset>
+  </form>
+  <p class="notice" data-view="loading" hidden>Loading…</p>
+  <div class="admin" data-view="panel" hidden>
+    <div class="admin-bar">
+      <div class="admin-tabs" role="tablist">
+        <button role="tab" type="button" data-tab="pending" aria-selected="true">Waiting <span class="admin-count" data-count="pending"></span></button>
+        <button role="tab" type="button" data-tab="reviewed" aria-selected="false">Reviewed</button>
+        <button role="tab" type="button" data-tab="fans" aria-selected="false">Sign-ups <span class="admin-count" data-count="fans"></span></button>
+        <button role="tab" type="button" data-tab="analytics" aria-selected="false">Analytics</button>
+        <button role="tab" type="button" data-tab="captcha" aria-selected="false">Captcha</button>
+        <button role="tab" type="button" data-tab="settings" aria-selected="false">Password</button>
+      </div>
+      <div class="admin-actions">
+        <button class="btn btn-ghost btn-sm" type="button" data-refresh>Refresh</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-logout>Log out</button>
+      </div>
+    </div>
+    <p class="f-status" role="status" aria-live="polite" data-panel-status hidden></p>
+    <div data-pane="pending"></div>
+    <div data-pane="reviewed" hidden></div>
+    <div data-pane="fans" hidden></div>
+    <div data-pane="analytics" hidden></div>
+    <form class="f-form f-narrow" data-pane="captcha" hidden novalidate>
+      <fieldset>
+        <legend>Spam check (Cloudflare Turnstile)</legend>
+        <p data-captcha-state class="notice">Checking…</p>
+        <p class="muted">The "Quick check that you're a person" box on Submit A Signing, Sign Up, Contact and reminders. Paste the <strong>Secret Key</strong> from your Turnstile widget in Cloudflare (Turnstile → Autograph Hero → Settings) to turn the check on. It's saved securely and never shown again.</p>
+        <div class="f-field"><label for="ad-ts">Turnstile secret key</label><input id="ad-ts" name="secret" type="password" autocomplete="off" spellcheck="false" maxlength="200"></div>
+        <div class="f-actions"><button class="btn btn-accent" type="submit">Save and turn on</button><button class="btn btn-ghost" type="button" data-captcha-off>Turn off</button></div>
+        <p class="f-status" role="status" aria-live="polite" hidden></p>
+      </fieldset>
+    </form>
+    <form class="f-form f-narrow" data-pane="settings" hidden novalidate>
+      <fieldset>
+        <legend>Change your password</legend>
+        <div class="f-field"><label for="ad-new">New password</label><input id="ad-new" name="password" type="password" minlength="10" maxlength="200" autocomplete="new-password" aria-describedby="ad-new-hint"><p class="f-hint" id="ad-new-hint">At least 10 characters.</p></div>
+        <div class="f-field"><label for="ad-new2">New password again</label><input id="ad-new2" name="password2" type="password" maxlength="200" autocomplete="new-password"></div>
+        <div class="f-actions"><button class="btn btn-accent" type="submit">Change password</button></div>
+        <p class="f-status" role="status" aria-live="polite" hidden></p>
+      </fieldset>
+    </form>
+  </div>
+  <noscript><p class="notice">The admin page needs JavaScript turned on.</p></noscript>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-brand">
+    <div class="brand"><svg class="logo-lockup" viewBox="-170 -128 566 334" role="img" aria-label="Autograph Hero"><path d="M34 0 H8 C-50 -4 -110 24 -164 76 Q-138 84 -146 112 Q-118 114 -124 146 Q-96 142 -98 184 C-84 130 -44 70 0 44 H34 Z" fill="#FF6A00"/><path d="M0 0 H34 V83 H58 V0 H92 V200 H58 V117 H34 V200 H0 Z" fill="#0A0A0A"/><path d="M102 0 H180 V32 H136 V84 H172 V116 H136 V168 H180 V200 H102 Z" fill="#0A0A0A"/><path fill-rule="evenodd" d="M190 0 H250 A34 34 0 0 1 284 34 V82 A34 34 0 0 1 250 116 H190 Z M224 30 H244 A8 8 0 0 1 252 38 V78 A8 8 0 0 1 244 86 H224 Z" fill="#0A0A0A"/><path d="M190 0 H224 V200 H190 Z M230 110 H262 L286 200 H252 Z" fill="#0A0A0A"/><path fill-rule="evenodd" d="M330 0 H354 A34 34 0 0 1 388 34 V166 A34 34 0 0 1 354 200 H330 A34 34 0 0 1 296 166 V34 A34 34 0 0 1 330 0 Z M338 32 H346 A8 8 0 0 1 354 40 V160 A8 8 0 0 1 346 168 H338 A8 8 0 0 1 330 160 V40 A8 8 0 0 1 338 32 Z" fill="#0A0A0A"/><text x="-7" y="0" transform="rotate(-6 -7 21)">Autograph</text></svg></div>
+    <a class="social" href="https://x.com/autographheroX" rel="me noopener" target="_blank" aria-label="Autograph Hero on X (Twitter)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>@autographheroX</span></a>
+  </div>
+  <div class="footer-about">
+    <h2>About Autograph Hero</h2>
+    <p>Autograph Hero is a passion project built by a lifelong autograph and sports card collector. I made it so fans can find every signing, meet &amp; greet and mail-in in one place, and never miss the chance to get something signed by the people they root for. <a href="/about/">Read the story</a> · <a href="/contact/">Contact us</a></p>
+  </div>
+  <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
+  <p class="small footer-links"><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/archive/">Signing Archives</a><a href="/autographs/">Signers A–Z</a><a href="/teams/">Teams A–Z</a><a href="/states/">Signings by State</a><a href="/account/" data-login-link data-login-short><span data-login-label>Log In</span></a><a href="/app/">Get the App</a><a href="/terms/">Terms</a><a href="/privacy/">Privacy</a><a href="/photo-credits/">Photo credits</a></p>
+  <p class="mono small">Updated Saturday, October 31, 2026</p>
+</footer>
+
+
+
+
+
+
+<script src="/assets/admin.js?v=35849723" defer></script>
+
+
+</body>
+</html>

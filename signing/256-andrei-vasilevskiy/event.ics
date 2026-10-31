@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-256@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261230
+DTEND;VALUE=DATE:20261231
+SUMMARY:Andrei Vasilevskiy autograph signing
+DESCRIPTION:Order deadline: Friday\, December 18\, 2026\nDetails: https://powerssportsmemorabilia.com/products/andrei-vasilevskiy-autograph-signing\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Andrei Vasilevskiy autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-120@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:Trot Nixon autograph signing
+DESCRIPTION:Time: 12:00pm - 1:00pm\nOrder deadline: Saturday\, October 31\, 2026\nDetails: https://www.sureshotpromotions.com/products/trot-nixon-public-autograph-signing-sunday-11-8-2026\nConfirm details with the organizer before you go.
+LOCATION:Shriner's Auditorium\, Wilmington\, MA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Trot Nixon autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

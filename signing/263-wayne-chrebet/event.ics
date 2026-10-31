@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-263@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:Wayne Chrebet autograph signing
+DESCRIPTION:Order deadline: Monday\, November 2\, 2026\nDetails: https://powerssportsmemorabilia.com/products/wayne-chrebet-autograph-signing-1\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Wayne Chrebet autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,25 @@
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+RewriteEngine On
+
+# Addresses from the old WordPress site, so saved links and search results still work.
+RedirectMatch 301 ^/terms-conditions/?$ /terms/
+RedirectMatch 301 ^/privacy-policy/?$ /privacy/
+RedirectMatch 301 ^/my-account(/.*)?$ /account/
+RedirectMatch 301 ^/submit-an-appearance/?$ /add/
+RedirectMatch 301 ^/(type|browse)(/.*)?$ /events/
+
+# Pages change every hour, so the host's cache and browsers must check for a new copy
+# each time. Assets are fingerprinted (?v=...), so they can be kept. The app manifest and the
+# offline worker (sw.js) must also be re-checked, so installed apps pick up new versions.
+AddType application/manifest+json .webmanifest
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|ics|txt|webmanifest)$">
+    Header set Cache-Control "no-cache, max-age=0, must-revalidate"
+    Header set X-Endurance-Cache-Level "0"
+  </FilesMatch>
+  <Files "sw.js">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set X-Endurance-Cache-Level "0"
+  </Files>
+</IfModule>

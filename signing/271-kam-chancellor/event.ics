@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-271@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261205
+DTEND;VALUE=DATE:20261206
+SUMMARY:Kam Chancellor autograph signing
+DESCRIPTION:Time: 6pm\nDetails: https://www.millcreeksports.com/kam-chancellor-signing/\nConfirm details with the organizer before you go.
+LOCATION:Mill Creek Sports\, Mill Creek\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kam Chancellor autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

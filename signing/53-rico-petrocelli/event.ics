@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-53@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:Rico Petrocelli autograph signing
+DESCRIPTION:Time: 10:30am - 11:30am\nOrder deadline: Saturday\, October 31\, 2026\nDetails: https://www.sureshotpromotions.com/products/john-valentin-public-autograph-signing-sunday-11-8-2026-copy\nConfirm details with the organizer before you go.
+LOCATION:Shriner's Auditorium\, Wilmington\, MA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Rico Petrocelli autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-54@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:John Valentin autograph signing
+DESCRIPTION:Time: 1:00pm - 2:00pm\nOrder deadline: Saturday\, October 31\, 2026\nDetails: https://www.sureshotpromotions.com/products/mickey-gasper-public-autograph-signing-saturday-11-7-2026-copy\nConfirm details with the organizer before you go.
+LOCATION:Shriner's Auditorium\, Wilmington\, MA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: John Valentin autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-323@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261116
+DTEND;VALUE=DATE:20261117
+SUMMARY:Christine Reed autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://thirdplacebooks.com/event/2026-11-16/christine-reed\nConfirm details with the organizer before you go.
+LOCATION:Third Place Books Seward Park\, 5041 Wilson Ave S\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Christine Reed autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-210@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:Ray Didinger autograph signing
+DESCRIPTION:Time: 2:00 pm - 4:00 pm\nDetails: https://carlscards.com/event/hall-of-famer-ray-didinger-book-signing/\nConfirm details with the organizer before you go.
+LOCATION:Carl's Cards & Collectibles\, 22 West Eagle Road\, Havertown\, PA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Ray Didinger autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

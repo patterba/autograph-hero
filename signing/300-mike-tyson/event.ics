@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-300@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261212
+DTEND;VALUE=DATE:20261213
+SUMMARY:Mike Tyson autograph signing
+DESCRIPTION:Details: https://phillyshow.com/autograph-guest/tyson-mike/\nConfirm details with the organizer before you go.
+LOCATION:Greater Philadelphia Expo Center\, 100 Station Ave\, Oaks\, PA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Mike Tyson autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

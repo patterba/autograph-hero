@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-127@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261107
+DTEND;VALUE=DATE:20261108
+SUMMARY:Kirk Gibson autograph signing
+DESCRIPTION:Details: https://www.detroitcitysports.com/kirk-gibson-november-7/\nConfirm details with the organizer before you go.
+LOCATION:Detroit City Sports\, Sterling Heights\, MI
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kirk Gibson autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

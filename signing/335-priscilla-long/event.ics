@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-335@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:Priscilla Long autograph signing
+DESCRIPTION:Time: 7pm\nDetails: https://www.elliottbaybook.com/events/calendar#2026-11-08-priscilla-long\nConfirm details with the organizer before you go.
+LOCATION:Elliott Bay Book Company\, 1521 10th Ave\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Priscilla Long autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

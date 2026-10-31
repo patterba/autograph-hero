@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-322@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261116
+DTEND;VALUE=DATE:20261117
+SUMMARY:Holly Black & Solenne Songer autograph signing
+DESCRIPTION:Time: 7:00pm (check-in opens 6:00pm)\; ticket required\, includes the book\; Holly signs 1 copy + 2 more books\, no memorabilia\nDetails: https://thirdplacebooks.com/event/holly-black-solenne-songer\nConfirm details with the organizer before you go.
+LOCATION:Third Place Books Lake Forest Park\, 17171 Bothell Way NE\, Lake Forest Park\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Holly Black & Solenne Songer autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

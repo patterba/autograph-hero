@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-317@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261111
+DTEND;VALUE=DATE:20261112
+SUMMARY:Stephan Pastis autograph signing
+DESCRIPTION:Time: 7:00pm\; ticket required\nDetails: https://thirdplacebooks.com/event/2026-11-11/stephan-pastis\nConfirm details with the organizer before you go.
+LOCATION:Third Place Books Lake Forest Park\, 17171 Bothell Way NE\, Lake Forest Park\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Stephan Pastis autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

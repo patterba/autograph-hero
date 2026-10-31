@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-332@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261105
+DTEND;VALUE=DATE:20261106
+SUMMARY:Danielle Krysa autograph signing
+DESCRIPTION:Time: 7pm\nDetails: https://www.elliottbaybook.com/events/calendar#2026-11-05-danielle-krysa\nConfirm details with the organizer before you go.
+LOCATION:Elliott Bay Book Company\, 1521 10th Ave\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Danielle Krysa autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

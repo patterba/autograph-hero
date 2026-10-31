@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-312@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261109
+DTEND;VALUE=DATE:20261110
+SUMMARY:Chad Harbach autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://thirdplacebooks.com/event/chad-harbach\nConfirm details with the organizer before you go.
+LOCATION:Third Place Books Lake Forest Park\, 17171 Bothell Way NE\, Lake Forest Park\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Chad Harbach autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

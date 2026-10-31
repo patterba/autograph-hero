@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-301@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261102
+DTEND;VALUE=DATE:20261103
+SUMMARY:MICO autograph signing
+DESCRIPTION:Time: 12:00PM\; order vinyl or CD online for a wristband\nDetails: https://www.newburycomics.com/blogs/events/mico-in-store-signing-at-harvard-square-11-02\nConfirm details with the organizer before you go.
+LOCATION:Newbury Comics Harvard Square\, Cambridge\, MA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: MICO autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

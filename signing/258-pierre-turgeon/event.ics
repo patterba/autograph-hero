@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-258@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:Pierre Turgeon autograph signing
+DESCRIPTION:Order deadline: Thursday\, November 5\, 2026\nDetails: https://powerssportsmemorabilia.com/products/jari-kurri-autograph-signing-2\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Pierre Turgeon autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

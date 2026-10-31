@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-331@autographhero.com
+DTSTAMP:20261031T000000Z
+DTSTART;VALUE=DATE:20261103
+DTEND;VALUE=DATE:20261104
+SUMMARY:Dana Mashoian Walrath autograph signing
+DESCRIPTION:Time: 7pm\nDetails: https://www.elliottbaybook.com/events/calendar#2026-11-03-dana-mashoian-walrath\nConfirm details with the organizer before you go.
+LOCATION:Elliott Bay Book Company\, 1521 10th Ave\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Dana Mashoian Walrath autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR
