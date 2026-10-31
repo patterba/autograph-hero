@@ -1,0 +1,113 @@
+Run: 2026-10-31T12:47:45Z
+## Names in the FTP folder
+.
+..
+.ftpquota
+.htaccess
+.htaccess.phpupgrader.fed49690
+.htaccess.phpupgrader.initial
+.well-known
+404.html
+about
+account
+add
+admin
+ah.zip
+app
+archive
+assets
+autograph_hero
+autographs
+cgi-bin
+contact
+error_log
+events
+google9017fd775e03a772.html
+index.html
+index.php
+license.txt
+manifest.webmanifest
+new
+offline
+old
+photo-credits
+privacy
+readme.html
+reminder
+robots.txt
+signing
+signup
+sitemap.xml
+sports
+states
+sw.js
+teams
+terms
+unsubscribe
+wp-activate.php
+wp-admin
+wp-blog-header.php
+wp-cli.yml
+wp-comments-post.php
+wp-config-sample.php
+wp-config.php
+wp-content
+wp-cron.php
+wp-includes
+wp-links-opml.php
+wp-load.php
+wp-login.php
+wp-mail.php
+wp-settings.php
+wp-signup.php
+## Is this the WordPress folder? (wp-config.php present)
+yes
+## / via origin
+HTTP/2 200 
+cache-control: no-cache, max-age=0, must-revalidate
+x-endurance-cache-level: 0
+<title>Autograph Hero: Autograph Signings, Meet &amp; Greets and Mail-Ins
+Updated Saturday, October 31, 2026
+wp-content mentions: 18
+## / via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
+## /terms/ via origin
+HTTP/2 200 
+cache-control: no-cache, max-age=0, must-revalidate
+x-endurance-cache-level: 0
+<title>Terms of use | Autograph Hero
+Updated Saturday, October 31, 2026
+wp-content mentions: 0
+## /terms/ via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
+## /admin/ via origin
+HTTP/2 200 
+cache-control: no-cache, max-age=0, must-revalidate
+x-endurance-cache-level: 0
+<title>Admin | Autograph Hero
+Updated Saturday, October 31, 2026
+wp-content mentions: 0
+## /admin/ via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
+## /new/ via origin
+HTTP/2 301 
+location: https://autographhero.com/
+<title>301 Moved Permanently
+wp-content mentions: 0
+## /new/ via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
+## /sitemap.xml via origin
+HTTP/2 200 
+wp-content mentions: 0
+## /sitemap.xml via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
