@@ -312,12 +312,27 @@ const ICON = {
 
 const badge = (s) => `<span class="badge badge-${esc(s.type)}">${esc(TYPE_LABEL[s.type])}</span>`;
 
+// Initials for the name tile: first letter of the first and last word of the first signer,
+// skipping suffixes and middle initials ("Paul E. Nelson" -> "PN", "Ken Griffey Sr." -> "KG").
+function initials(s) {
+  const first = (s.names && s.names[0]) || s.name || '';
+  const words = first.replace(/[^\p{L}\p{N}\s'-]/gu, ' ').split(/\s+/).filter((w) => w && !/^(jr|sr|ii|iii|iv|v)$/i.test(w));
+  if (!words.length) return '';
+  const a = words[0][0];
+  const b = words.length > 1 ? words[words.length - 1][0] : '';
+  return (a + b).toUpperCase();
+}
+
 function photo(s, cls = '', id = '') {
+  // A name tile (initials, like the logo's "/HERO") always sits underneath, so a listing with no
+  // photo, or one whose photo fails to load, never shows an empty box.
+  const ini = initials(s);
+  const tile = `<div class="photo-tile" aria-hidden="true"><span class="photo-tile-mark"><span class="slash">/</span>${esc(ini || 'AH')}</span></div>`;
   // The whole photo is shown (nothing cropped off), over a blurred copy of itself that fills the box.
   const img = s.photo
-    ? `<img class="photo-bg" src="${esc(s.photo.url)}" alt="" aria-hidden="true" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><img${id ? ` id="${id}"` : ''} src="${esc(s.photo.url)}"${s.photoFallback ? ` data-fallback="${esc(s.photoFallback.url)}"` : ''} alt="${esc(s.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="ahPhoto(this)">`
+    ? `<img class="photo-bg" src="${esc(s.photo.url)}" alt="" aria-hidden="true" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><img${id ? ` id="${id}"` : ''} src="${esc(s.photo.url)}"${s.photoFallback ? ` data-fallback="${esc(s.photoFallback.url)}"` : ''} alt="${esc(s.name)}" loading="lazy" referrerpolicy="no-referrer" onload="this.parentNode.classList.add('has-img')" onerror="ahPhoto(this)">`
     : '';
-  return `<div class="photo ${cls}">${img}</div>`;
+  return `<div class="photo ${cls}">${tile}${img}</div>`;
 }
 
 function creditLine(p, id, hidden = false) {

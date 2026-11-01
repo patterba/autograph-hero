@@ -58,8 +58,13 @@ h1, h2, h3, p { margin: 0; }
 .badge-mail-in, .badge-unknown { background: var(--card); color: var(--ink); border-color: var(--ink); }
 .badge-outline { border-color: var(--ink); color: var(--ink); }
 
-/* Photos: striped placeholder shows when there is no image or it fails to load */
-.photo { position: relative; width: 100%; height: 100%; overflow: hidden; background-color: #E9E1D2; background-image: repeating-linear-gradient(135deg, rgba(22, 24, 29, 0.06) 0 12px, transparent 12px 24px); }
+/* Photos: a name tile (initials) sits underneath and shows when there is no image or it fails to load */
+.photo { position: relative; width: 100%; height: 100%; overflow: hidden; background-color: #E9E1D2; container-type: inline-size; }
+/* Once a photo has loaded the tile steps aside, so it can't show through a see-through logo. */
+.photo.has-img .photo-tile { display: none; }
+.photo-tile { position: absolute; inset: 0; z-index: 0; display: flex; align-items: center; justify-content: center; background-color: var(--ink); background-image: repeating-linear-gradient(135deg, rgba(246, 241, 231, 0.04) 0 14px, transparent 14px 28px); }
+.photo-tile-mark { font-family: var(--display); font-size: clamp(56px, 30cqw, 220px); line-height: 1; letter-spacing: 0.01em; color: var(--paper); text-transform: uppercase; }
+.photo-tile-mark .slash { color: #FF6A00; margin-right: 0.04em; }
 .photo img { position: relative; z-index: 1; display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
 /* Blurred copy behind the photo, so a tall or wide photo still fills the box without being cut off. */
 .photo .photo-bg { position: absolute; inset: -24px; z-index: 0; width: calc(100% + 48px); height: calc(100% + 48px); object-fit: cover; filter: blur(22px) saturate(1.1) brightness(0.92); opacity: 1; }
