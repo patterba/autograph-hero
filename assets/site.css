@@ -445,6 +445,7 @@ input[list]::-webkit-calendar-picker-indicator { display: none !important; }
 
 /* Footer: logo with the X (Twitter) link beside it */
 .footer-brand { display: flex; align-items: center; gap: 16px 24px; flex-wrap: wrap; }
+.socials { display: flex; flex-wrap: wrap; gap: 10px; }
 .social { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); font-weight: 600; font-size: 15px; text-decoration: none; }
 .social:hover { background: var(--ink); color: var(--paper); }
 
