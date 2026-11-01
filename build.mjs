@@ -48,7 +48,7 @@ const COLUMNS = [
   'id', 'title', 'athlete_names', 'signing_type', 'event_date', 'event_date_text',
   'event_time_text', 'order_deadline', 'venue', 'city', 'state', 'price_min', 'price_max',
   'prices', 'sport', 'team_city', 'listing_url', 'image_url', 'image_source',
-  'image_credit', 'image_license', 'image_page_url', 'status', 'updated_at',
+  'image_credit', 'image_license', 'image_page_url', 'status', 'updated_at', 'published_at',
 ];
 
 const TYPE_LABEL = { public: 'In person', private: 'Private signing', 'mail-in': 'Mail-in', unknown: 'Signing' };
@@ -279,6 +279,8 @@ function shape(row, athletes) {
     teamCity: row.team_city || null,
     // Last time the crawl touched this row (YYYY-MM-DD), for the sitemap's lastmod.
     updated: typeof row.updated_at === 'string' && isDate(row.updated_at.slice(0, 10)) ? row.updated_at.slice(0, 10) : null,
+    // When it first went live on the site (ms), for the home page's "Added this week" count.
+    publishedAt: typeof row.published_at === 'string' && Number.isFinite(Date.parse(row.published_at)) ? Date.parse(row.published_at) : null,
     teams,
     primaryTeam: primary,
     listingUrl,
@@ -633,7 +635,9 @@ function homePage(list) {
 
   // The hero ticket is a sign-up pass, not a signing: live counts on top, a "who do you
   // collect?" box below that carries the favorite over to the Sign Up page (?fav=).
-  const athleteCount = new Set(list.flatMap((s) => s.names.map((n) => n.toLowerCase()))).size;
+  // Upcoming signings that went live in the last 7 days (rolling, so it never drops to 0 on Mondays).
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const addedCount = list.filter((s) => s.publishedAt && s.publishedAt >= weekAgo).length;
   const mailCount = list.filter((s) => s.type === 'mail-in').length;
   const suggest = [...new Set(list.flatMap((s) => [...s.names, ...(s.teams || [])]))]
     .filter((o) => typeof o === 'string' && o.trim()).sort((a, b) => a.localeCompare(b)).slice(0, 300);
@@ -643,7 +647,7 @@ function homePage(list) {
         <span class="badge badge-public">Fan pass</span>
         <div class="pass-stats">
           ${stat(list.length, `Upcoming signing${list.length === 1 ? '' : 's'}`)}
-          ${stat(athleteCount, `Athlete${athleteCount === 1 ? '' : 's'}`)}
+          ${stat(addedCount, 'Added this week')}
           ${stat(mailCount, 'By mail')}
         </div>
       </div>
