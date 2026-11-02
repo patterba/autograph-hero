@@ -462,7 +462,14 @@ input[list]::-webkit-calendar-picker-indicator { display: none !important; }
 .stat-l { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .stat-sub { font-size: 16px; font-weight: 700; margin-top: 4px; }
 .bars { margin: 0; padding: 16px 18px 10px; border: 1.5px solid var(--ink); border-radius: 14px; background: var(--card); }
-.bars-row { display: flex; align-items: flex-end; gap: 3px; height: 140px; }
+.bars-plot { display: flex; gap: 8px; height: 140px; margin-top: 8px; }
+.bars-y { position: relative; flex: none; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.bars-tick { position: absolute; right: 0; transform: translateY(50%); line-height: 1; white-space: nowrap; }
+.bars-area { position: relative; flex: 1; min-width: 0; }
+.bars-grid { position: absolute; inset: 0; pointer-events: none; }
+.bars-line { position: absolute; left: 0; right: 0; border-top: 1px dashed color-mix(in srgb, var(--muted) 35%, transparent); }
+.bars-line.is-base { border-top: 1.5px solid var(--ink); }
+.bars-row { position: relative; display: flex; align-items: flex-end; gap: 3px; height: 100%; }
 .bar { flex: 1; height: 100%; display: flex; align-items: flex-end; min-width: 0; }
 .bar-fill { display: block; width: 100%; background: var(--accent); border-radius: 3px 3px 0 0; }
 .bar:hover .bar-fill { background: var(--ink); }
