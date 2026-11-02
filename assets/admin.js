@@ -304,11 +304,50 @@
     d.appendChild(el('span', 'stat-l', label));
     grid.appendChild(d);
   }
-  // Simple bar chart: one bar per day/week, height by value, the number on hover and for screen readers.
+  // Round step for the left axis: 1, 2 or 5 times a power of ten, whole numbers only, about 5 gridlines.
+  function niceStep(max) {
+    var rough = max / 5;
+    var mag = Math.pow(10, Math.floor(Math.log10(rough)));
+    var norm = rough / mag;
+    var step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag;
+    return Math.max(1, Math.round(step));
+  }
+  // Axis labels: plain numbers, or k / M for the whole axis once its top reaches 10,000.
+  function axisNum(n, top) {
+    if (!n) return '0';
+    if (top >= 1e7) return +(n / 1e6).toFixed(1) + 'M';
+    if (top >= 1e4) return +(n / 1e3).toFixed(1) + 'k';
+    return num(n);
+  }
+  // Simple bar chart: one bar per day/week, height by value, a numbered left axis with gridlines,
+  // the exact number on hover and for screen readers.
   function bars(list, labelOf, valueOf, title) {
-    var max = list.reduce(function (m, x) { return Math.max(m, valueOf(x)); }, 0) || 1;
+    var high = list.reduce(function (m, x) { return Math.max(m, valueOf(x)); }, 0);
+    var step = niceStep(Math.max(high, 1));
+    var max = Math.ceil(Math.max(high, 1) / step) * step;
     var wrap = el('figure', 'bars');
     wrap.setAttribute('aria-label', title);
+    var plot = el('div', 'bars-plot');
+    var yaxis = el('div', 'bars-y');
+    yaxis.setAttribute('aria-hidden', 'true');
+    var grid = el('div', 'bars-grid');
+    grid.setAttribute('aria-hidden', 'true');
+    var widest = 1;
+    for (var t = 0; t <= max; t += step) {
+      var pos = (t / max) * 100 + '%';
+      var txt = axisNum(t, max);
+      var lab = el('span', 'bars-tick', txt);
+      lab.style.bottom = pos;
+      yaxis.appendChild(lab);
+      var line = el('span', 'bars-line' + (t === 0 ? ' is-base' : ''));
+      line.style.bottom = pos;
+      grid.appendChild(line);
+      widest = Math.max(widest, txt.length);
+    }
+    yaxis.style.width = (widest + 0.5) + 'ch';
+    plot.appendChild(yaxis);
+    var area = el('div', 'bars-area');
+    area.appendChild(grid);
     var row = el('div', 'bars-row');
     list.forEach(function (x) {
       var v = valueOf(x);
@@ -320,11 +359,14 @@
       b.appendChild(el('span', 'sr-only', labelOf(x) + ': ' + num(v)));
       row.appendChild(b);
     });
-    wrap.appendChild(row);
+    area.appendChild(row);
+    plot.appendChild(area);
+    wrap.appendChild(plot);
     var axis = el('figcaption', 'bars-axis');
+    axis.style.paddingLeft = 'calc(' + (widest + 0.5) + 'ch + 8px)';
     if (list.length) {
       axis.appendChild(el('span', null, labelOf(list[0])));
-      axis.appendChild(el('span', null, 'Highest: ' + num(max)));
+      axis.appendChild(el('span', null, 'Highest: ' + num(high)));
       axis.appendChild(el('span', null, labelOf(list[list.length - 1])));
     }
     wrap.appendChild(axis);
