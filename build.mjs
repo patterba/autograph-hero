@@ -868,7 +868,12 @@ function eventsPage(list) {
   <p class="muted" id="count" aria-live="polite">${list.length} signing${list.length === 1 ? '' : 's'}</p>
   <div class="grid" id="results">${list.map((s, i) => (i === 7 ? submitPrompt() : '') + card(s)).join('\n')}${list.length <= 7 ? submitPrompt() : ''}</div>
   <div class="empty" id="empty" hidden>
-    <p><strong>No signings match those filters.</strong> Try clearing one, or if you know about a signing we don't have, add it.</p>
+    <div class="empty-alert" id="empty-alert" data-signup="${esc(link('/signup/'))}" hidden>
+      <p><strong>No signings for <span data-q-name></span> right now.</strong> Sign up for free alerts and we'll email you when <span data-q-name></span> has a signing, so you hear about it before it sells out.</p>
+      <a class="btn btn-ink" id="empty-alert-link" href="${esc(link('/signup/'))}">${ICON.bell}<span>Alert me when <span data-q-name></span> signs</span></a>
+    </div>
+    <p id="empty-filters"><strong>No signings match those filters.</strong> Try clearing one, or if you know about a signing we don't have, add it.</p>
+    <p id="empty-add" hidden>Know about a <span data-q-name></span> signing we don't have? Add it.</p>
     <a class="btn btn-accent" href="${esc(link('/add/'))}">${ICON.plus}Submit A Signing</a>
   </div>
 </section>`;

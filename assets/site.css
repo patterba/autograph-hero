@@ -297,6 +297,8 @@ h1, h2, h3, p { margin: 0; }
 .promo .btn { margin-top: 6px; }
 .empty { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
 .empty p { margin: 0; }
+.empty-alert:not([hidden]) { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; width: 100%; padding-bottom: 18px; border-bottom: 1.5px solid var(--line); font-size: 17px; }
+.empty-alert .btn { text-align: left; }
 .inline-submit { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; border: 2px dashed var(--ink); border-radius: 14px; background: #FFF4EB; text-decoration: none; color: var(--ink); }
 .inline-submit:hover { background: #FFE9DA; color: var(--ink); }
 .inline-submit > span:first-child { flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
