@@ -48,6 +48,9 @@ jobs:
         run: node build.mjs
         env:
           BASE_PATH: ${{ env.SITE_PATH }}
+          # Supabase secret key (Settings → API Keys → Secret keys) so the build can read signings
+          # after public reads are switched off. Empty = the public key.
+          SUPABASE_READ_KEY: ${{ secrets.SUPABASE_READ_KEY }}
           # Cloudflare Turnstile site key (public). Set it under Settings → Secrets and
           # variables → Actions → Variables. Empty = no check on "Submit a signing".
           TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
