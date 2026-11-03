@@ -132,3 +132,19 @@
   refreshButtons();
   if (ios) showInstall();
 })();
+
+// Home page fan pass: "Sign Up" opens /signup/ with the favorite in the address (?fav=) and the
+// email handed over in sessionStorage ('ah-signup-email'), so the email never shows up in the URL,
+// browser history or server logs. assets/forms.js fills it in on /signup/.
+(function () {
+  var form = document.querySelector('form.pass-form');
+  if (!form) return;
+  form.addEventListener('submit', function () {
+    var email = form.querySelector('#pass-email');
+    var v = email ? String(email.value || '').trim() : '';
+    try {
+      if (v) sessionStorage.setItem('ah-signup-email', v);
+      else sessionStorage.removeItem('ah-signup-email');
+    } catch (e) {}
+  });
+})();
