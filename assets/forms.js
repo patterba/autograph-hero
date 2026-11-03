@@ -25,6 +25,23 @@
       }
     }
 
+    // Coming from the home page fan pass: fill in the email it handed over (assets/app.js),
+    // then jump to the first name so the fan just keeps typing.
+    if (kind === 'signup' && form.elements.email) {
+      var handed = '';
+      try {
+        handed = sessionStorage.getItem('ah-signup-email') || '';
+        sessionStorage.removeItem('ah-signup-email');
+      } catch (e) {}
+      if (handed && !form.elements.email.value) {
+        form.elements.email.value = handed.slice(0, 254);
+        var firstEmpty = Array.prototype.filter.call(form.querySelectorAll('input[required]'), function (el) {
+          return el.type !== 'checkbox' && !el.value;
+        })[0];
+        if (firstEmpty) firstEmpty.focus();
+      }
+    }
+
     if (favInput) {
       var params = new URLSearchParams(location.search);
       params.getAll('fav').forEach(addFavorite);

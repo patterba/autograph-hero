@@ -682,8 +682,11 @@ function homePage(list) {
         <div class="feature-name">Never Miss A Signing</div>
         <p class="muted">Tell us who you collect. We'll email you when they sign.</p>
         <label class="sr-only" for="pass-fav">Favorite team, player or person</label>
+        <input class="pass-input" id="pass-fav" name="fav" type="text" list="pass-fav-list" placeholder="Team, player or person" autocomplete="off" maxlength="80">
+        <label class="sr-only" for="pass-email">Email address</label>
         <div class="pass-row">
-          <input id="pass-fav" name="fav" type="text" list="pass-fav-list" placeholder="Team, player or person" autocomplete="off" maxlength="80">
+          <!-- No name on purpose: assets/app.js hands the email to /signup/ through sessionStorage, so it never lands in the address bar, history or logs. -->
+          <input class="pass-input" id="pass-email" type="email" placeholder="Email address" autocomplete="email" inputmode="email" maxlength="254" required>
           <button class="btn btn-accent" type="submit">${ICON.bell}Sign Up</button>
         </div>
         <datalist id="pass-fav-list">${suggest.map((o) => `<option value="${esc(o)}">`).join('')}</datalist>
