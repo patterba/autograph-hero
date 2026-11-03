@@ -40,6 +40,7 @@
     });
     count.textContent = shown + (shown === 1 ? ' signing' : ' signings');
     empty.hidden = shown !== 0;
+    if (shown === 0) emptyMessage(form.elements.q.value);
     // The "Submit A Signing" card in the results steps aside when the no-results message (which has its own button) shows.
     var promo = document.querySelector('#results .promo');
     if (promo) promo.hidden = shown === 0;
@@ -55,6 +56,27 @@
     } catch (e) {
       // Some embedded viewers refuse address changes; filtering still works.
     }
+  }
+
+  // No results for a search: offer alerts for what they typed (a signer, team,
+  // athlete or actor), carried to Sign Up as a favorite (?fav=).
+  var alertBox = document.getElementById('empty-alert');
+  function niceName(raw) {
+    var v = raw.replace(/\s+/g, ' ').trim().slice(0, 60);
+    // "jerry rice" -> "Jerry Rice"; leave anything with capitals as typed.
+    if (v === v.toLowerCase()) v = v.replace(/(^|[\s\-'.])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); });
+    return v;
+  }
+  function emptyMessage(raw) {
+    if (!alertBox) return;
+    var name = niceName(raw || '');
+    var searched = name.length >= 2;
+    alertBox.hidden = !searched;
+    document.getElementById('empty-filters').hidden = searched;
+    document.getElementById('empty-add').hidden = !searched;
+    if (!searched) return;
+    Array.prototype.forEach.call(empty.querySelectorAll('[data-q-name]'), function (el) { el.textContent = name; });
+    document.getElementById('empty-alert-link').href = alertBox.getAttribute('data-signup') + '?fav=' + encodeURIComponent(name);
   }
 
   form.addEventListener('input', apply);
