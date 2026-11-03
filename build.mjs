@@ -15,6 +15,10 @@ const OUT = path.join(ROOT, 'dist');
 // whose status is 'published'.
 const SUPABASE_URL = (process.env.SUPABASE_URL || 'https://ravavlocylqvkmthevtv.supabase.co').replace(/\/$/, '');
 const SUPABASE_KEY = process.env.SUPABASE_KEY || 'sb_publishable_a6auUU4qDwaY0vcOpHG9YA_yTMtet1O';
+// The build reads signings and athletes with a private key (GitHub secret SUPABASE_READ_KEY,
+// a Supabase secret key) so the tables can be closed to the public key, which ships in every
+// page: otherwise anyone could download the whole database in one request. Unset = public key.
+const READ_KEY = process.env.SUPABASE_READ_KEY || SUPABASE_KEY;
 const BASE = (process.env.BASE_PATH || '').replace(/\/$/, '');
 const NOINDEX = process.env.SITE_NOINDEX === '1';
 const SITE_NAME = 'Autograph Hero';
@@ -49,6 +53,22 @@ const COLUMNS = [
   'event_time_text', 'order_deadline', 'venue', 'city', 'state', 'price_min', 'price_max',
   'prices', 'sport', 'team_city', 'listing_url', 'image_url', 'image_source',
   'image_credit', 'image_license', 'image_page_url', 'status', 'updated_at', 'published_at',
+];
+
+// Crawlers that collect pages to train AI models or build datasets (robots.txt tokens; most also
+// appear in their user agent). AI *search* bots that cite the site are deliberately not here:
+// OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User, Claude-SearchBot, Claude-User,
+// Google-Extended, Applebot, Amazonbot, and every search engine.
+const AI_TRAINING_BOTS = [
+  'GPTBot', 'ClaudeBot', 'anthropic-ai', 'Claude-Web', 'CCBot', 'Applebot-Extended', 'Bytespider',
+  'meta-externalagent', 'FacebookBot', 'cohere-ai', 'cohere-training-data-crawler', 'Diffbot',
+  'omgili', 'Omgilibot', 'ImagesiftBot', 'Timpibot', 'AI2Bot', 'PanguBot', 'img2dataset',
+];
+// Scraping libraries and headless browsers (refused in .htaccess; no real visitor sends these).
+const SCRAPER_TOOLS = [
+  'Scrapy', 'python-requests', 'python-urllib', 'aiohttp', 'httpx', 'Go-http-client', 'node-fetch',
+  'axios', 'okhttp', 'libwww-perl', 'Wget', 'HeadlessChrome', 'PhantomJS', 'Puppeteer', 'Playwright',
+  'Selenium', 'colly', 'Crawl4AI', 'Firecrawl',
 ];
 
 const TYPE_LABEL = { public: 'In person', private: 'Private signing', 'mail-in': 'Mail-in', unknown: 'Signing' };
@@ -127,7 +147,7 @@ async function loadSignings() {
     order: 'event_date.asc.nullslast,id.asc',
     limit: '5000',
   });
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/signings?${qs}`, { headers: { apikey: SUPABASE_KEY } });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/signings?${qs}`, { headers: { apikey: READ_KEY } });
   if (!res.ok) throw new Error(`Supabase returned ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const rows = await res.json();
   if (!Array.isArray(rows)) throw new Error('Supabase did not return a list of signings');
@@ -141,7 +161,7 @@ async function loadAthletes() {
   const byName = new Map();
   try {
     const qs = new URLSearchParams({ select: 'name,sport,teams,image_url,image_credit,image_license,image_page_url', limit: '5000' });
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/athletes?${qs}`, { headers: { apikey: SUPABASE_KEY } });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/athletes?${qs}`, { headers: { apikey: READ_KEY } });
     if (!res.ok) throw new Error(`Supabase returned ${res.status}`);
     const rows = await res.json();
     for (const a of Array.isArray(rows) ? rows : []) {
@@ -2177,7 +2197,22 @@ async function main() {
     ...list.map((s) => [`/signing/${s.slug}/`, s.updated]),
     ...archive.map((s) => [`/signing/${s.slug}/`, s.updated]),
   ];
-  await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nDisallow: ${link('/admin/')}\nAllow: /\nSitemap: ${ORIGIN}${link('/sitemap.xml')}\n`);
+  // Search engines and AI answer engines (ChatGPT search, Perplexity, Claude, Gemini, Google AI
+  // Overviews) are welcome: they send visitors and cite the site (GEO). Crawlers that collect pages
+  // to train AI models or resell data are asked to stay out (and refused by the .htaccess below).
+  // Google-Extended stays allowed on purpose: blocking it keeps the site out of Gemini's answers.
+  await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : [
+    'User-agent: *',
+    `Disallow: ${link('/admin/')}`,
+    'Allow: /',
+    '',
+    '# AI training crawlers and bulk data collectors: not allowed.',
+    ...AI_TRAINING_BOTS.map((b) => `User-agent: ${b}`),
+    'Disallow: /',
+    '',
+    `Sitemap: ${ORIGIN}${link('/sitemap.xml')}`,
+    '',
+  ].join('\n'));
   if (!NOINDEX) {
     await put('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(([p, mod]) => `  <url><loc>${esc(ORIGIN + link(p))}</loc>${mod ? `<lastmod>${mod}</lastmod>` : ''}</url>`).join('\n')}\n</urlset>\n`);
   }
@@ -2196,6 +2231,13 @@ async function main() {
     `RedirectMatch 301 ^${BASE}/my-account(/.*)?$ ${BASE}/account/`,
     `RedirectMatch 301 ^${BASE}/submit-an-appearance/?$ ${BASE}/add/`,
     `RedirectMatch 301 ^${BASE}/(type|browse)(/.*)?$ ${BASE}/events/`,
+    '',
+    '# Scrapers get 403: AI training crawlers (also asked to stay out in robots.txt), crawlers',
+    '# known to ignore robots.txt, and scraping tools. Search engines, AI search/answer bots and',
+    '# link previews are not on this list. robots.txt stays readable to everyone.',
+    `RewriteCond %{REQUEST_URI} !robots\\.txt$`,
+    `RewriteCond %{HTTP_USER_AGENT} (${[...AI_TRAINING_BOTS, ...SCRAPER_TOOLS].map((b) => b.replace(/[.+]/g, '\\$&').replace(/ /g, '\\s')).join('|')}) [NC]`,
+    'RewriteRule ^ - [F,L]',
     '',
     '# Pages change every hour, so the host\'s cache and browsers must check for a new copy',
     '# each time. Assets are fingerprinted (?v=...), so they can be kept. The app manifest and the',
