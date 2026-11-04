@@ -929,8 +929,15 @@ function eventsPage(list) {
   ${statePageLink('f-state-page')}
   <div class="grid" id="results">${list.map((s, i) => (i === 7 ? submitPrompt() : '') + card(s)).join('\n')}${list.length <= 7 ? submitPrompt() : ''}</div>
   <div class="empty" id="empty" hidden>
-    <p><strong>No signings match those filters.</strong> Try clearing one, or if you know about a signing we don't have, add it.</p>
-    <a class="btn btn-accent" href="${esc(link('/add/'))}">${ICON.plus}Submit A Signing</a>
+    <div class="empty-block" data-empty="search" hidden>
+      <p><strong data-empty-title>No active signings or meetups right now.</strong> <span data-empty-text>Sign up for alerts and we'll email you as soon as one pops up.</span></p>
+      <a class="btn btn-accent" data-empty-signup href="${esc(link('/signup/'))}">${ICON.bell}Sign Up For Alerts</a>
+      <a class="more" href="${esc(link('/add/'))}">Know about one we're missing? Add it.</a>
+    </div>
+    <div class="empty-block" data-empty="filters">
+      <p><strong>No signings match those filters.</strong> Try clearing one, or if you know about a signing we don't have, add it.</p>
+      <a class="btn btn-accent" href="${esc(link('/add/'))}">${ICON.plus}Submit A Signing</a>
+    </div>
   </div>
 </section>`;
   return page({
