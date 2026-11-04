@@ -133,6 +133,8 @@ jobs:
           mkdir -p /tmp/check && cd /tmp/check
           {
             echo "Run: $(date -u +%FT%TZ)"
+            echo "## Build"
+            cat "$GITHUB_WORKSPACE/build-info.txt" 2>/dev/null || echo "no build info"
             echo "## Names in the FTP folder"
             lftp --env-password -u "$FTP_USERNAME" "$FTP_SERVER" -e "
               set ftp:ssl-allow true; set ftp:ssl-force true; set ftp:ssl-protect-data true;

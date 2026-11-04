@@ -143,7 +143,8 @@ async function loadSignings() {
   const qs = new URLSearchParams({
     select: COLUMNS.join(','),
     // 'past' rows are signings that were on the site and have happened (Signing Archives).
-    status: 'in.(published,past)',
+    // Same rows the public read rules allowed, so a private key (which skips those rules) sees no more.
+    or: '(status.eq.published,and(status.eq.past,was_listed.is.true))',
     order: 'event_date.asc.nullslast,id.asc',
     limit: '5000',
   });
@@ -154,13 +155,29 @@ async function loadSignings() {
   return rows;
 }
 
+// For the deploy report (build-info.txt, next to build.mjs, never uploaded): which key the build
+// read with, and whether that key can see a private table (proof it's a real secret key).
+async function writeBuildInfo(rows) {
+  const lines = [`Read key: ${READ_KEY === SUPABASE_KEY ? 'public' : 'private'}`, `Signings read: ${rows.length}`];
+  if (READ_KEY !== SUPABASE_KEY) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/submissions?select=id&limit=1`, { method: 'HEAD', headers: { apikey: READ_KEY, Prefer: 'count=exact' } });
+      const total = Number((res.headers.get('content-range') || '').split('/')[1]);
+      lines.push(`Private key works: ${res.ok && total > 0 ? 'yes' : `no (status ${res.status})`}`);
+    } catch (err) {
+      lines.push(`Private key works: unknown (${err.message})`);
+    }
+  }
+  await writeFile(path.join(ROOT, 'build-info.txt'), lines.join('\n') + '\n');
+}
+
 // Teams come from public.athletes, which the weekly crawl fills from Wikipedia.
 // The public key only sees rows marked 'confirmed'. If this fails, the site
 // still builds, just without team names.
 async function loadAthletes() {
   const byName = new Map();
   try {
-    const qs = new URLSearchParams({ select: 'name,sport,teams,image_url,image_credit,image_license,image_page_url', limit: '5000' });
+    const qs = new URLSearchParams({ select: 'name,sport,teams,image_url,image_credit,image_license,image_page_url', status: 'eq.confirmed', limit: '5000' });
     const res = await fetch(`${SUPABASE_URL}/rest/v1/athletes?${qs}`, { headers: { apikey: READ_KEY } });
     if (!res.ok) throw new Error(`Supabase returned ${res.status}`);
     const rows = await res.json();
@@ -2109,6 +2126,10 @@ async function put(rel, content) {
 
 async function main() {
   const [rows, athletes] = await Promise.all([loadSignings(), loadAthletes()]);
+  // Never publish an empty site: if the database hands back nothing (a wrong key, or public
+  // reads switched off before SUPABASE_READ_KEY was set), stop and keep the last good copy online.
+  if (!rows.some((r) => r.status === 'published')) throw new Error('Supabase returned no published signings; not publishing an empty site. Check the SUPABASE_READ_KEY secret.');
+  await writeBuildInfo(rows);
   MAJOR_TEAMS = majorTeams(athletes);
   const all = rows.map((row) => shape(row, athletes)).filter((s) => s.sortDate);
   const list = all.filter((s) => !s.past).sort((a, b) => a.sortDate.localeCompare(b.sortDate) || a.id - b.id);
