@@ -649,7 +649,10 @@ ${PHOTO_SCRIPT}
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
-  <a class="brand" href="${esc(link('/'))}">${ICON.logo}</a>
+  <div class="brand-wrap">
+    <a class="brand" href="${esc(link('/'))}">${ICON.logo}</a>
+    <p class="brand-tagline">Built by collectors, <span>for collectors</span></p>
+  </div>
   <nav aria-label="Main">
     <a href="${esc(link('/events/'))}"${pathname === '/events/' ? ' aria-current="page"' : ''}>All Signings</a>
     <a href="${esc(link('/events/?type=public'))}">In Person</a>
