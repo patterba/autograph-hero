@@ -56,6 +56,14 @@ async function gql(token: string, query: string, variables: Record<string, unkno
 }
 
 const day = (d: Date) => d.toISOString().slice(0, 10);
+const ZONE = 'America/Los_Angeles';
+const laHour = (d: Date) => Number(new Intl.DateTimeFormat('en-US', { timeZone: ZONE, hour: 'numeric', hourCycle: 'h23' }).format(d));
+const laDay = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+// Midnight Pacific at the start of a YYYY-MM-DD day, as a UTC time.
+function laMidnight(d: string): Date {
+  const guess = new Date(`${d}T08:00:00Z`);
+  return new Date(guess.getTime() - laHour(guess) * 3600000);
+}
 // A filter written straight into the query (GraphQL input syntax: keys bare, strings quoted).
 const lit = (v: unknown): string => Array.isArray(v) ? `[${v.map(lit).join(',')}]`
   : v && typeof v === 'object' ? `{${Object.entries(v).map(([k, x]) => `${k}:${lit(x)}`).join(',')}}`
@@ -68,6 +76,13 @@ Deno.serve(async (req) => {
     if (!(await isAdmin(req))) return reply({ error: 'not an admin' }, 403);
     const body = await req.json().catch(() => ({}));
     const days = [7, 30].includes(Number(body?.days)) ? Number(body.days) : 30;
+    // One day (Pacific), shown by hour: "date": "YYYY-MM-DD", today or up to 90 days back.
+    const today = laDay(new Date());
+    let date: string | null = null;
+    if (typeof body?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(body.date)) {
+      const back = (Date.parse(today) - Date.parse(body.date)) / 86400000;
+      if (back >= 0 && back <= 90) date = body.date;
+    }
 
     const { token, account: savedAccount } = await settings();
     if (!token) return reply({ connected: false });
@@ -86,9 +101,18 @@ Deno.serve(async (req) => {
       }
     }
 
-    const end = new Date();
-    const start = new Date(end.getTime() - (days - 1) * 86400000);
-    const range = { datetime_geq: `${day(start)}T00:00:00Z`, datetime_leq: end.toISOString() };
+    let range: Record<string, string>;
+    if (date) {
+      const from = laMidnight(date);
+      const next = new Date(from.getTime() + 36 * 3600000);
+      const to = laMidnight(laDay(next));
+      const end = to.getTime() > Date.now() ? new Date() : new Date(to.getTime() - 1000);
+      range = { datetime_geq: from.toISOString(), datetime_leq: end.toISOString() };
+    } else {
+      const end = new Date();
+      const start = new Date(end.getTime() - (days - 1) * 86400000);
+      range = { datetime_geq: `${day(start)}T00:00:00Z`, datetime_leq: end.toISOString() };
+    }
 
     // Which Web Analytics site(s) are this domain (an account can have several sites).
     const sites = await gql(token, `query($a:String!){viewer{accounts(filter:{accountTag:$a}){
@@ -97,7 +121,7 @@ Deno.serve(async (req) => {
     const tags = [...new Set(groups
       .filter((g: any) => String(g.dimensions?.requestHost || '').replace(/^www\./, '') === HOST)
       .map((g: any) => g.dimensions.siteTag))];
-    if (!tags.length) return reply({ connected: true, days, empty: true });
+    if (!tags.length) return reply({ connected: true, days, date, empty: true });
 
     const f = lit({ AND: [range, { siteTag_in: tags }] });
     const top = (alias: string, dim: string, order = 'count_DESC', limit = 10) =>
@@ -105,6 +129,7 @@ Deno.serve(async (req) => {
     const data = await gql(token, `query($a:String!){viewer{accounts(filter:{accountTag:$a}){
       total: rumPageloadEventsAdaptiveGroups(limit:1,filter:${f}){count sum{visits}}
       byDay: rumPageloadEventsAdaptiveGroups(limit:100,filter:${f},orderBy:[date_ASC]){count sum{visits} dimensions{date}}
+      ${date ? `byHour: rumPageloadEventsAdaptiveGroups(limit:30,filter:${f},orderBy:[datetimeHour_ASC]){count sum{visits} dimensions{datetimeHour}}` : ''}
       ${top('pages', 'requestPath', 'count_DESC', 15)}
       ${top('referrers', 'refererHost', 'sum_visits_DESC', 10)}
       ${top('countries', 'countryName', 'count_DESC', 10)}
@@ -113,9 +138,23 @@ Deno.serve(async (req) => {
     }}}`, { a: account });
     const a = data?.viewer?.accounts?.[0] || {};
     const rows = (list: any[]) => (list || []).map((g) => ({ label: g.dimensions?.metric ?? '', views: g.count ?? 0, visits: g.sum?.visits ?? 0 }));
+    // Cloudflare's hours are UTC; turn them into Pacific hours 0–23 of the chosen day.
+    let byHour: { hour: number; views: number; visits: number }[] | undefined;
+    if (date) {
+      byHour = Array.from({ length: 24 }, (_, h) => ({ hour: h, views: 0, visits: 0 }));
+      for (const g of a.byHour || []) {
+        const t = new Date(g.dimensions?.datetimeHour);
+        if (isNaN(t.getTime()) || laDay(t) !== date) continue;
+        const slot = byHour[laHour(t)];
+        slot.views += g.count ?? 0;
+        slot.visits += g.sum?.visits ?? 0;
+      }
+    }
     return reply({
       connected: true,
-      days,
+      days: date ? 1 : days,
+      date,
+      byHour,
       totals: { views: a.total?.[0]?.count ?? 0, visits: a.total?.[0]?.sum?.visits ?? 0 },
       byDay: (a.byDay || []).map((g: any) => ({ date: g.dimensions?.date, views: g.count ?? 0, visits: g.sum?.visits ?? 0 })),
       pages: rows(a.pages),
