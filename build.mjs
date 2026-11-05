@@ -351,7 +351,7 @@ const ICON = {
 
 const badge = (s) => `<span class="badge badge-${esc(s.type)}">${esc(TYPE_LABEL[s.type])}</span>`;
 
-// What the signer does, for the name tile: bookstore and library events are authors,
+// What the signer does, for the name tile: authors and artists by category (categoryOf()),
 // athletes get their sport, anyone else is a celebrity. Plural when there's more than one signer.
 const SPORT_ROLE = {
   baseball: ['Baseball player', 'Baseball players'], football: ['Football player', 'Football players'],
@@ -362,10 +362,12 @@ const SPORT_ROLE = {
 };
 function profession(s) {
   const many = (s.names || []).length > 1;
-  const where = [s.venue, s.host, s.source].filter(Boolean).join(' ');
-  if (/book|librar/i.test(where)) return many ? 'Authors' : 'Author';
+  if (s.category === 'Authors') return many ? 'Authors' : 'Author';
+  if (s.category === 'Artists') return many ? 'Artists' : 'Artist';
+  if (s.category === 'Musicians') return many ? 'Musicians' : 'Musician';
   const role = SPORT_ROLE[String(s.sport || '').toLowerCase()];
   if (role) return role[many ? 1 : 0];
+  if (s.category === 'Sports') return many ? 'Athletes' : 'Athlete';
   return many ? 'Celebrities' : 'Celebrity';
 }
 
@@ -691,7 +693,7 @@ ${CF_ANALYTICS_TOKEN && !admin ? `<script defer src="https://static.cloudflarein
 // ---------- pages ----------
 
 function homePage(list) {
-  const sports = countBy(list, (s) => s.sport);
+  const categories = CATEGORIES.map((c) => [c, list.filter((s) => s.category === c).length]).filter(([, n]) => n);
   const states = countBy(list, (s) => s.state).sort((a, b) => a[0].localeCompare(b[0]));
   // 11 cards + the "See more" card = 12, which fills complete rows at 4, 3, 2 or 1 per row.
   const soon = list.slice(0, 11);
@@ -740,6 +742,12 @@ function homePage(list) {
     </div>
     ${feature}
   </div>
+  ${categories.length ? `<div class="hero-browse">
+    <div class="section-head"><h2>Browse by category</h2></div>
+    <div class="tiles">
+      ${categories.map(([c, n]) => `<a class="tile" href="${esc(link(categoryPath(c)))}"><span class="tile-name">${esc(c)}</span><span class="mono">${n} signing${n === 1 ? '' : 's'} ${ICON.arrow}</span></a>`).join('\n      ')}
+    </div>
+  </div>` : ''}
   <form class="search" role="search" action="${esc(link('/events/'))}" method="get">
     <div class="field grow">
       <label for="h-q">Who</label>
@@ -795,13 +803,6 @@ ${moreCard(list.length, list.length - soon.length)}</div>` : '<p class="empty">N
     </div>
   </div>
 </section>
-
-${sports.length ? `<section class="band band-alt">
-  <div class="section-head"><h2>Browse by sport</h2></div>
-  <div class="tiles">
-    ${sports.map(([sp, n]) => `<a class="tile" href="${esc(link(sportPath(sp)))}"><span class="tile-name">${esc(sp)}</span><span class="mono">${n} signing${n === 1 ? '' : 's'} ${ICON.arrow}</span></a>`).join('\n    ')}
-  </div>
-</section>` : ''}
 
 <section class="band">
   <div class="cta-pair">
@@ -1929,6 +1930,104 @@ const signerPath = (slug) => `/autographs/${slug}/`;
 const teamPath = (slug) => `/teams/${slug}/`;
 const sportPath = (sport) => `/sports/${slugify(sport)}/`;
 
+// ---------- categories: Sports, Entertainment, Musicians, Authors, Artists ----------
+// The home page's "Browse by category" tiles and /categories/<slug>/ pages. Every signing gets
+// one category (s.category, set in main()). The crawl only knows a sport, and comic-con and
+// bookstore sources call everyone "Entertainment", so the category is worked out in this order:
+//  1. A name in CATEGORY_NAMES below (people the rules get wrong: musicians and comic artists
+//     at comic cons, pro wrestlers, celebrities at card shows whose listings have no sport).
+//  2. Bookstore or library events, and titles that say "book signing" or "author" → Authors.
+//  3. A real sport on the signing → Sports.
+//  4. Titles that say musician / concert / album → Musicians;
+//     artist / illustrator / cartoonist → Artists.
+//  5. A signer that public.athletes knows with a real sport → Sports (catches boxers and
+//     MMA fighters a promoter filed under Entertainment).
+//  6. No sport at all, from a source that otherwise lists athletes (card shows) → Sports.
+//  7. Everyone else (actors, voice actors, hosts) → Entertainment.
+const CATEGORIES = ['Sports', 'Entertainment', 'Musicians', 'Authors', 'Artists'];
+const categoryPath = (c) => `/categories/${slugify(c)}/`;
+const CATEGORY_NAMES = {
+  // Comic, strip and visual artists
+  Artists: ['Kevin Nowlan', 'Stephan Pastis', 'Danielle Krysa'],
+  // Singers, players and composers (comic cons list them as Entertainment)
+  Musicians: ['JC Chasez', 'Richie Sambora', 'Orianthi', 'Scott Stapp', 'Andy Black', 'Kevin Woo', 'Ludwig Göransson'],
+  Sports: [
+    // Pro wrestlers (listed as Entertainment by comic cons)
+    'Austin Creed', 'Kofi', 'Kofi Kingston', 'Gangrel', 'Jeff Hardy', 'Matt Hardy', 'Kane', 'Malakai Black', 'Mick Foley',
+    'Mike Rotunda', 'Taylor Rotunda', 'Ted DiBiase', 'The Godfather', 'Thea Trinidad', 'Trish Stratus', 'Rick Steiner',
+    'Scott Steiner', 'Jerry Lawler',
+    // Athletes and broadcasters the athlete list doesn't have yet
+    "Eric 'Butterbean' Esch", 'Eric Esch', 'Manny Pacquiao', 'Pat Hughes', 'Devin Bush', 'Theo Fleury',
+  ],
+  Entertainment: [
+    // Actors and personalities at card shows, whose listings have no sport
+    'Bitty Schram', 'Butch Patrick', 'C. Thomas Howell', 'Catherine Bach', 'Chris Kattan', 'Chris Serrone',
+    'Heather Locklear', 'Heather Thomas', 'Henry Thomas', 'Jayne Kennedy', 'Jill Whelan', 'Linda Blair',
+    'Lorenzo Lamas', 'Lorraine Bracco', 'Mancow Muller', 'Mira Sorvino', 'Ted Lange', 'Marlee Matlin',
+    'Matthew De Meritt', 'Jackson Bostwick',
+  ],
+};
+const CATEGORY_OF = new Map(Object.entries(CATEGORY_NAMES).flatMap(([c, names]) => names.map((n) => [n.toLowerCase(), c])));
+const realSport = (sport) => Boolean(sport) && !['entertainment', 'other'].includes(String(sport).toLowerCase());
+
+// Sources whose labelled signings are (almost) all athletes: card shows and sports shops.
+function sportsHosts(all) {
+  const m = new Map();
+  for (const s of all) {
+    if (!s.host || !s.sport) continue;
+    const c = m.get(s.host) || { n: 0, sport: 0 };
+    c.n += 1;
+    if (realSport(s.sport)) c.sport += 1;
+    m.set(s.host, c);
+  }
+  return new Set([...m].filter(([, c]) => c.sport / c.n >= 0.75).map(([h]) => h));
+}
+
+function categoryOf(s, athletes, sportyHosts) {
+  for (const n of s.names) {
+    const c = CATEGORY_OF.get(n.trim().toLowerCase());
+    if (c) return c;
+  }
+  const where = [s.venue, s.host, s.source].filter(Boolean).join(' ');
+  if (/book|librar/i.test(where) || /\b(book signing|author)\b/i.test(s.title || '')) return 'Authors';
+  if (realSport(s.sport)) return 'Sports';
+  if (/\b(musician|concert|album|vinyl signing)\b/i.test(s.title || '')) return 'Musicians';
+  if (/\b(artist|illustrator|cartoonist)\b/i.test(s.title || '')) return 'Artists';
+  if (s.names.some((n) => (athletes.get(n.trim().toLowerCase()) || []).some((a) => realSport(a.sport)))) return 'Sports';
+  if (!s.sport && sportyHosts.has(s.host)) return 'Sports';
+  return 'Entertainment';
+}
+
+const CATEGORY_COPY = {
+  Sports: { h1: 'Sports autograph signings', who: 'athletes', title: 'Sports Autograph Signings' },
+  Entertainment: { h1: 'Celebrity autograph signings', who: 'actors, voice actors and TV personalities', title: 'Celebrity Autograph Signings' },
+  Authors: { h1: 'Author signings and book events', who: 'authors', title: 'Author Book Signings' },
+  Musicians: { h1: 'Musician autograph signings', who: 'musicians', title: 'Musician Autograph Signings' },
+  Artists: { h1: 'Artist signings', who: 'comic and visual artists', title: 'Artist Autograph Signings' },
+};
+
+function categoryPage(c, list, hubs) {
+  const copy = CATEGORY_COPY[c];
+  const n = list.length;
+  const people = [...new Set(list.flatMap((s) => s.names.map((x) => hubs.signers.get(slugify(x))).filter(Boolean)))]
+    .filter((h) => h.list.length).sort(byName);
+  const sports = c === 'Sports' ? [...hubs.sports.values()].filter((sp) => sp.list.length).sort((a, b) => b.list.length - a.list.length) : [];
+  return hubPage({
+    pathname: categoryPath(c),
+    trail: [['Home', '/'], ['All signings', '/events/'], [c, categoryPath(c)]],
+    eyebrow: 'Browse by category',
+    h1: copy.h1,
+    lede: n ? `${esc(plural(n, 'signing'))} with ${esc(copy.who)} (${esc(typeMix(list))}), soonest first.${esc(nextLine(list))}` : `No signings with ${esc(copy.who)} are listed right now.`,
+    list,
+    sections: [
+      ...(sports.length ? [{ title: 'By sport', items: sports, path: (sp) => sportPath(sp.name) }] : []),
+      { title: 'Signers', items: people, path: (o) => signerPath(o.slug) },
+    ],
+    title: `${copy.title} ${THIS_YEAR}${n ? ` (${n} upcoming)` : ''}`,
+    description: `${n} upcoming autograph signings and meet & greets with ${copy.who}${people.length ? `, including ${people.slice(0, 3).map((p) => p.name).join(', ')}` : ''}. Dates, prices and order deadlines.`,
+  });
+}
+
 // State pages (/states/<name>/) answer "autograph signings in <state>" searches. They hold the
 // signings that have a place in that state; mail-in signings have no place and stay off them.
 const STATE_NAMES = {
@@ -2260,6 +2359,8 @@ async function main() {
   await writeBuildInfo(rows);
   MAJOR_TEAMS = majorTeams(athletes);
   const all = rows.map((row) => shape(row, athletes)).filter((s) => s.sortDate);
+  const sportyHosts = sportsHosts(all);
+  for (const s of all) s.category = categoryOf(s, athletes, sportyHosts);
   const list = all.filter((s) => !s.past).sort((a, b) => a.sortDate.localeCompare(b.sortDate) || a.id - b.id);
   // Signing Archives: newest first.
   const archive = all.filter((s) => s.past).sort((a, b) => b.sortDate.localeCompare(a.sortDate) || b.id - a.id);
@@ -2287,6 +2388,7 @@ async function main() {
   for (const h of hubs.signers.values()) await put(`autographs/${h.slug}/index.html`, signerPage(h));
   for (const t of hubs.teams.values()) await put(`teams/${t.slug}/index.html`, teamPage(t));
   for (const sp of hubs.sports.values()) await put(`sports/${sp.slug}/index.html`, sportPage(sp));
+  for (const c of CATEGORIES) await put(`categories/${slugify(c)}/index.html`, categoryPage(c, list.filter((s) => s.category === c), hubs));
   const mailIn = list.filter((s) => s.type === 'mail-in').length;
   for (const st of hubs.states.values()) await put(`states/${st.slug}/index.html`, statePage(st, hubs.states, mailIn));
   await put('states/index.html', statesIndexPage(hubs.states));
@@ -2340,6 +2442,7 @@ async function main() {
     ['/autographs/', newest(list)], ['/teams/', newest(list)], ['/states/', newest(list)],
     ...['/about/', '/contact/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/'].map((p) => [p, null]),
     ...live(hubs.sports).map((sp) => [sportPath(sp.name), newest(sp.list)]),
+    ...CATEGORIES.map((c) => list.filter((s) => s.category === c)).filter((l) => l.length).map((l) => [categoryPath(l[0].category), newest(l)]),
     ...live(hubs.signers).map((h) => [signerPath(h.slug), newest(h.list, h.past)]),
     ...live(hubs.teams).map((t) => [teamPath(t.slug), newest(t.list, t.past)]),
     ...live(hubs.states).map((st) => [statePath(st.code), newest(st.list, st.past)]),
