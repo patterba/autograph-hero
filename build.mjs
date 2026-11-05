@@ -692,7 +692,7 @@ ${CF_ANALYTICS_TOKEN && !admin ? `<script defer src="https://static.cloudflarein
 
 function homePage(list) {
   const sports = countBy(list, (s) => s.sport);
-  const states = countBy(list, (s) => s.state);
+  const states = countBy(list, (s) => s.state).sort((a, b) => a[0].localeCompare(b[0]));
   // 11 cards + the "See more" card = 12, which fills complete rows at 4, 3, 2 or 1 per row.
   const soon = list.slice(0, 11);
 
