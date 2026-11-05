@@ -364,6 +364,7 @@ function profession(s) {
   const many = (s.names || []).length > 1;
   if (s.category === 'Authors') return many ? 'Authors' : 'Author';
   if (s.category === 'Artists') return many ? 'Artists' : 'Artist';
+  if (s.category === 'Musicians') return many ? 'Musicians' : 'Musician';
   const role = SPORT_ROLE[String(s.sport || '').toLowerCase()];
   if (role) return role[many ? 1 : 0];
   if (s.category === 'Sports') return many ? 'Athletes' : 'Athlete';
@@ -1929,7 +1930,7 @@ const signerPath = (slug) => `/autographs/${slug}/`;
 const teamPath = (slug) => `/teams/${slug}/`;
 const sportPath = (sport) => `/sports/${slugify(sport)}/`;
 
-// ---------- categories: Sports, Entertainment, Authors, Artists ----------
+// ---------- categories: Sports, Entertainment, Musicians, Authors, Artists ----------
 // The home page's "Browse by category" tiles and /categories/<slug>/ pages. Every signing gets
 // one category (s.category, set in main()). The crawl only knows a sport, and comic-con and
 // bookstore sources call everyone "Entertainment", so the category is worked out in this order:
@@ -1937,20 +1938,19 @@ const sportPath = (sport) => `/sports/${slugify(sport)}/`;
 //     at comic cons, pro wrestlers, celebrities at card shows whose listings have no sport).
 //  2. Bookstore or library events, and titles that say "book signing" or "author" → Authors.
 //  3. A real sport on the signing → Sports.
-//  4. Titles that say artist / illustrator / cartoonist → Artists.
+//  4. Titles that say musician / concert / album → Musicians;
+//     artist / illustrator / cartoonist → Artists.
 //  5. A signer that public.athletes knows with a real sport → Sports (catches boxers and
 //     MMA fighters a promoter filed under Entertainment).
 //  6. No sport at all, from a source that otherwise lists athletes (card shows) → Sports.
 //  7. Everyone else (actors, voice actors, hosts) → Entertainment.
-const CATEGORIES = ['Sports', 'Entertainment', 'Authors', 'Artists'];
+const CATEGORIES = ['Sports', 'Entertainment', 'Musicians', 'Authors', 'Artists'];
 const categoryPath = (c) => `/categories/${slugify(c)}/`;
 const CATEGORY_NAMES = {
-  Artists: [
-    // Comic, strip and visual artists
-    'Kevin Nowlan', 'Stephan Pastis', 'Danielle Krysa',
-    // Musicians and composers
-    'JC Chasez', 'Richie Sambora', 'Orianthi', 'Scott Stapp', 'Andy Black', 'Ludwig Göransson',
-  ],
+  // Comic, strip and visual artists
+  Artists: ['Kevin Nowlan', 'Stephan Pastis', 'Danielle Krysa'],
+  // Singers, players and composers (comic cons list them as Entertainment)
+  Musicians: ['JC Chasez', 'Richie Sambora', 'Orianthi', 'Scott Stapp', 'Andy Black', 'Kevin Woo', 'Ludwig Göransson'],
   Sports: [
     // Pro wrestlers (listed as Entertainment by comic cons)
     'Austin Creed', 'Kofi', 'Kofi Kingston', 'Gangrel', 'Jeff Hardy', 'Matt Hardy', 'Kane', 'Malakai Black', 'Mick Foley',
@@ -1991,6 +1991,7 @@ function categoryOf(s, athletes, sportyHosts) {
   const where = [s.venue, s.host, s.source].filter(Boolean).join(' ');
   if (/book|librar/i.test(where) || /\b(book signing|author)\b/i.test(s.title || '')) return 'Authors';
   if (realSport(s.sport)) return 'Sports';
+  if (/\b(musician|concert|album|vinyl signing)\b/i.test(s.title || '')) return 'Musicians';
   if (/\b(artist|illustrator|cartoonist)\b/i.test(s.title || '')) return 'Artists';
   if (s.names.some((n) => (athletes.get(n.trim().toLowerCase()) || []).some((a) => realSport(a.sport)))) return 'Sports';
   if (!s.sport && sportyHosts.has(s.host)) return 'Sports';
@@ -2001,7 +2002,8 @@ const CATEGORY_COPY = {
   Sports: { h1: 'Sports autograph signings', who: 'athletes', title: 'Sports Autograph Signings' },
   Entertainment: { h1: 'Celebrity autograph signings', who: 'actors, voice actors and TV personalities', title: 'Celebrity Autograph Signings' },
   Authors: { h1: 'Author signings and book events', who: 'authors', title: 'Author Book Signings' },
-  Artists: { h1: 'Artist and musician signings', who: 'artists and musicians', title: 'Artist & Musician Autograph Signings' },
+  Musicians: { h1: 'Musician autograph signings', who: 'musicians', title: 'Musician Autograph Signings' },
+  Artists: { h1: 'Artist signings', who: 'comic and visual artists', title: 'Artist Autograph Signings' },
 };
 
 function categoryPage(c, list, hubs) {
