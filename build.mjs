@@ -756,14 +756,15 @@ function homePage(list) {
     </div>
     <div class="field">
       <label for="h-state">Where</label>
-      <select id="h-state" name="state">
+      <select id="h-state" name="state" data-state-link="h-state-page">
         <option value="">Any state</option>
         ${mailInOption(list)}
-        ${states.map(([st]) => `<option value="${esc(st)}">${esc(st)}</option>`).join('')}
+        ${states.map(([st]) => stateOption(st)).join('')}
       </select>
     </div>
     <button class="btn btn-accent" type="submit">${ICON.search}Search signings</button>
   </form>
+  ${statePageLink('h-state-page')}
 </section>
 
 <section class="band">
@@ -854,6 +855,28 @@ function mailInOption(list) {
   return list.some((s) => s.type === 'mail-in') ? `<option value="${MAIL_IN_STATE}">Mail-in · ships anywhere</option>` : '';
 }
 
+// State pickers: options carry their state page, and assets/app.js shows one "<State> page" link
+// under the picker once a state is chosen (so pages don't carry a link to every state).
+function stateOption(st) {
+  const code = stateCode(st);
+  const data = code ? ` data-path="${esc(link(statePath(code)))}" data-name="${esc(STATE_NAMES[code])}"` : '';
+  return `<option value="${esc(st)}"${data}>${esc(st)}</option>`;
+}
+const statePageLink = (id) => `<p class="state-page-link" id="${esc(id)}" hidden><a href="${esc(link('/states/'))}"></a></p>`;
+// "Jump to a state" dropdown for state pages, in place of a chip for every other state.
+function stateJump(states) {
+  return `<form class="state-jump" action="${esc(link('/states/'))}" method="get" data-state-jump>
+    <label for="state-jump">Jump to a state</label>
+    <div class="state-jump-row">
+      <select id="state-jump" name="s">
+        <option value="">Choose a state</option>
+        ${states.map((o) => `<option value="${esc(link(statePath(o.code)))}">${esc(o.name)} (${o.list.length})</option>`).join('')}
+      </select>
+      <a class="btn btn-ghost" href="${esc(link('/states/'))}">All states</a>
+    </div>
+  </form>`;
+}
+
 function countBy(list, fn) {
   const m = new Map();
   for (const s of list) {
@@ -894,15 +917,16 @@ function eventsPage(list) {
     </div>
     <div class="field">
       <label for="f-state">State</label>
-      <select id="f-state" name="state">
+      <select id="f-state" name="state" data-state-link="f-state-page">
         <option value="">Any state</option>
         ${mailInOption(list)}
-        ${states.map(([st]) => `<option value="${esc(st)}">${esc(st)}</option>`).join('')}
+        ${states.map(([st]) => stateOption(st)).join('')}
       </select>
     </div>
     <button class="btn btn-ghost" type="reset">Clear</button>
   </form>
   <p class="muted" id="count" aria-live="polite">${list.length} signing${list.length === 1 ? '' : 's'}</p>
+  ${statePageLink('f-state-page')}
   <div class="grid" id="results">${list.map((s, i) => (i === 7 ? submitPrompt() : '') + card(s)).join('\n')}${list.length <= 7 ? submitPrompt() : ''}</div>
   <div class="empty" id="empty" hidden>
     <p><strong>No signings match those filters.</strong> Try clearing one, or if you know about a signing we don't have, add it.</p>
@@ -2031,7 +2055,7 @@ ${past.length ? `<section class="band">
 </section>` : ''}
 ${sections.filter((x) => x && x.items.length).map((x) => `<section class="band band-alt">
   <div class="section-head"><h2>${esc(x.title)}</h2></div>
-  ${chipList(x.items, x.path)}
+  ${x.jump ? stateJump(x.items) : chipList(x.items, x.path)}
 </section>`).join('\n')}`;
   return page({
     title,
@@ -2155,7 +2179,7 @@ function statePage(st, allStates, mailIn) {
     past: st.past,
     sections: [
       { title: `Signers in ${st.name}`, items: people, path: (o) => signerPath(o.slug) },
-      { title: 'Other states', items: others, path: (o) => statePath(o.code) },
+      { title: 'Other states', items: others, jump: true },
     ],
     title: `Autograph Signings in ${st.name} ${THIS_YEAR}${n ? ` (${n} upcoming)` : ''}`,
     description: n
