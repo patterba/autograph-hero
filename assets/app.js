@@ -148,3 +148,40 @@
     } catch (e) {}
   });
 })();
+
+// State pickers on the home page and /events/: once a state is chosen, show one link to its
+// state page (the option carries data-path / data-name). assets/site.js may have set the
+// picker from the address bar before this runs, so it's checked once at start too.
+(function () {
+  var pickers = document.querySelectorAll('select[data-state-link]');
+  Array.prototype.forEach.call(pickers, function (sel) {
+    var box = document.getElementById(sel.getAttribute('data-state-link'));
+    var a = box && box.querySelector('a');
+    if (!a) return;
+    function update() {
+      var o = sel.options[sel.selectedIndex];
+      var path = o && o.getAttribute('data-path');
+      box.hidden = !path;
+      if (!path) return;
+      a.href = path;
+      a.textContent = 'See the ' + (o.getAttribute('data-name') || o.textContent) + ' page →';
+    }
+    sel.addEventListener('change', update);
+    if (sel.form) sel.form.addEventListener('reset', function () { setTimeout(update, 0); });
+    update();
+  });
+})();
+
+// "Jump to a state" on state pages: choosing a state opens its page. Without this script the
+// form goes to /states/, which lists every state.
+(function () {
+  var form = document.querySelector('form[data-state-jump]');
+  if (!form) return;
+  var sel = form.querySelector('select');
+  sel.addEventListener('change', function () {
+    if (sel.value) location.href = sel.value;
+  });
+  form.addEventListener('submit', function (e) {
+    if (sel.value) { e.preventDefault(); location.href = sel.value; }
+  });
+})();
