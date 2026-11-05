@@ -483,7 +483,16 @@ input[list]::-webkit-calendar-picker-indicator { display: none !important; }
 .stat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .stat-head .admin-h2 { margin: 0; }
 .stat-range { display: flex; gap: 8px; }
+.stat-range { flex-wrap: wrap; align-items: center; }
 .stat-range [aria-pressed='true'] { background: var(--ink); color: var(--paper); }
+.stat-rangebar { position: sticky; top: 0; z-index: 2; background: var(--paper); padding: 10px 0 14px; margin-bottom: 4px; }
+.stat-day { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; }
+.stat-day input { border: 1.5px solid var(--ink); background: #FFFFFF; color: var(--ink); font: 500 15px var(--body); padding: 5px 10px; border-radius: 999px; min-height: 36px; }
+.stat-day.is-on input { background: var(--ink); color: var(--paper); color-scheme: dark; }
+.stat-box .admin-table-wrap .admin-table { border: none; border-radius: 0; }
+.admin-table th.num { text-align: right; }
+.link-btn { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.link-btn:hover { color: var(--accent); }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
 .stat { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border: 1.5px solid var(--ink); border-radius: 14px; background: var(--card); }
 .stat-n { font-family: var(--display); font-size: 40px; line-height: 1; }

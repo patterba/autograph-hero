@@ -1,6 +1,7 @@
 // Counts unique visitors without cookies. Every page on autographhero.com sends one small
 // request here (navigator.sendBeacon). The visitor's IP and browser name are scrambled with a
 // salt that changes every day (public.site_record_visit), so nothing personal is stored.
+// The same code groups page views into sessions (public.site_sessions) and adds up time on screen.
 // Deployed with verify_jwt false: anyone may call it; it only ever adds a scrambled code.
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
@@ -22,11 +23,19 @@ Deno.serve(async (req) => {
   // Only real browsers on the live site count.
   if (!ua || BOTS.test(ua) || !SITE.test(from)) return new Response(null, { status: 204, headers: cors });
   const ip = (req.headers.get('cf-connecting-ip') || req.headers.get('x-real-ip') || req.headers.get('x-forwarded-for') || '').split(',')[0].trim();
+  // An empty body is a page view. {"t": seconds} is sent when the page is hidden or closed:
+  // how long it was on screen, added to the visitor's current session.
+  const text = await req.text().catch(() => '');
+  let seconds: number | null = null;
+  if (text) {
+    try { const t = Number(JSON.parse(text)?.t); if (Number.isFinite(t)) seconds = Math.round(t); } catch { /* not JSON */ }
+    if (seconds === null || seconds <= 0) return new Response(null, { status: 204, headers: cors });
+  }
   if (ip) {
     await fetch(`${SUPABASE_URL}/rest/v1/rpc/site_record_visit`, {
       method: 'POST',
       headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ p_ip: ip, p_ua: ua.slice(0, 300) }),
+      body: JSON.stringify(seconds === null ? { p_ip: ip, p_ua: ua.slice(0, 300) } : { p_ip: ip, p_ua: ua.slice(0, 300), p_seconds: Math.min(seconds, 1800) }),
     }).catch(() => null);
   }
   return new Response(null, { status: 204, headers: cors });
