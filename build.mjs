@@ -979,14 +979,112 @@ function signingMeta(s) {
   };
 }
 
+// ---------- Event times (same rules as supabase/functions/signing-reminders: zoneFor / startTime) ----------
+const TZ_PACIFIC = ['CA', 'WA', 'OR', 'NV'], TZ_MOUNTAIN = ['CO', 'UT', 'NM', 'WY', 'MT', 'ID'];
+const TZ_CENTRAL = ['IL', 'WI', 'MN', 'IA', 'MO', 'AR', 'LA', 'MS', 'AL', 'OK', 'KS', 'NE', 'SD', 'ND', 'TX', 'TN'];
+/** IANA zone for a signing: a PT/MT/CT/ET hint in the time text wins, then the state; null if unknown. */
+function zoneFor(s) {
+  const t = String(s.timeText || '').toLowerCase();
+  if (/\bpt\b|pacific/.test(t)) return 'America/Los_Angeles';
+  if (/\bmt\b|mountain/.test(t)) return 'America/Denver';
+  if (/\bct\b|central/.test(t)) return 'America/Chicago';
+  if (/\bet\b|eastern/.test(t)) return 'America/New_York';
+  const st = String(s.state || '').trim().toUpperCase();
+  if (!US_STATES.includes(st)) return null;
+  if (st === 'AZ') return 'America/Phoenix';
+  if (st === 'HI') return 'Pacific/Honolulu';
+  if (st === 'AK') return 'America/Anchorage';
+  if (TZ_PACIFIC.includes(st)) return 'America/Los_Angeles';
+  if (TZ_MOUNTAIN.includes(st)) return 'America/Denver';
+  if (TZ_CENTRAL.includes(st)) return 'America/Chicago';
+  if (st === 'MI') return 'America/Detroit';
+  return 'America/New_York';
+}
+const MER = /(a\.?m\.?|p\.?m\.?)/;
+const merOf = (v) => (v ? (v.startsWith('a') ? 'am' : 'pm') : null);
+const hhmm = (h, mi, mer) => `${String((h % 12) + (mer === 'pm' ? 12 : 0)).padStart(2, '0')}:${String(mi).padStart(2, '0')}`;
+const okTime = (h, mi) => h >= 1 && h <= 12 && mi <= 59;
+/**
+ * Start (and end, for a range) from the first time in the text, as HH:MM:
+ * "2:00 PM - 4:00 PM", "1-2pm", "11:30-12:30pm", "10:30 - 11:30", "11am", "Photo op 11:30 am; ...".
+ * Multi-day times ("Fri 3PM-9PM, Sat 10AM-7PM") give null: we don't know which day the date is.
+ */
+function eventClock(text) {
+  const low = String(text || '').toLowerCase();
+  if (/\b(mon|tue|wed|thu|fri|sat|sun)/.test(low) && (low.match(/\d\s*(?:[ap]\.?m\.?)?\s*(?:-|–|—|to)\s*\d/g) || []).length > 1) return null;
+  const at = low.search(/\d/);
+  if (at < 0) return null;
+  const rest = low.slice(at);
+  const r = rest.match(/^(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?\s*(?:-|–|—|to)\s*(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?/);
+  if (r) {
+    const h1 = +r[1], m1 = r[2] ? +r[2] : 0, h2 = +r[4], m2 = r[5] ? +r[5] : 0;
+    if (okTime(h1, m1) && okTime(h2, m2)) {
+      let a = merOf(r[3]), b = merOf(r[6]);
+      if (!a && !b) a = h1 >= 8 && h1 <= 11 ? 'am' : 'pm';
+      if (!a) {
+        a = b; // "1-2pm" → both pm; but "11:30-12:30pm" starts in the morning
+        if (hhmm(h1, m1, a) >= hhmm(h2, m2, b)) a = 'am';
+      }
+      if (!b) {
+        b = a; // "10:30 - 11:30" → same half; "11:30 - 1:00" crosses noon
+        if (hhmm(h2, m2, b) <= hhmm(h1, m1, a)) b = 'pm';
+      }
+      const start = hhmm(h1, m1, a), end = hhmm(h2, m2, b);
+      return { start, end: end > start ? end : null };
+    }
+  }
+  const m = rest.match(/^(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?/);
+  const h = +m[1], mi = m[2] ? +m[2] : 0;
+  if (!okTime(h, mi) || (!m[2] && !m[3])) return null;
+  let mer = merOf(m[3]);
+  if (!mer) {
+    const later = rest.slice(m[0].length).match(MER);
+    mer = later ? merOf(later[1]) : h >= 8 && h <= 11 ? 'am' : 'pm';
+  }
+  return { start: hhmm(h, mi, mer), end: null };
+}
+/** "2026-11-05" + "14:00" in a zone → "2026-11-05T14:00:00-05:00" (daylight saving handled by Intl). */
+function zonedIso(day, time, tz) {
+  const [y, mo, d] = day.split('-').map(Number);
+  const [h, mi] = time.split(':').map(Number);
+  const wall = Date.UTC(y, mo - 1, d, h, mi);
+  const offsetAt = (t) => {
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      .formatToParts(new Date(t)).map((x) => [x.type, x.value]));
+    return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - t;
+  };
+  const off = offsetAt(wall - offsetAt(wall));
+  const mins = Math.round(off / 60000), sign = mins < 0 ? '-' : '+', a = Math.abs(mins);
+  return `${day}T${time}:00${sign}${String(Math.floor(a / 60)).padStart(2, '0')}:${String(a % 60).padStart(2, '0')}`;
+}
+/** Start/end for the Event: with a time and offset when the time text has one, else the date alone. */
+function eventTimes(s) {
+  const tz = zoneFor(s);
+  const clock = tz ? eventClock(s.timeText) : null;
+  if (!clock) return { startDate: s.eventDate, endDate: s.eventDate };
+  return { startDate: zonedIso(s.eventDate, clock.start, tz), endDate: clock.end ? zonedIso(s.eventDate, clock.end, tz) : undefined };
+}
+/** "Carl's Cards & Collectibles, 22 West Eagle Road" → name + street; a bare street is both. */
+function venueParts(venue) {
+  const v = String(venue || '').trim();
+  if (!v) return { name: null, street: null };
+  if (/^\d+\s+\S/.test(v)) return { name: v, street: v };
+  const i = v.search(/,\s*\d+\s+\S/);
+  return i > 0 ? { name: v.slice(0, i).trim(), street: v.slice(i + 1).trim() } : { name: v, street: null };
+}
+const originOf = (url) => {
+  try { return new URL(url).origin; } catch { return undefined; }
+};
+
 // schema.org Event, which lets Google show the signing in event search results. Only for
 // in-person signings with a date and a place; mail-ins aren't events you can go to.
 function eventLd(s) {
   if (s.type !== 'public' || !s.eventDate || !(s.venue || s.city)) return null;
   const us = s.state && US_STATES.includes(s.state);
+  const { name: venueName, street } = venueParts(s.venue);
   const offer = s.listingUrl
     ? s.priceLow !== null && s.priceHigh !== null && s.priceHigh > s.priceLow
-      ? { '@type': 'AggregateOffer', url: s.listingUrl, lowPrice: s.priceLow, highPrice: s.priceHigh, priceCurrency: 'USD' }
+      ? { '@type': 'AggregateOffer', url: s.listingUrl, lowPrice: s.priceLow, highPrice: s.priceHigh, priceCurrency: 'USD', availability: 'https://schema.org/InStock' }
       : { '@type': 'Offer', url: s.listingUrl, ...(s.priceLow !== null ? { price: s.priceLow, priceCurrency: 'USD' } : {}), availability: 'https://schema.org/InStock' }
     : undefined;
   return {
@@ -994,19 +1092,18 @@ function eventLd(s) {
     '@type': 'Event',
     name: `${s.name} Autograph Signing`,
     description: signingMeta(s).description,
-    startDate: s.eventDate,
-    endDate: s.eventDate,
+    ...eventTimes(s),
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {
       '@type': 'Place',
-      name: s.venue || s.place,
-      address: { '@type': 'PostalAddress', addressLocality: s.city || undefined, addressRegion: s.state || undefined, addressCountry: us ? 'US' : undefined },
+      name: venueName || s.place,
+      address: { '@type': 'PostalAddress', streetAddress: street || undefined, addressLocality: s.city || undefined, addressRegion: s.state || undefined, addressCountry: us ? 'US' : undefined },
     },
     image: s.photo ? [s.photo.url] : undefined,
     url: abs(`/signing/${s.slug}/`),
     performer: s.names.length ? s.names.map((n) => ({ '@type': 'Person', name: n })) : undefined,
-    organizer: s.source ? { '@type': 'Organization', name: s.source, url: s.listingUrl ? new URL(s.listingUrl).origin : undefined } : undefined,
+    organizer: s.source ? { '@type': 'Organization', name: s.source, url: s.listingUrl ? originOf(s.listingUrl) : undefined } : undefined,
     offers: offer,
   };
 }
