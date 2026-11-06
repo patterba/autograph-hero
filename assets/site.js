@@ -6,10 +6,14 @@
   var cards = Array.prototype.slice.call(document.querySelectorAll('#results .card'));
   var count = document.getElementById('count');
   var empty = document.getElementById('empty');
-  var keys = ['q', 'type', 'sport', 'state'];
+  var keys = ['q', 'what', 'type', 'state'];
+  // Category names in the "What" picker match data-cat; any other value is a sport (data-sport).
+  var CATEGORIES = ['Sports', 'Entertainment', 'Musicians', 'Authors', 'Artists'];
 
-  // Start from the address bar, so links like /events/?sport=Football work.
+  // Start from the address bar, so links like /events/?what=Football work.
   var params = new URLSearchParams(location.search);
+  // Older links used ?sport=Football.
+  if (!params.get('what') && params.get('sport')) params.set('what', params.get('sport'));
   keys.forEach(function (k) {
     var el = form.elements[k];
     var v = params.get(k);
@@ -76,7 +80,8 @@
   function apply() {
     var q = form.elements.q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
     var type = form.elements.type.value;
-    var sport = form.elements.sport.value;
+    var what = form.elements.what.value;
+    var byCat = CATEGORIES.indexOf(what) !== -1;
     var state = form.elements.state.value;
     var shown = 0;
     var searchHits = 0; // cards that match the search words alone, ignoring the pickers
@@ -86,7 +91,7 @@
       if (hit) searchHits++;
       var ok = hit &&
         (!type || c.getAttribute('data-type') === type) &&
-        (!sport || c.getAttribute('data-sport') === sport) &&
+        (!what || (byCat ? c.getAttribute('data-cat') === what : (c.getAttribute('data-sport') || '').toLowerCase() === what.toLowerCase())) &&
         // "Mail-in" in the state picker: mail-ins have no state, they ship anywhere.
         (!state || (state === 'mail-in' ? c.getAttribute('data-type') === 'mail-in' : c.getAttribute('data-state') === state));
       c.hidden = !ok;
@@ -94,7 +99,7 @@
     });
     count.textContent = shown + (shown === 1 ? ' signing' : ' signings');
     empty.hidden = shown !== 0;
-    if (shown === 0) showEmpty(searchHits, type || sport || state);
+    if (shown === 0) showEmpty(searchHits, type || what || state);
     // The "Submit A Signing" card in the results steps aside when the no-results message (which has its own button) shows.
     var promo = document.querySelector('#results .promo');
     if (promo) promo.hidden = shown === 0;

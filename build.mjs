@@ -421,7 +421,7 @@ function priceLine(s) {
 
 function card(s) {
   const q = [s.name, s.title, s.venue, s.city, s.state, s.sport, s.teamCity, ...s.teams, s.source].filter(Boolean).join(' ').toLowerCase();
-  return `<a class="card" href="${esc(link(`/signing/${s.slug}/`))}" data-q="${esc(q)}" data-sport="${esc(s.sport || '')}" data-type="${esc(s.type)}" data-state="${esc(s.state || '')}">
+  return `<a class="card" href="${esc(link(`/signing/${s.slug}/`))}" data-q="${esc(q)}" data-sport="${esc(s.sport || '')}" data-cat="${esc(s.category || '')}" data-type="${esc(s.type)}" data-state="${esc(s.state || '')}">
   <div class="card-photo">${photo(s)}${badge(s)}</div>
   <div class="card-body">
     <div class="eyebrow">${esc([s.sport, s.primaryTeam].filter(Boolean).join(' · ') || 'Autographs')}</div>
@@ -447,7 +447,7 @@ function submitPrompt() {
 
 // The last card in a feed: a link to every signing, sized like the others so rows end full.
 function moreCard(total, remaining, sport = null) {
-  const href = sport ? `/events/?sport=${encodeURIComponent(sport)}` : '/events/';
+  const href = sport ? `/events/?what=${encodeURIComponent(sport)}` : '/events/';
   const line = sport ? `All upcoming ${sport.toLowerCase()} signings` : remaining > 0 ? `${remaining} more coming up` : `${total} upcoming in all`;
   return `<a class="card card-more" href="${esc(link(href))}">
   <span class="eyebrow">${esc(line)}</span>
@@ -767,6 +767,12 @@ function homePage(list) {
       <input id="h-q" name="q" type="search" placeholder="Player, team or city" autocomplete="off">
     </div>
     <div class="field">
+      <label for="h-what">What</label>
+      <select id="h-what" name="what">
+        ${whatOptions(list)}
+      </select>
+    </div>
+    <div class="field">
       <label for="h-type">How</label>
       <select id="h-type" name="type">
         <option value="">Any type</option>
@@ -869,6 +875,20 @@ function mailInOption(list) {
   return list.some((s) => s.type === 'mail-in') ? `<option value="${MAIL_IN_STATE}">Mail-in · ships anywhere</option>` : '';
 }
 
+// "What" picker on the home search bar and /events/: sports first (the major ones always, then any
+// other sport that has signings), then the other categories from categoryOf(). One picker, one
+// URL key (?what=): a category name matches the card's data-cat, anything else its data-sport
+// (assets/site.js). "All sports" is the Sports category, so it also catches wrestlers and
+// card-show signers with no sport.
+const MAJOR_SPORTS = ['Football', 'Baseball', 'Basketball', 'Hockey', 'Soccer'];
+function whatOptions(list) {
+  const others = countBy(list.filter((s) => realSport(s.sport) && !MAJOR_SPORTS.includes(s.sport)), (s) => s.sport).map(([sp]) => sp);
+  const opt = (v, label = v) => `<option value="${esc(v)}">${esc(label)}</option>`;
+  return `<option value="">Any category</option>
+        <optgroup label="Sports">${opt('Sports', 'All sports')}${[...MAJOR_SPORTS, ...others].map((sp) => opt(sp)).join('')}</optgroup>
+        <optgroup label="Entertainment &amp; more">${CATEGORIES.filter((c) => c !== 'Sports').map((c) => opt(c)).join('')}</optgroup>`;
+}
+
 // State pickers: options carry their state page, and assets/app.js shows one "<State> page" link
 // under the picker once a state is chosen (so pages don't carry a link to every state).
 function stateOption(st) {
@@ -901,7 +921,6 @@ function countBy(list, fn) {
 }
 
 function eventsPage(list) {
-  const sports = countBy(list, (s) => s.sport);
   const states = countBy(list, (s) => s.state).sort((a, b) => a[0].localeCompare(b[0]));
   const types = countBy(list, (s) => s.type);
   const body = `
@@ -923,10 +942,9 @@ function eventsPage(list) {
       </select>
     </div>
     <div class="field">
-      <label for="f-sport">Sport</label>
-      <select id="f-sport" name="sport">
-        <option value="">Any sport</option>
-        ${sports.map(([sp]) => `<option value="${esc(sp)}">${esc(sp)}</option>`).join('')}
+      <label for="f-what">Category</label>
+      <select id="f-what" name="what">
+        ${whatOptions(list)}
       </select>
     </div>
     <div class="field">
@@ -956,7 +974,7 @@ function eventsPage(list) {
 </section>`;
   return page({
     title: 'Upcoming Autograph Signings and Meet & Greets',
-    description: `Browse ${list.length} upcoming autograph signings. Filter by athlete, sport, state or signing type.`,
+    description: `Browse ${list.length} upcoming autograph signings. Filter by athlete, sport or category, state or signing type.`,
     pathname: '/events/',
     body,
     script: true,
