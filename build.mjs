@@ -651,7 +651,7 @@ ${PHOTO_SCRIPT}
 <header class="site-header">
   <div class="brand-wrap">
     <a class="brand" href="${esc(link('/'))}">${ICON.logo}</a>
-    <p class="brand-tagline">Built by collectors, <span>for collectors</span></p>
+    <p class="brand-tagline">Built by collectors <span>for collectors</span></p>
   </div>
   <nav aria-label="Main">
     <a href="${esc(link('/events/'))}"${pathname === '/events/' ? ' aria-current="page"' : ''}>All Signings</a>

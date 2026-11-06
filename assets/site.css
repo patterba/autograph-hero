@@ -329,20 +329,20 @@ h1, h2, h3, p { margin: 0; }
 .site-footer .logo-lockup { height: 60px; }
 /* Header tagline beside the logo: two short lines behind a thin rule */
 .brand-wrap { display: flex; align-items: center; gap: 16px; }
-.brand-tagline { padding-left: 16px; border-left: 1.5px solid var(--ink); font-family: var(--mono); font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+.brand-tagline { padding-left: 16px; border-left: 1.5px solid var(--ink); text-align: center; font-family: var(--mono); font-size: 15px; font-weight: 600; line-height: 1.4; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
 .brand-tagline span { display: block; color: var(--accent); }
-@media (max-width: 400px) { .brand-wrap { gap: 12px; } .brand-tagline { padding-left: 12px; font-size: 10.5px; letter-spacing: 0.06em; } }
+@media (max-width: 400px) { .brand-wrap { gap: 12px; } .brand-tagline { padding-left: 12px; font-size: 12px; letter-spacing: 0.04em; } }
 /* Laptop widths: tighten the header so the tagline doesn't push the buttons onto a second row */
-@media (min-width: 901px) and (max-width: 1439px) {
+@media (min-width: 901px) and (max-width: 1479px) {
   .site-header { column-gap: 14px; }
   .site-header nav { column-gap: 14px; font-size: 16px; }
   .brand-wrap { gap: 12px; }
-  .brand-tagline { padding-left: 12px; font-size: 10.5px; letter-spacing: 0.04em; }
+  .brand-tagline { padding-left: 12px; font-size: 13px; letter-spacing: 0.04em; }
 }
 /* Narrow laptops: the tagline tucks under the logo */
-@media (min-width: 901px) and (max-width: 1249px) {
+@media (min-width: 901px) and (max-width: 1289px) {
   .brand-wrap { flex-direction: column; align-items: flex-start; gap: 6px; }
-  .brand-tagline { padding-left: 0; border-left: 0; font-size: 10px; }
+  .brand-tagline { padding-left: 0; border-left: 0; font-size: 12px; }
   .nav-long { display: none; }
 }
 .site-footer .logo-lockup text { stroke: var(--paper-alt); }
