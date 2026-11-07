@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1579@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20270123
+DTEND;VALUE=DATE:20270124
+SUMMARY:KC Grifant\, Henry Herz & Jonathan Maberry autograph signing
+DESCRIPTION:Time: 2:00pm\nDetails: https://mystgalaxy.com/12327DeathMaidens\nConfirm details with the organizer before you go.
+LOCATION:Mysterious Galaxy Books\, 3555 Rosecrans St\, Suite 107A\, San Diego\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: KC Grifant\, Henry Herz & Jonathan Maberry autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

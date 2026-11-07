@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1580@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20270131
+DTEND;VALUE=DATE:20270201
+SUMMARY:Beth Revis autograph signing
+DESCRIPTION:Time: 4:00pm\nDetails: https://mystgalaxy.com/13127Revis\nConfirm details with the organizer before you go.
+LOCATION:Mysterious Galaxy Books\, 3555 Rosecrans St\, Suite 107A\, San Diego\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Beth Revis autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

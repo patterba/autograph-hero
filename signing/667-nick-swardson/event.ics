@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-667@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:Nick Swardson autograph signing
+DESCRIPTION:Time: Fri\, Sat\, Sun\nDetails: https://www.twincitiescon.com/guests/nick-swardson/\nConfirm details with the organizer before you go.
+LOCATION:Minneapolis Convention Center\, 1301 2nd Ave S\, Minneapolis\, MN
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Nick Swardson autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

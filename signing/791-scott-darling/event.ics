@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-791@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:Scott Darling autograph signing
+DESCRIPTION:Time: 12:30 PM - 2:00 PM\nDetails: https://csac.biz/clubhouse-public-signing#scott-darling\nConfirm details with the organizer before you go.
+LOCATION:7900 South Oketo Ave.\, Bridgeview\, IL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Scott Darling autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

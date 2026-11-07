@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-526@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261206
+DTEND;VALUE=DATE:20261207
+SUMMARY:Ken Dayley autograph signing
+DESCRIPTION:Time: 10am\nDetails: https://stlsportscollectors.com/product-category/autograph-tickets/kdayley_dec26/\nConfirm details with the organizer before you go.
+LOCATION:Orlando Gardens South County\, 4300 Hoffmeister Ave\, St. Louis\, MO
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Ken Dayley autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

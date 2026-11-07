@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-503@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261205
+DTEND;VALUE=DATE:20261206
+SUMMARY:Wally Backman autograph signing
+DESCRIPTION:Details: https://sportscornersignings.com/wally-backman-ticket/\nConfirm details with the organizer before you go.
+LOCATION:Florida State Fairgrounds\, 4800 US Highway 301\, Tampa\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Wally Backman autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

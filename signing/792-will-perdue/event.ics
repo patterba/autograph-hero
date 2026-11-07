@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-792@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261205
+DTEND;VALUE=DATE:20261206
+SUMMARY:Will Perdue autograph signing
+DESCRIPTION:Time: 12:00 PM - 1:30 PM\nDetails: https://csac.biz/clubhouse-public-signing#will-perdue\nConfirm details with the organizer before you go.
+LOCATION:3940 IL-251\, Peru\, IL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Will Perdue autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

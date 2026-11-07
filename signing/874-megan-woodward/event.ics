@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-874@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:Megan Woodward autograph signing
+DESCRIPTION:Time: 11:00am\nDetails: https://thirdplacebooks.com/event/2026-11-08/storytime-megan-woodward\nConfirm details with the organizer before you go.
+LOCATION:Third Place Books Seward Park\, 5041 Wilson Ave S\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Megan Woodward autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

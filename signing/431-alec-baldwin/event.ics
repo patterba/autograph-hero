@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-431@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261107
+DTEND;VALUE=DATE:20261108
+SUMMARY:Alec Baldwin autograph signing
+DESCRIPTION:Time: Saturday only\, 10AM-7PM\nDetails: https://www.ricomiccon.com/celebrities#alec-baldwin\nConfirm details with the organizer before you go.
+LOCATION:Rhode Island Convention Center & Amica Mutual Pavilion\, 1 Sabin Street\, Providence\, RI
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Alec Baldwin autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

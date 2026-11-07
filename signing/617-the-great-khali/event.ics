@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-617@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261116
+DTEND;VALUE=DATE:20261117
+SUMMARY:The Great Khali autograph signing
+DESCRIPTION:Order deadline: Thursday\, November 12\, 2026\nDetails: https://primetime12.com/products/the-great-khali-mail-in-ticket-for-private-signing-on-1-item-you-will-not-meet-the-great-khali\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: The Great Khali autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

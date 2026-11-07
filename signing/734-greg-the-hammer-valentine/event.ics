@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-734@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261113
+DTEND;VALUE=DATE:20261114
+SUMMARY:Greg "The Hammer" Valentine autograph signing
+DESCRIPTION:Details: https://www.grcomiccon.com/media-guests#greg-the-hammer-valentine\nConfirm details with the organizer before you go.
+LOCATION:DeVos Place\, 303 Monroe Ave NW\, Grand Rapids\, MI
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Greg "The Hammer" Valentine autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

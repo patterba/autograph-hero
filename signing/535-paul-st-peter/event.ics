@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-535@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:Paul St. Peter autograph signing
+DESCRIPTION:Details: https://sandiegoanimecon.com/voice-actors-and-guests/#paul-st-peter\nConfirm details with the organizer before you go.
+LOCATION:DoubleTree by Hilton San Diego Mission Valley\, San Diego\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Paul St. Peter autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

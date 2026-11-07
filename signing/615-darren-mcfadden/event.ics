@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-615@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261112
+DTEND;VALUE=DATE:20261113
+SUMMARY:Darren McFadden autograph signing
+DESCRIPTION:Order deadline: Monday\, November 9\, 2026\nDetails: https://primetime12.com/products/darren-mcfadden-mail-in-ticket-for-private-signing-on-1-item-you-will-not-meet-darren-mcfadden\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Darren McFadden autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

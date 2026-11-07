@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1398@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20270318
+DTEND;VALUE=DATE:20270319
+SUMMARY:Ross Marquand autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-richmond-guests#ross-marquand\nConfirm details with the organizer before you go.
+LOCATION:Greater Richmond Convention Center\, 403 N 3rd St\, Richmond\, VA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Ross Marquand autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

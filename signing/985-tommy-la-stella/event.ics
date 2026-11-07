@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-985@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:Tommy La Stella autograph signing
+DESCRIPTION:Time: 11:15am-12:15pm\nDetails: https://chicagosportsspectacular.com/products/css26n-lastella\nConfirm details with the organizer before you go.
+LOCATION:Donald E Stephens Convention Center\, 5555 N River Rd\, Rosemont\, IL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Tommy La Stella autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

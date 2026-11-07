@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-611@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261212
+DTEND;VALUE=DATE:20261213
+SUMMARY:Chris Henry Jr. autograph signing
+DESCRIPTION:Time: TBA\nDetails: https://primetime12.com/products/chris-henry-jr-10-24-26-at-belden-village-mall-pre-sale-ticket-for-autograph-signing-on-any-1-item\nConfirm details with the organizer before you go.
+LOCATION:Belden Village Mall\, 4230 Belden Village Mall Cir NW\, Canton\, OH
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Chris Henry Jr. autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-943@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261107
+DTEND;VALUE=DATE:20261108
+SUMMARY:Rocket Ismail autograph signing
+DESCRIPTION:Time: 6:00-7:00 pm (Trade Night\, Autograph Stage)\nDetails: https://www.dallascardshow.com/autographlineup#rocket-ismail\nConfirm details with the organizer before you go.
+LOCATION:Allen\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Rocket Ismail autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-458@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20270102
+DTEND;VALUE=DATE:20270103
+SUMMARY:Von Hayes autograph signing
+DESCRIPTION:Order deadline: Monday\, December 28\, 2026\nDetails: https://www.wildertagautos.com/event-details-registration/von-hayes-mail-in-signing-items-due-12-28\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Von Hayes autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-777@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:Dillon Thieneman autograph signing
+DESCRIPTION:Order deadline: Saturday\, November 14\, 2026\nDetails: https://www.wscsportswi.com/P/12292/MikeTomczakSigning\nConfirm details with the organizer before you go.
+LOCATION:WSC Sports\, 2120 E Moreland Blvd\, Waukesha\, WI
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Dillon Thieneman autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

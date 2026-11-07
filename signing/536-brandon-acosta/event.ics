@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-536@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:Brandon Acosta autograph signing
+DESCRIPTION:Details: https://sandiegoanimecon.com/voice-actors-and-guests/#brandon-acosta\nConfirm details with the organizer before you go.
+LOCATION:DoubleTree by Hilton San Diego Mission Valley\, San Diego\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Brandon Acosta autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

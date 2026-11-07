@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1047@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:Jake Bauers autograph signing
+DESCRIPTION:Order deadline: Wednesday\, November 18\, 2026\nDetails: https://www.wscsportswi.com/P/12665/AaronAshbyPreOrderPrivateAutographSigning\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jake Bauers autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

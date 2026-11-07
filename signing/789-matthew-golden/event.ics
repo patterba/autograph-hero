@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-789@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261111
+DTEND;VALUE=DATE:20261112
+SUMMARY:Matthew Golden autograph signing
+DESCRIPTION:Order deadline: Saturday\, November 7\, 2026\nDetails: https://www.wscsportswi.com/P/12478/MATTHEWGOLDENPRIVATEAUTOGRAPHSIGNING\nConfirm details with the organizer before you go.
+LOCATION:WSC Sports\, 2120 E Moreland Blvd\, Waukesha\, WI
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Matthew Golden autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

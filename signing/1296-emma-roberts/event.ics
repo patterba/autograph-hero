@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1296@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261205
+DTEND;VALUE=DATE:20261206
+SUMMARY:Emma Roberts autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-columbus-guests#emma-roberts\nConfirm details with the organizer before you go.
+LOCATION:Greater Columbus Convention Center\, 400 N High St\, Columbus\, OH
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Emma Roberts autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

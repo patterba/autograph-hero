@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1510@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20270108
+DTEND;VALUE=DATE:20270109
+SUMMARY:Jared Padalecki autograph signing
+DESCRIPTION:Details: https://fanexpohq.com/fanexponeworleans/celebrities/#jared-padalecki\nConfirm details with the organizer before you go.
+LOCATION:New Orleans Ernest N. Morial Convention Center\, New Orleans\, LA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jared Padalecki autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

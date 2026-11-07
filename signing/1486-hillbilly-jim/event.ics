@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1486@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261112
+DTEND;VALUE=DATE:20261113
+SUMMARY:Hillbilly Jim autograph signing
+DESCRIPTION:Order deadline: Wednesday\, November 11\, 2026\nDetails: https://highspots.com/collections/hillbilly-jim/products/nov-12th-hillbilly-jim-mail-ins-jsa\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Hillbilly Jim autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

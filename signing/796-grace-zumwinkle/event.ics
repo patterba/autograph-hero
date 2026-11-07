@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-796@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261214
+DTEND;VALUE=DATE:20261215
+SUMMARY:Grace Zumwinkle autograph signing
+DESCRIPTION:Time: 6:45-7:15 PM (subject to change)\nDetails: https://fanhqstore.com/collections/grace-zumwinkle-in-person-event\nConfirm details with the organizer before you go.
+LOCATION:Fan HQ Ridgedale\, 12667 Wayzata Blvd\, Minnetonka\, MN
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Grace Zumwinkle autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

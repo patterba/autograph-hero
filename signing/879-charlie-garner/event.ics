@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-879@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:Charlie Garner autograph signing
+DESCRIPTION:Time: 10:30 AM - 11:30 AM\nDetails: https://www.trifectacollectibles.com/event/charlie-garner-autograph-event-end-zone-tailgate/\nConfirm details with the organizer before you go.
+LOCATION:End Zone Tailgate Party\, Hilton Santa Clara\, 4949 Great America Pkwy\, Santa Clara\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Charlie Garner autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-425@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261107
+DTEND;VALUE=DATE:20261108
+SUMMARY:David Eckstein autograph signing
+DESCRIPTION:Time: Sat Nov 7\, 3PM-6PM\; Sun Nov 8\, 11AM-2PM\nDetails: https://www.cape-events.com/comic#david-eckstein\nConfirm details with the organizer before you go.
+LOCATION:Show Me Center\, 1333 N Sprigg St\, Cape Girardeau\, MO
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: David Eckstein autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

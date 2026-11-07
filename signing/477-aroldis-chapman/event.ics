@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-477@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261107
+DTEND;VALUE=DATE:20261108
+SUMMARY:Aroldis Chapman autograph signing
+DESCRIPTION:Details: http://gbsccconvention.com/appearances#aroldis-chapman\nConfirm details with the organizer before you go.
+LOCATION:Shriner's Auditorium\, 99 Fordham Road\, Wilmington\, MA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Aroldis Chapman autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

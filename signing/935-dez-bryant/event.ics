@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-935@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261107
+DTEND;VALUE=DATE:20261108
+SUMMARY:Dez Bryant autograph signing
+DESCRIPTION:Time: Photo op 2:15 pm\; autograph signing 2:30 pm\nDetails: https://www.dallascardshow.com/autographlineup#dez-bryant\nConfirm details with the organizer before you go.
+LOCATION:Allen\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Dez Bryant autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

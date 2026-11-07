@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-562@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261113
+DTEND;VALUE=DATE:20261114
+SUMMARY:Mary McDonnell autograph signing
+DESCRIPTION:Details: https://motorcitycomiccon.com/guest/celebrity-guests/#popup-22\nConfirm details with the organizer before you go.
+LOCATION:Vibe Credit Union Showplace\, 46100 Grand River Ave\, Novi\, MI
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Mary McDonnell autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

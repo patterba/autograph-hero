@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-612@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261212
+DTEND;VALUE=DATE:20261213
+SUMMARY:Chris Henry Jr. autograph signing
+DESCRIPTION:Order deadline: Wednesday\, December 9\, 2026\nDetails: https://primetime12.com/products/mail-in-or-drop-off-for-chris-henry-jr-autograph-signing\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Chris Henry Jr. autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

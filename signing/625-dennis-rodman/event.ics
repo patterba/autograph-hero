@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-625@autographhero.com
+DTSTAMP:20261107T000000Z
+DTSTART;VALUE=DATE:20261113
+DTEND;VALUE=DATE:20261114
+SUMMARY:Dennis Rodman autograph signing
+DESCRIPTION:Time: Starts at 6:00pm\nDetails: https://www.palmbeachautographs.com/products/dennis-rodman-chicago-bulls-in-person-autograph-event-at-palm-beach-card-show-public-signing-event-november-14th-2026\nConfirm details with the organizer before you go.
+LOCATION:Palm Beach County Convention Center\, 650 Okeechobee Blvd\, West Palm Beach\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Dennis Rodman autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR
