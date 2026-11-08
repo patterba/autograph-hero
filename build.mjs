@@ -66,14 +66,28 @@ const COLUMNS = [
 ];
 
 // Crawlers that collect pages to train AI models or build datasets (robots.txt tokens; most also
-// appear in their user agent). AI *search* bots that cite the site are deliberately not here:
-// OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User, Claude-SearchBot, Claude-User,
-// Google-Extended, Applebot, Amazonbot, and every search engine.
+// appear in their user agent). AI *search indexers* that cite the site stay allowed for GEO and are
+// deliberately not here: OAI-SearchBot, Claude-SearchBot, PerplexityBot, MistralAI-Index,
+// meta-webindexer, Amzn-SearchBot, DuckAssistBot, YouBot, Applebot, Google-Extended, and every
+// search engine (Googlebot, bingbot...).
 const AI_TRAINING_BOTS = [
   'GPTBot', 'ClaudeBot', 'anthropic-ai', 'Claude-Web', 'CCBot', 'Applebot-Extended', 'Bytespider',
   'meta-externalagent', 'FacebookBot', 'cohere-ai', 'cohere-training-data-crawler', 'Diffbot',
   'omgili', 'Omgilibot', 'ImagesiftBot', 'Timpibot', 'AI2Bot', 'PanguBot', 'img2dataset',
+  'MistralAI-Training', 'Amazonbot', 'Google-CloudVertexBot', 'GoogleOther', 'ProRataInc',
+  'Kangaroo Bot', 'Webzio-Extended', 'iaskspider', 'TikTokSpider', 'GrokBot', 'xAI-Bot',
+  'DeepSeekBot', 'Brightbot', 'QualifiedBot', 'Crawlspace',
 ];
+// AI assistants and agents that open a page when someone asks a chatbot about it (they copy the
+// page into the chat). Most say robots.txt doesn't apply to them, so the .htaccess refuses them.
+const AI_USER_FETCHERS = [
+  'ChatGPT-User', 'Claude-User', 'Perplexity-User', 'MistralAI-User', 'Amzn-User',
+  'meta-externalfetcher', 'Google-GeminiNotebook', 'Google-Agent', 'Diffbot-User', 'Manus-User',
+  'DuckAssistBot-User', 'Kimi-User',
+];
+// AI browsing agents that look like Chrome but sign their requests (Web Bot Auth "Signature-Agent"
+// header): ChatGPT agent / OpenAI's cloud browser, Google's agent.
+const AI_SIGNED_AGENTS = ['chatgpt.com', 'agent.bot.goog'];
 // Scraping libraries and headless browsers (refused in .htaccess; no real visitor sends these).
 const SCRAPER_TOOLS = [
   'Scrapy', 'python-requests', 'python-urllib', 'aiohttp', 'httpx', 'Go-http-client', 'node-fetch',
@@ -2481,17 +2495,17 @@ async function main() {
     ...list.map((s) => [`/signing/${s.slug}/`, s.updated]),
     ...archive.map((s) => [`/signing/${s.slug}/`, s.updated]),
   ];
-  // Search engines and AI answer engines (ChatGPT search, Perplexity, Claude, Gemini, Google AI
+  // Search engines and AI search indexers (ChatGPT search, Perplexity, Claude search, Google AI
   // Overviews) are welcome: they send visitors and cite the site (GEO). Crawlers that collect pages
-  // to train AI models or resell data are asked to stay out (and refused by the .htaccess below).
-  // Google-Extended stays allowed on purpose: blocking it keeps the site out of Gemini's answers.
+  // to train AI models or resell data, and chatbots fetching a page for a user, are asked to stay
+  // out (and refused by the .htaccess below). Google-Extended stays allowed on purpose (Gemini answers).
   await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : [
     'User-agent: *',
     `Disallow: ${link('/admin/')}`,
     'Allow: /',
     '',
-    '# AI training crawlers and bulk data collectors: not allowed.',
-    ...AI_TRAINING_BOTS.map((b) => `User-agent: ${b}`),
+    '# AI training crawlers, bulk data collectors and chatbot page fetchers: not allowed.',
+    ...[...AI_TRAINING_BOTS, ...AI_USER_FETCHERS].map((b) => `User-agent: ${b}`),
     'Disallow: /',
     '',
     `Sitemap: ${ORIGIN}${link('/sitemap.xml')}`,
@@ -2517,10 +2531,12 @@ async function main() {
     `RedirectMatch 301 ^${BASE}/(type|browse)(/.*)?$ ${BASE}/events/`,
     '',
     '# Scrapers get 403: AI training crawlers (also asked to stay out in robots.txt), crawlers',
-    '# known to ignore robots.txt, and scraping tools. Search engines, AI search/answer bots and',
-    '# link previews are not on this list. robots.txt stays readable to everyone.',
+    '# known to ignore robots.txt, chatbot page fetchers and AI browsing agents, and scraping tools.',
+    '# Search engines, AI search indexers and link previews are not on this list. robots.txt stays',
+    '# readable to everyone.',
     `RewriteCond %{REQUEST_URI} !robots\\.txt$`,
-    `RewriteCond %{HTTP_USER_AGENT} (${[...AI_TRAINING_BOTS, ...SCRAPER_TOOLS].map((b) => b.replace(/[.+]/g, '\\$&').replace(/ /g, '\\s')).join('|')}) [NC]`,
+    `RewriteCond %{HTTP_USER_AGENT} (${[...AI_TRAINING_BOTS, ...AI_USER_FETCHERS, ...SCRAPER_TOOLS].map((b) => b.replace(/[.+]/g, '\\$&').replace(/ /g, '\\s')).join('|')}) [NC,OR]`,
+    `RewriteCond %{HTTP:Signature-Agent} (${AI_SIGNED_AGENTS.map((b) => b.replace(/[.+]/g, '\\$&')).join('|')}) [NC]`,
     'RewriteRule ^ - [F,L]',
     '',
     '# One address: www.autographhero.com forwards to autographhero.com (same page). Bots refused',
