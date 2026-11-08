@@ -159,9 +159,9 @@ jobs:
             done
             # www should forward to the main address; AI training crawlers should get 403 on both names.
             for h in autographhero.com www.autographhero.com; do
-              for ua in "Mozilla/5.0 deploy-check" "Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)"; do
+              for ua in "Mozilla/5.0 deploy-check" "Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)" "Mozilla/5.0 (compatible; ChatGPT-User/1.0; +https://openai.com/bot)"; do
                 curl -sk -m 20 -A "$ua" -o /dev/null -D hdr "https://$h/events/" || true
-                echo "## $h/events/ as ${ua%% *}$(echo "$ua" | grep -o ' GPTBot' || true)"
+                echo "## $h/events/ as $(echo "$ua" | grep -oE 'GPTBot|ChatGPT-User|deploy-check')"
                 grep -iE '^HTTP/|^location:' hdr | tr -d '\r'
               done
             done
