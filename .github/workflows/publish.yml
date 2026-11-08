@@ -157,6 +157,14 @@ jobs:
                 grep -c 'wp-content' body | sed 's/^/wp-content mentions: /'
               done
             done
+            # www should forward to the main address; AI training crawlers should get 403 on both names.
+            for h in autographhero.com www.autographhero.com; do
+              for ua in "Mozilla/5.0 deploy-check" "Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)"; do
+                curl -sk -m 20 -A "$ua" -o /dev/null -D hdr "https://$h/events/" || true
+                echo "## $h/events/ as ${ua%% *}$(echo "$ua" | grep -o ' GPTBot' || true)"
+                grep -iE '^HTTP/|^location:' hdr | tr -d '\r'
+              done
+            done
           } > report.txt 2>&1
           git init -q -b deploy-check
           git config user.name "github-actions[bot]"
