@@ -1,0 +1,38 @@
+name: Bot probe (temporary)
+on:
+  push:
+    branches: [bot-probe]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe apex and www with bot user agents
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        run: |
+          ORIGIN_IP=$(getent ahostsv4 "$FTP_SERVER" | awk 'NR==1{print $1}')
+          for h in autographhero.com www.autographhero.com; do
+            echo "== DNS $h: same as Bluehost origin? $( [ "$(getent ahostsv4 $h | awk 'NR==1{print $1}')" = "$ORIGIN_IP" ] && echo yes || echo no )"
+          done
+          while IFS='|' read -r name ua; do
+            for h in autographhero.com www.autographhero.com; do
+              for via in dns origin; do
+                if [ "$via" = origin ]; then R="--resolve $h:443:$ORIGIN_IP"; else R=""; fi
+                curl -sk -m 20 $R -A "$ua" -o body -D hdr "https://$h/events/" || true
+                code=$(grep -m1 '^HTTP/' hdr | tr -d '\r' | awk '{print $2}')
+                loc=$(grep -im1 '^location:' hdr | tr -d '\r' | cut -d' ' -f2)
+                cf=$(grep -qi '^cf-ray:' hdr && echo cf || echo -)
+                srv=$(grep -im1 '^server:' hdr | tr -d '\r' | cut -d' ' -f2-)
+                t=$(grep -o '<title>[^<]*' body | head -1 | cut -c8-60)
+                printf '%-14s %-22s %-6s %-4s %-3s %-12s %-40s %s\n' "$name" "$h" "$via" "$code" "$cf" "$srv" "$loc" "$t"
+              done
+            done
+          done <<'UAS'
+          browser|Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36
+          chatgpt-user|Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot
+          gptbot|Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; GPTBot/1.2; +https://openai.com/gptbot
+          python|python-requests/2.32.3
+          curl|curl/8.5.0
+          UAS
