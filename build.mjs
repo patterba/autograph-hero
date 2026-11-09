@@ -10,6 +10,9 @@ import { createHash } from 'node:crypto';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(ROOT, 'dist');
+// Google AdSense (publisher ca-pub-8886224668564234): loader in every public page's <head>, plus /ads.txt.
+const ADSENSE_CLIENT = 'ca-pub-8886224668564234';
+const ADSENSE_SCRIPT = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}" crossorigin="anonymous"></script>`;
 
 // The publishable key is safe to ship: the database only lets it read rows
 // whose status is 'published'.
@@ -708,6 +711,7 @@ ${hidden ? '' : ld.filter(Boolean).map(jsonLd).join('\n')}
 <link rel="icon" type="image/svg+xml" href="${esc(asset('/assets/logo.svg'))}">
 ${admin ? '' : appHead()}
 ${PHOTO_SCRIPT}
+${admin ? '' : ADSENSE_SCRIPT}
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -2741,6 +2745,7 @@ async function main() {
   // Overviews) are welcome: they send visitors and cite the site (GEO). Crawlers that collect pages
   // to train AI models or resell data, and chatbots fetching a page for a user, are asked to stay
   // out (and refused by the .htaccess below). Google-Extended stays allowed on purpose (Gemini answers).
+  await put('ads.txt', `google.com, ${ADSENSE_CLIENT.replace('ca-', '')}, DIRECT, f08c47fec0942fa0\n`);
   await put('robots.txt', NOINDEX ? 'User-agent: *\nDisallow: /\n' : [
     'User-agent: *',
     `Disallow: ${link('/admin/')}`,
