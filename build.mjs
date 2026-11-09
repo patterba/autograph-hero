@@ -63,6 +63,7 @@ const COLUMNS = [
   'event_time_text', 'order_deadline', 'venue', 'city', 'state', 'price_min', 'price_max',
   'prices', 'sport', 'team_city', 'listing_url', 'image_url', 'image_source',
   'image_credit', 'image_license', 'image_page_url', 'status', 'updated_at', 'published_at',
+  'signing_types', 'is_rumor',
 ];
 
 // Crawlers that collect pages to train AI models or build datasets (robots.txt tokens; most also
@@ -282,7 +283,11 @@ function shape(row, athletes) {
   const eventDate = isDate(row.event_date) ? row.event_date : null;
   const deadline = isDate(row.order_deadline) ? row.order_deadline : null;
   const sortDate = eventDate || deadline;
-  const type = TYPE_LABEL[row.signing_type] ? row.signing_type : 'unknown';
+  // A signing can be several things at once (in person AND mail-in): signing_types lists them,
+  // signing_type is the primary one.
+  const listed = [...new Set((Array.isArray(row.signing_types) ? row.signing_types : []).filter((t) => typeof t === 'string' && TYPE_LABEL[t]))];
+  const type = TYPE_LABEL[row.signing_type] && row.signing_type !== 'unknown' ? row.signing_type : (listed[0] || 'unknown');
+  const types = listed.length ? listed : [type];
   const listingUrl = safeUrl(row.listing_url);
   const host = listingUrl ? new URL(listingUrl).hostname.replace(/^www\./, '') : null;
   const source = row.image_source === 'promoter' && row.image_credit ? row.image_credit : host;
@@ -318,6 +323,12 @@ function shape(row, athletes) {
     names,
     title: row.title || name,
     type,
+    types,
+    inPerson: types.includes('public'),
+    mailIn: types.includes('mail-in'),
+    // Mail-in only: no place to go to, ships anywhere.
+    mailOnly: types.includes('mail-in') && !types.includes('public'),
+    rumor: row.is_rumor === true,
     eventDate,
     eventDateText: row.event_date_text || null,
     timeText: row.event_time_text || null,
@@ -373,7 +384,8 @@ const ICON = {
   logo: '<svg class="logo-lockup" viewBox="-170 -128 566 334" role="img" aria-label="Autograph Hero"><path d="M34 0 H8 C-50 -4 -110 24 -164 76 Q-138 84 -146 112 Q-118 114 -124 146 Q-96 142 -98 184 C-84 130 -44 70 0 44 H34 Z" fill="#FF6A00"/><path d="M0 0 H34 V83 H58 V0 H92 V200 H58 V117 H34 V200 H0 Z" fill="#0A0A0A"/><path d="M102 0 H180 V32 H136 V84 H172 V116 H136 V168 H180 V200 H102 Z" fill="#0A0A0A"/><path fill-rule="evenodd" d="M190 0 H250 A34 34 0 0 1 284 34 V82 A34 34 0 0 1 250 116 H190 Z M224 30 H244 A8 8 0 0 1 252 38 V78 A8 8 0 0 1 244 86 H224 Z" fill="#0A0A0A"/><path d="M190 0 H224 V200 H190 Z M230 110 H262 L286 200 H252 Z" fill="#0A0A0A"/><path fill-rule="evenodd" d="M330 0 H354 A34 34 0 0 1 388 34 V166 A34 34 0 0 1 354 200 H330 A34 34 0 0 1 296 166 V34 A34 34 0 0 1 330 0 Z M338 32 H346 A8 8 0 0 1 354 40 V160 A8 8 0 0 1 346 168 H338 A8 8 0 0 1 330 160 V40 A8 8 0 0 1 338 32 Z" fill="#0A0A0A"/><text x="-7" y="0" transform="rotate(-6 -7 21)">Autograph</text></svg>',
 };
 
-const badge = (s) => `<span class="badge badge-${esc(s.type)}">${esc(TYPE_LABEL[s.type])}</span>`;
+const typeText = (s) => s.types.map((t) => TYPE_LABEL[t]).join(' · ');
+const badge = (s) => `<span class="badge badge-${esc(s.type)}">${esc(typeText(s))}</span>${s.rumor ? '<span class="badge badge-rumor">Rumor</span>' : ''}`;
 
 // What the signer does, for the name tile: authors and artists by category (categoryOf()),
 // athletes get their sport, anyone else is a celebrity. Plural when there's more than one signer.
@@ -416,7 +428,7 @@ function creditLine(p, id, hidden = false) {
 const PHOTO_SCRIPT = `<script>function ahPhoto(i){var f=i.getAttribute('data-fallback'),m=i.id==='main-photo',a=document.getElementById('credit-main'),b=document.getElementById('credit-fb'),g=i.parentNode&&i.parentNode.querySelector('.photo-bg');i.removeAttribute('data-fallback');if(f){i.onerror=function(){i.remove();if(g)g.remove();if(m&&b)b.hidden=true};i.src=f;if(g){g.onerror=function(){g.remove()};g.src=f}if(m){if(a)a.hidden=true;if(b)b.hidden=false}}else{i.remove();if(g)g.remove();if(m&&a)a.hidden=true}}</script>`;
 
 function whereLine(s) {
-  if (s.type === 'mail-in') return `Mail-in${s.source ? ` · ${s.source}` : ''}`;
+  if (s.mailOnly) return `Mail-in${s.source ? ` · ${s.source}` : ''}`;
   if (s.venue && s.place) return `${s.venue.split(',')[0]}, ${s.place}`;
   return s.venue || s.place || (s.source ? `Via ${s.source}` : 'Location on organizer page');
 }
@@ -435,7 +447,7 @@ function priceLine(s) {
 
 function card(s) {
   const q = [s.name, s.title, s.venue, s.city, s.state, s.sport, s.teamCity, ...s.teams, s.source].filter(Boolean).join(' ').toLowerCase();
-  return `<a class="card" href="${esc(link(`/signing/${s.slug}/`))}" data-q="${esc(q)}" data-sport="${esc(s.sport || '')}" data-cat="${esc(s.category || '')}" data-type="${esc(s.type)}" data-state="${esc(s.state || '')}">
+  return `<a class="card" href="${esc(link(`/signing/${s.slug}/`))}" data-q="${esc(q)}" data-sport="${esc(s.sport || '')}" data-cat="${esc(s.category || '')}" data-type="${esc(s.types.join(' '))}" data-state="${esc(s.state || '')}">
   <div class="card-photo">${photo(s)}${badge(s)}</div>
   <div class="card-body">
     <div class="eyebrow">${esc([s.sport, s.primaryTeam].filter(Boolean).join(' · ') || 'Autographs')}</div>
@@ -730,7 +742,7 @@ function homePage(list) {
   // Upcoming signings that went live in the last 7 days (rolling, so it never drops to 0 on Mondays).
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const addedCount = list.filter((s) => s.publishedAt && s.publishedAt >= weekAgo).length;
-  const mailCount = list.filter((s) => s.type === 'mail-in').length;
+  const mailCount = list.filter((s) => s.mailIn).length;
   const suggest = [...new Set(list.flatMap((s) => [...s.names, ...(s.teams || [])]))]
     .filter((o) => typeof o === 'string' && o.trim()).sort((a, b) => a.localeCompare(b)).slice(0, 300);
   const stat = (n, label) => `<div class="pass-stat"><span class="pass-num">${n}</span><span class="pass-label">${label}</span></div>`;
@@ -886,7 +898,7 @@ ${moreCard(list.length, list.length - soon.length)}</div>` : '<p class="empty">N
 // anywhere. assets/site.js treats state=mail-in as "mail-in signings".
 const MAIL_IN_STATE = 'mail-in';
 function mailInOption(list) {
-  return list.some((s) => s.type === 'mail-in') ? `<option value="${MAIL_IN_STATE}">Mail-in · ships anywhere</option>` : '';
+  return list.some((s) => s.mailIn) ? `<option value="${MAIL_IN_STATE}">Mail-in · ships anywhere</option>` : '';
 }
 
 // "What" picker on the home search bar and /events/: sports first (the major ones always, then any
@@ -936,7 +948,7 @@ function countBy(list, fn) {
 
 function eventsPage(list) {
   const states = countBy(list, (s) => s.state).sort((a, b) => a[0].localeCompare(b[0]));
-  const types = countBy(list, (s) => s.type);
+  const types = countBy(list.flatMap((s) => s.types.map((t) => ({ t }))), (x) => x.t);
   const body = `
 <section class="page-head">
   <div class="eyebrow accent">All signings</div>
@@ -1028,10 +1040,10 @@ function calendarFor(s) {
 // Search result title and summary for a signing: who, what kind, where and when, and the price.
 const KIND = { public: 'Autograph Signing', private: 'Private Signing', 'mail-in': 'Mail-In Signing', unknown: 'Autograph Signing' };
 function signingMeta(s) {
-  const where = s.type === 'public' && s.place ? ` in ${s.place}` : '';
+  const where = s.inPerson && s.place ? ` in ${s.place}` : '';
   const title = `${s.name} ${KIND[s.type]}${where}${s.eventDate ? ` (${mdy(s.eventDate)})` : ''}`;
   const venue = s.venue ? s.venue.split(',')[0] : null;
-  const on = s.eventDate ? ` on ${shortDate(s.eventDate)}${s.timeText && s.type === 'public' ? `, ${s.timeText}` : ''}` : '';
+  const on = s.eventDate ? ` on ${shortDate(s.eventDate)}${s.timeText && s.inPerson ? `, ${s.timeText}` : ''}` : '';
   const by = s.deadline && !s.deadlinePassed && s.deadline !== s.eventDate ? ` Order by ${fmt(s.deadline, { month: 'short', day: 'numeric' })}.` : '';
   const lead = {
     public: `Meet ${s.name}${venue ? ` at ${venue}` : ''}${s.place ? `, ${s.place}` : ''}${on}.`,
@@ -1156,7 +1168,7 @@ const originOf = (url) => {
 // schema.org Event, which lets Google show the signing in event search results. Only for
 // in-person signings with a date and a place; mail-ins aren't events you can go to.
 function eventLd(s) {
-  if (s.type !== 'public' || !s.eventDate || !(s.venue || s.city)) return null;
+  if (s.rumor || !s.inPerson || !s.eventDate || !(s.venue || s.city)) return null;
   const us = s.state && US_STATES.includes(s.state);
   const { name: venueName, street } = venueParts(s.venue);
   const offer = s.listingUrl
@@ -1189,12 +1201,12 @@ function eventLd(s) {
 // deadline (so only while it's open); others before the signing day. signing-reminders decides the exact time.
 function remindable(s) {
   if (s.past) return false;
-  if ((s.type === 'mail-in' || s.type === 'private') && s.deadline) return !s.deadlinePassed;
+  if ((s.mailIn || s.types.includes('private')) && s.deadline) return !s.deadlinePassed;
   return Boolean((s.eventDate && s.eventDate >= TODAY) || (s.deadline && !s.deadlinePassed));
 }
 
 function remindBox(s) {
-  const deadline = (s.type === 'mail-in' || s.type === 'private') && s.deadline;
+  const deadline = (s.mailIn || s.types.includes('private')) && s.deadline;
   const when = deadline ? 'the day before the order deadline' : 'the day before';
   return `<div class="remind" data-remind data-signing="${esc(s.id)}" data-endpoint="${esc(REMIND_URL)}" data-path="${esc(BASE)}" data-supabase="${esc(SUPABASE_URL)}" data-key="${esc(SUPABASE_KEY)}"${TURNSTILE_SITE_KEY ? ` data-sitekey="${esc(TURNSTILE_SITE_KEY)}"` : ''}>
         <button class="btn btn-ghost btn-block" type="button" data-remind-open>${ICON.bell}Email me a reminder</button>
@@ -1216,14 +1228,14 @@ function signingPage(s, list) {
   const cal = s.past ? null : calendarFor(s);
   // 5 related + the "See more" card = 6, which fills complete rows at 3, 2 or 1 per row.
   const more = list.filter((o) => o.id !== s.id && ((s.sport && o.sport === s.sport) || (s.state && o.state === s.state))).slice(0, 5);
-  const mapUrl = s.location && s.type !== 'mail-in' ? `https://www.google.com/maps/search/?${new URLSearchParams({ api: '1', query: s.location })}` : null;
+  const mapUrl = s.location && !s.mailOnly ? `https://www.google.com/maps/search/?${new URLSearchParams({ api: '1', query: s.location })}` : null;
   const credit = creditLine(s.photo, 'credit-main') + creditLine(s.photoFallback, 'credit-fb', true);
   const rows = [
     s.eventDate ? ['Date', longDate(s.eventDate)] : s.eventDateText ? ['Date', s.eventDateText] : null,
     s.timeText ? ['Time', s.timeText] : null,
     s.deadline ? ['Order by', `${longDate(s.deadline)}${s.deadlinePassed ? ' (passed)' : ''}`] : null,
     s.venue ? ['Venue', s.venue] : null,
-    s.place ? ['City', s.city && stateCode(s.state) && s.type !== 'mail-in'
+    s.place ? ['City', s.city && stateCode(s.state) && !s.mailOnly
       ? { html: `${esc(s.city)}, <a href="${esc(link(statePath(stateCode(s.state))))}">${esc(s.state)}</a>` }
       : s.place] : null,
     s.teams.length ? [s.teams.length === 1 ? 'Team' : 'Teams', { html: s.teams.map((t) => (hasTeamPage(t) ? `<a href="${esc(link(teamPath(slugify(t))))}">${esc(t)}</a>` : esc(t))).join(', ') }, 'wide'] : null,
@@ -1240,7 +1252,7 @@ ${crumbsNav(trail)}
     </div>
     <div class="detail-text">
     <h2>How this signing works</h2>
-    <p class="lede">${esc(TYPE_BLURB[s.type])}</p>
+    <p class="lede">${esc(s.types.map((t) => TYPE_BLURB[t]).join(' '))}</p>
     ${s.prices.length ? `<h2>Prices</h2>
     <div class="prices">${s.prices.map((p) => `<div><span>${esc(p.item).replace(/\//g, '/<wbr>')}</span><span class="mono">${esc(p.price)}</span></div>`).join('')}</div>` : ''}
     <p class="muted small">Listed from ${esc(s.source || 'the organizer')}. Autograph Hero does not sell tickets or handle orders.</p>
@@ -1258,11 +1270,12 @@ ${crumbsNav(trail)}
     </div>
     <div class="tear"></div>
     <div class="ticket-body">
+      ${s.rumor ? '<p class="notice notice-rumor"><strong>Rumor</strong> — not yet confirmed by the promoter. Check the official source before you travel or order.</p>' : ''}
       ${s.past ? `<p class="notice">This signing is over${s.sortDate ? ` (${esc(longDate(s.sortDate))})` : ''}. It's kept in the <a href="${esc(link('/archive/'))}">Signing Archives</a>.</p>`
     : s.deadlinePassed ? '<p class="notice">The order deadline listed for this signing has passed. Check with the organizer for late availability.</p>' : ''}
       <dl>${rows.map(([k, v, wide]) => `<div${wide ? ' class="wide"' : ''}><dt>${esc(k)}</dt><dd>${v?.html ?? esc(v)}</dd></div>`).join('')}</dl>
       ${s.priceMin ? `<div class="from"><span class="eyebrow">Price</span><span class="from-n">${esc(s.priceMax && s.priceMax !== s.priceMin ? `${s.priceMin} to ${s.priceMax}` : s.priceMin)}</span></div>` : ''}
-      ${s.listingUrl && !s.past ? `<a class="btn btn-accent btn-block" href="${esc(s.listingUrl)}" rel="noopener" target="_blank">${s.type === 'public' ? 'Get tickets' : 'Order'} at ${esc(s.host)} ${ICON.out}</a>` : ''}
+      ${s.listingUrl && !s.past ? `<a class="btn btn-accent btn-block" href="${esc(s.listingUrl)}" rel="noopener" target="_blank">${s.inPerson ? 'Get tickets' : 'Order'} at ${esc(s.host)} ${ICON.out}</a>` : ''}
       ${cal ? `<div class="cal">
         <span class="eyebrow">${cal.isDeadline ? 'Save the order deadline' : 'Add to calendar'}</span>
         <div class="cal-row">
@@ -1309,17 +1322,24 @@ function addPage() {
 </section>
 <section class="band band-tight">
   <form class="f-form" data-form="listing" data-endpoint="${esc(FORMS_URL)}" novalidate>
+    <fieldset class="f-flyer">
+      <legend><span class="f-n">00</span>Have a flyer? Upload it</legend>
+      <p class="f-hint">The fastest way: upload a screenshot or photo of the flyer or post. We'll read the details from it, so you can skip the rest and just add your email at the bottom.</p>
+      ${field('f-flyer', 'Flyer or screenshot', '<input id="f-flyer" name="flyer" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*">', 'JPG, PNG or WebP image.')}
+      <div class="f-flyer-preview" hidden><img alt="Your flyer" loading="lazy"><button class="btn btn-ghost btn-sm" type="button" data-flyer-clear>Remove</button></div>
+    </fieldset>
     <fieldset>
       <legend><span class="f-n">01</span>The signing</legend>
-      ${field('f-names', 'Who is signing? <span class="req">Required</span>', '<input id="f-names" name="athlete_names" type="text" required maxlength="300" autocomplete="off" aria-describedby="f-names-hint">', 'For a group signing, separate names with commas.')}
+      ${field('f-names', 'Who is signing? <span class="req">Required without a flyer</span>', '<input id="f-names" name="athlete_names" type="text" maxlength="300" autocomplete="off" aria-describedby="f-names-hint">', 'For a group signing, separate names with commas.')}
       <div class="f-row">
         ${field('f-sport', 'Sport', `<select id="f-sport" name="sport"><option value="">Choose one</option>${SPORT_CHOICES.map((x) => `<option>${x}</option>`).join('')}</select>`)}
-        <div class="f-field"><span class="f-label" id="f-type-label">How does it work? <span class="req">Required</span></span>
-          <div class="f-choices" role="radiogroup" aria-labelledby="f-type-label">
-            <label><input type="radio" name="signing_type" value="public" required> In person</label>
-            <label><input type="radio" name="signing_type" value="private"> Private signing</label>
-            <label><input type="radio" name="signing_type" value="mail-in"> Mail-in</label>
+        <div class="f-field"><span class="f-label" id="f-type-label">How does it work? <span class="req">Required without a flyer</span></span>
+          <div class="f-choices" role="group" aria-labelledby="f-type-label" aria-describedby="f-type-hint">
+            <label><input type="checkbox" name="signing_type" value="public"> In person</label>
+            <label><input type="checkbox" name="signing_type" value="private"> Private signing</label>
+            <label><input type="checkbox" name="signing_type" value="mail-in"> Mail-in</label>
           </div>
+          <p class="f-hint" id="f-type-hint">Tick every one that applies.</p>
         </div>
       </div>
     </fieldset>
@@ -1338,7 +1358,7 @@ function addPage() {
     </fieldset>
     <fieldset>
       <legend><span class="f-n">03</span>Details</legend>
-      ${field('f-url', 'Link to the official announcement or order page <span class="req">Required</span>', '<input id="f-url" name="source_url" type="url" required maxlength="1000" placeholder="https://" aria-describedby="f-url-hint">', 'A post or page from the promoter, venue, team or the person signing. This is how we confirm it.')}
+      ${field('f-url', 'Link to the official announcement or order page <span class="req">Required without a flyer</span>', '<input id="f-url" name="source_url" type="url" maxlength="1000" placeholder="https://" aria-describedby="f-url-hint">', 'A post or page from the promoter, venue, team or the person signing. This is how we confirm it.')}
       ${field('f-prices', 'Prices', '<textarea id="f-prices" name="price_text" rows="3" maxlength="1000" placeholder="Autograph $40, photo op $50…"></textarea>')}
       ${field('f-notes', 'Anything else we should know?', '<textarea id="f-notes" name="notes" rows="3" maxlength="2000"></textarea>')}
     </fieldset>
@@ -1579,6 +1599,7 @@ function adminPage() {
         <button role="tab" type="button" data-tab="fans" aria-selected="false">Sign-ups <span class="admin-count" data-count="fans"></span></button>
         <button role="tab" type="button" data-tab="analytics" aria-selected="false">Analytics</button>
         <button role="tab" type="button" data-tab="captcha" aria-selected="false">Captcha</button>
+        <button role="tab" type="button" data-tab="flyers" aria-selected="false">Flyer reading</button>
         <button role="tab" type="button" data-tab="settings" aria-selected="false">Password</button>
       </div>
       <div class="admin-actions">
@@ -1598,6 +1619,16 @@ function adminPage() {
         <p class="muted">The "Quick check that you're a person" box on Submit A Signing, Sign Up, Contact and reminders. Paste the <strong>Secret Key</strong> from your Turnstile widget in Cloudflare (Turnstile → Autograph Hero → Settings) to turn the check on. It's saved securely and never shown again.</p>
         ${field('ad-ts', 'Turnstile secret key', '<input id="ad-ts" name="secret" type="password" autocomplete="off" spellcheck="false" maxlength="200">')}
         <div class="f-actions"><button class="btn btn-accent" type="submit">Save and turn on</button><button class="btn btn-ghost" type="button" data-captcha-off>Turn off</button></div>
+        <p class="f-status" role="status" aria-live="polite" hidden></p>
+      </fieldset>
+    </form>
+    <form class="f-form f-narrow" data-pane="flyers" hidden novalidate>
+      <fieldset>
+        <legend>Reading uploaded flyers (Claude)</legend>
+        <p data-flyer-state class="notice">Checking…</p>
+        <p class="muted">When a fan uploads a flyer on Submit A Signing, Claude reads the picture and fills in the names, dates, place and prices for you to check. Paste an <strong>Anthropic API key</strong> (console.anthropic.com → API Keys, starts with sk-ant-) to turn this on. Without it, flyers still arrive and you type the details in yourself. Saved securely and never shown again.</p>
+        ${field('ad-ak', 'Anthropic API key', '<input id="ad-ak" name="secret" type="password" autocomplete="off" spellcheck="false" maxlength="300">')}
+        <div class="f-actions"><button class="btn btn-accent" type="submit">Save and turn on</button><button class="btn btn-ghost" type="button" data-flyer-off>Turn off</button></div>
         <p class="f-status" role="status" aria-live="polite" hidden></p>
       </fieldset>
     </form>
@@ -2131,12 +2162,12 @@ function buildHubs(list, athletes, archive = []) {
     for (const n of new Set(s.names)) signer(n, s.sport)?.list.push(s);
     for (const t of new Set(s.teams)) team(t)?.list.push(s);
     if (s.sport) sport(s.sport)?.list.push(s);
-    if (s.type !== 'mail-in') state(s.state)?.list.push(s);
+    if (!s.mailOnly) state(s.state)?.list.push(s);
   }
   for (const s of archive) {
     for (const n of new Set(s.names)) signer(n, s.sport)?.past.push(s);
     for (const t of new Set(s.teams)) team(t)?.past.push(s);
-    if (s.type !== 'mail-in') state(s.state)?.past.push(s);
+    if (!s.mailOnly) state(s.state)?.past.push(s);
   }
   for (const h of signers.values()) {
     const { teams: ts, primary } = teamsFor([h.name], h.sport, athletes);
@@ -2230,12 +2261,12 @@ ${sections.filter((x) => x && x.items.length).map((x) => `<section class="band b
 }
 
 const typeMix = (list) => {
-  const n = (t) => list.filter((s) => s.type === t).length;
+  const n = (t) => list.filter((s) => s.types.includes(t)).length;
   return [n('public') && `${n('public')} in person`, n('mail-in') && `${n('mail-in')} by mail`, n('private') && `${n('private')} private`].filter(Boolean).join(', ');
 };
 const nextLine = (list) => {
   const first = list.find((s) => s.eventDate);
-  return first ? ` The next one is ${longDate(first.eventDate)}${first.place && first.type === 'public' ? ` in ${first.place}` : ''}.` : '';
+  return first ? ` The next one is ${longDate(first.eventDate)}${first.place && first.inPerson ? ` in ${first.place}` : ''}.` : '';
 };
 
 function signerPage(h) {
@@ -2435,7 +2466,7 @@ async function main() {
   for (const t of hubs.teams.values()) await put(`teams/${t.slug}/index.html`, teamPage(t));
   for (const sp of hubs.sports.values()) await put(`sports/${sp.slug}/index.html`, sportPage(sp));
   for (const c of CATEGORIES) await put(`categories/${slugify(c)}/index.html`, categoryPage(c, list.filter((s) => s.category === c), hubs));
-  const mailIn = list.filter((s) => s.type === 'mail-in').length;
+  const mailIn = list.filter((s) => s.mailIn).length;
   for (const st of hubs.states.values()) await put(`states/${st.slug}/index.html`, statePage(st, hubs.states, mailIn));
   await put('states/index.html', statesIndexPage(hubs.states));
   await put('autographs/index.html', directoryPage({

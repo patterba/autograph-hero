@@ -85,15 +85,17 @@
     var state = form.elements.state.value;
     var shown = 0;
     var searchHits = 0; // cards that match the search words alone, ignoring the pickers
+    // data-type is a space-separated list: a signing can be in person and mail-in.
+    function hasType(c, t) { return (c.getAttribute('data-type') || '').split(' ').indexOf(t) !== -1; }
     cards.forEach(function (c) {
       var hay = c.getAttribute('data-q') || '';
       var hit = q.every(function (w) { return hay.indexOf(w) !== -1; });
       if (hit) searchHits++;
       var ok = hit &&
-        (!type || c.getAttribute('data-type') === type) &&
+        (!type || hasType(c, type)) &&
         (!what || (byCat ? c.getAttribute('data-cat') === what : (c.getAttribute('data-sport') || '').toLowerCase() === what.toLowerCase())) &&
         // "Mail-in" in the state picker: mail-ins have no state, they ship anywhere.
-        (!state || (state === 'mail-in' ? c.getAttribute('data-type') === 'mail-in' : c.getAttribute('data-state') === state));
+        (!state || (state === 'mail-in' ? hasType(c, 'mail-in') : c.getAttribute('data-state') === state));
       c.hidden = !ok;
       if (ok) shown++;
     });

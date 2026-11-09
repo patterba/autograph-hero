@@ -1,5 +1,7 @@
 // Receives the public forms on autographhero.com:
 //   form = "listing": a fan submits a signing; saved to public.submissions as 'pending'
+//                     (signing_types = every ticked type; or just a flyer picture + email:
+//                     stored in the private "flyers" bucket and read by Claude, see readFlyer)
 //                     for the owner to approve. Nothing goes live from here.
 //   form = "signup":  a fan signs up for alerts about favorite teams and people (first and
 //                     last name required: first_name + last_name, saved together as name);
@@ -304,33 +306,134 @@ ${matches.map((m) => `<tr><td style="padding:10px 0;border-top:1px solid #E5DED0
 
 async function listing(b: Record<string, unknown>, hash: string, req: Request) {
   if (!(await captchaOk(b.captcha_token, req))) return fail(CAPTCHA_FAIL);
+  // A flyer (screenshot/photo) can stand in for the details: we read it afterwards.
+  const flyer = typeof b.flyer === "string" ? b.flyer.match(/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/) : null;
+  if (b.flyer && !flyer) return fail("We couldn't read that picture. Please try a JPG or PNG screenshot.");
   const names = (Array.isArray(b.athlete_names) ? b.athlete_names : String(b.athlete_names ?? "").split(/,|&|\band\b/i))
     .map((n) => text(n, 80)).filter(Boolean).slice(0, 10) as string[];
-  if (!names.length) return fail("Please enter who is signing.");
-  const type = TYPES.includes(String(b.signing_type)) ? String(b.signing_type) : null;
-  if (!type) return fail("Please choose how the signing works.");
+  if (!names.length && !flyer) return fail("Please enter who is signing, or upload a flyer.");
+  // Several types can be ticked (in person + mail-in, …); signing_type keeps the first.
+  const asked = Array.isArray(b.signing_types) ? b.signing_types.map(String) : b.signing_type ? [String(b.signing_type)] : [];
+  const types = MULTI_TYPES.filter((t) => asked.includes(t));
+  if (!types.length && !flyer) return fail("Please tick how the signing works.");
   const event_date = isDate(b.event_date) ? String(b.event_date) : null;
   const order_deadline = isDate(b.order_deadline) ? String(b.order_deadline) : null;
-  if (!event_date && !order_deadline) return fail("Please enter the signing date or the order deadline.");
-  if ((event_date || order_deadline)! < today()) return fail("That date has already passed.");
+  if (!event_date && !order_deadline && !flyer) return fail("Please enter the signing date or the order deadline.");
+  if ((event_date || order_deadline) && (event_date || order_deadline)! < today()) return fail("That date has already passed.");
   const source_url = url(b.source_url);
-  if (!source_url) return fail("Please add a link to the official announcement or order page (starting with https://).");
+  if (!source_url && !flyer) return fail("Please add a link to the official announcement or order page (starting with https://), or upload a flyer.");
   const submitter_email = text(b.submitter_email, 254)?.toLowerCase() || null;
   if (!isEmail(submitter_email)) return fail("Please enter a valid email address so we can follow up.");
   const sport = SPORTS.includes(String(b.sport)) ? String(b.sport) : null;
 
+  let flyer_path: string | null = null;
+  let bytes: Uint8Array | null = null;
+  if (flyer) {
+    bytes = Uint8Array.from(atob(flyer[2]), (c) => c.charCodeAt(0));
+    if (bytes.length > 6_000_000) return fail("That picture is too big. Please use a smaller screenshot.");
+    const ext = flyer[1] === "jpeg" ? "jpg" : flyer[1];
+    flyer_path = `${new Date().toISOString().slice(0, 7)}/${crypto.randomUUID()}.${ext}`;
+    const up = await fetch(`${BASE_URL}/storage/v1/object/flyers/${flyer_path}`, {
+      method: "POST",
+      headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": `image/${flyer[1]}` },
+      body: bytes,
+    });
+    if (!up.ok) {
+      console.error("flyer upload failed", up.status, await up.text());
+      return fail("We couldn't save that picture just now. Please try again in a minute.", 500);
+    }
+  }
+
   const row = {
-    athlete_names: names, signing_type: type, event_date, order_deadline,
+    athlete_names: names, signing_type: types[0] || "unknown", signing_types: types.length ? types : null,
+    event_date, order_deadline,
     event_time_text: text(b.event_time_text, 120), venue: text(b.venue, 200), city: text(b.city, 100),
     state: text(b.state, 40), price_text: text(b.price_text, 1000), notes: text(b.notes, 2000),
     source_url, submitter_name: text(b.submitter_name, 120), submitter_email, sport, ip_hash: hash,
+    from_flyer: Boolean(flyer), flyer_path,
   };
-  const r = await db("submissions", { method: "POST", body: JSON.stringify(row), headers: { Prefer: "return=minimal" } });
+  const r = await db("submissions", { method: "POST", body: JSON.stringify(row), headers: { Prefer: "return=representation" } });
   if (!r.ok) {
     console.error("submission insert failed", r.status, await r.text());
     return fail("We couldn't save that just now. Please try again in a minute.", 500);
   }
+  if (flyer && bytes) {
+    const [saved] = await r.json().catch(() => [null]);
+    // Read the flyer after replying so the fan isn't kept waiting.
+    if (saved?.id) {
+      const job = readFlyer(saved.id, flyer[2], `image/${flyer[1]}`, row).catch((e) => console.error("flyer read failed", e));
+      // deno-lint-ignore no-explicit-any
+      const rt = (globalThis as any).EdgeRuntime;
+      if (rt?.waitUntil) rt.waitUntil(job); else await job;
+    }
+    return reply(200, { ok: true, message: "Thanks! We got your flyer. We'll read the details, check them and add the signing once it's confirmed." });
+  }
   return reply(200, { ok: true, message: "Thanks! We'll check the details and add it to the calendar once it's confirmed." });
+}
+
+// ---------- reading flyers ----------
+// Claude reads the flyer picture and fills in whatever the fan left blank. The key comes from
+// the ANTHROPIC_API_KEY function secret or Vault 'anthropic_api_key' (saved on the admin page,
+// read with public.site_anthropic_key()). No key = the flyer waits for the owner to type it in.
+const MULTI_TYPES = ["public", "private", "mail-in"];
+const ANTHROPIC_MODEL = (Deno.env.get("ANTHROPIC_MODEL") || "claude-sonnet-5-5").trim();
+
+async function anthropicKey() {
+  const env = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
+  if (env) return env;
+  const r = await db("rpc/site_anthropic_key", { method: "POST", body: "{}" });
+  if (!r.ok) return null;
+  const v = await r.json().catch(() => null);
+  return typeof v === "string" && v.trim() ? v.trim() : null;
+}
+
+const FLYER_PROMPT = `This image is a flyer, social media post or screenshot announcing an autograph signing, meet & greet, private signing or mail-in. Today is ${"{TODAY}"}.
+Read it and reply with ONLY a JSON object, no other text:
+{"athlete_names": [full names of the people signing], "signing_types": any of "public" (in person at a venue), "private" (private signing: send or drop off items, the person signs privately), "mail-in" (mail items in),
+ "sport": one of ${JSON.stringify(SPORTS)} or null, "event_date": "YYYY-MM-DD" or null (first day if several; assume the next future date when no year is shown),
+ "event_time_text": short time text like "1pm-3pm" or null, "order_deadline": "YYYY-MM-DD" or null, "venue": venue name and street address or null,
+ "city": city or null, "state": 2-letter US state code or null, "price_text": the prices as one short line or null, "source_url": a full https:// URL printed on it or null,
+ "summary": one sentence describing anything else important (ticket links, limits, inscriptions), or null}
+Only include what the image actually says. If it isn't a signing announcement, reply {"athlete_names": []}.`;
+
+async function readFlyer(id: number, b64: string, mime: string, given: Record<string, unknown>) {
+  const mark = (fields: Record<string, unknown>) =>
+    db(`submissions?id=eq.${id}`, { method: "PATCH", body: JSON.stringify(fields), headers: { Prefer: "return=minimal" } });
+  const key = await anthropicKey();
+  if (!key) { await mark({ flyer_read: "off" }); return; }
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    body: JSON.stringify({
+      model: ANTHROPIC_MODEL, max_tokens: 1200,
+      messages: [{ role: "user", content: [
+        { type: "image", source: { type: "base64", media_type: mime, data: b64 } },
+        { type: "text", text: FLYER_PROMPT.replace("{TODAY}", today()) },
+      ] }],
+    }),
+  });
+  if (!res.ok) { console.error("anthropic", res.status, await res.text()); await mark({ flyer_read: "failed" }); return; }
+  const out = await res.json();
+  const raw = String(out?.content?.find((c: { type: string }) => c.type === "text")?.text || "");
+  let x: Record<string, unknown> = {};
+  try { x = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1)); } catch { /* not JSON */ }
+  const fill: Record<string, unknown> = { flyer_read: "ok" };
+  // The fan's own answers win; the flyer only fills blanks.
+  const blank = (k: string) => given[k] == null || (Array.isArray(given[k]) && !(given[k] as unknown[]).length);
+  const names = (Array.isArray(x.athlete_names) ? x.athlete_names : []).map((n) => text(n, 80)).filter(Boolean).slice(0, 10);
+  if (blank("athlete_names") && names.length) fill.athlete_names = names;
+  const types = MULTI_TYPES.filter((t) => Array.isArray(x.signing_types) && x.signing_types.includes(t));
+  if (blank("signing_types") && types.length) { fill.signing_types = types; fill.signing_type = types[0]; }
+  if (blank("sport") && SPORTS.includes(String(x.sport))) fill.sport = String(x.sport);
+  for (const k of ["event_date", "order_deadline"]) if (blank(k) && isDate(x[k])) fill[k] = String(x[k]);
+  const lim: Record<string, number> = { event_time_text: 120, venue: 200, city: 100, state: 40, price_text: 1000 };
+  for (const [k, n] of Object.entries(lim)) if (blank(k) && text(x[k], n)) fill[k] = text(x[k], n);
+  if (blank("source_url") && url(x.source_url)) fill.source_url = url(x.source_url);
+  const summary = text(x.summary, 600);
+  if (summary) fill.notes = [given.notes, `From the flyer: ${summary}`].filter(Boolean).join("\n").slice(0, 2000);
+  if (!names.length && blank("athlete_names")) fill.flyer_read = "failed";
+  const r = await mark(fill);
+  if (!r.ok) { console.error("flyer fill failed", r.status, await r.text()); await mark({ flyer_read: "failed" }); }
 }
 
 // ---------- contact page ----------
@@ -585,8 +688,11 @@ Deno.serve(async (req) => {
   let b: Record<string, unknown>;
   try {
     const raw = await req.text();
-    if (raw.length > 20000) return fail("That's too much text.");
+    if (raw.length > 8_500_000) return fail("That's too much to send.");
     b = JSON.parse(raw);
+    // Only Submit a Signing may carry a picture; everything else stays small.
+    const big = raw.length - (typeof b.flyer === "string" ? b.flyer.length : 0);
+    if (big > 20000 || (b.flyer && b.form !== "listing")) return fail("That's too much text.");
   } catch {
     return fail("Something went wrong sending the form. Please try again.");
   }

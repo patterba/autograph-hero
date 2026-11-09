@@ -9,6 +9,51 @@
     var started = Date.now();
     var status = form.querySelector('.f-status');
     var button = form.querySelector('button[type="submit"]');
+    var flyerData = null; // the uploaded flyer, shrunk to a JPEG data URL (listing form only)
+    var flyerInput = form.querySelector('input[name="flyer"]');
+    var flyerBox = form.querySelector('.f-flyer-preview');
+    function clearFlyer() {
+      flyerData = null;
+      if (flyerInput) flyerInput.value = '';
+      if (flyerBox) { flyerBox.hidden = true; flyerBox.querySelector('img').removeAttribute('src'); }
+    }
+    // Shrinks the picture in the browser (max 1600 px, JPEG) so uploads stay small.
+    function readFlyer(file) {
+      return new Promise(function (resolve, reject) {
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+          var scale = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+          var c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          var ctx = c.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('unreadable')); };
+        img.src = url;
+      });
+    }
+    if (flyerInput) {
+      flyerInput.addEventListener('change', function () {
+        var file = flyerInput.files && flyerInput.files[0];
+        if (!file) { clearFlyer(); return; }
+        if (file.size > 25 * 1024 * 1024) { clearFlyer(); show('That picture is too big. Please use one under 25 MB.', 'is-error'); return; }
+        readFlyer(file).then(function (data) {
+          flyerData = data;
+          if (flyerBox) { flyerBox.querySelector('img').src = data; flyerBox.hidden = false; }
+          if (status) status.hidden = true;
+        }).catch(function () {
+          clearFlyer();
+          show("We couldn't open that picture. Please try a JPG or PNG screenshot.", 'is-error');
+        });
+      });
+      var clearBtn = form.querySelector('[data-flyer-clear]');
+      if (clearBtn) clearBtn.addEventListener('click', clearFlyer);
+    }
     var favorites = [];
     var favInput = form.querySelector('#s-fav');
     var captcha = form.querySelector('.cf-turnstile');
@@ -114,17 +159,27 @@
       return String(el.value || '').trim();
     }
 
+    // Every ticked box with this name, in page order.
+    function values(name) {
+      return Array.prototype.filter.call(form.querySelectorAll('input[name="' + name + '"]'), function (b) { return b.checked; })
+        .map(function (b) { return b.value; });
+    }
+
     function validate() {
       Array.prototype.forEach.call(form.querySelectorAll('[aria-invalid]'), function (el) { el.removeAttribute('aria-invalid'); });
       var email = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-      if (kind === 'listing') {
+      if (kind === 'listing' && flyerData) {
+        // With a flyer we read the details from the picture; only the email is needed.
+        if (!email.test(value('submitter_email'))) return invalid(form.elements.submitter_email, 'Please enter a valid email address so we can follow up.');
+        if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
+      } else if (kind === 'listing') {
         if (!value('athlete_names')) return invalid(form.elements.athlete_names, 'Please enter who is signing.');
-        if (!value('signing_type')) return invalid(form.querySelector('input[name="signing_type"]'), 'Please choose how the signing works.');
+        if (!values('signing_type').length) return invalid(form.querySelector('input[name="signing_type"]'), 'Please tick how the signing works (In person, Private signing and/or Mail-in), or upload a flyer.');
         if (!value('event_date') && !value('order_deadline')) return invalid(form.elements.event_date, 'Please enter the signing date or the order deadline.');
         // In-person signings need a place so they show up under their state.
-        if (value('signing_type') === 'public' && !value('city')) return invalid(form.elements.city, 'Please enter the city for an in-person signing.');
-        if (value('signing_type') === 'public' && !value('state')) return invalid(form.elements.state, 'Please choose the state for an in-person signing.');
-        if (!/^https?:\/\/\S+\.\S+/.test(value('source_url'))) return invalid(form.elements.source_url, 'Please add a link to the official announcement or order page, starting with https://');
+        if (values('signing_type').indexOf('public') >= 0 && !value('city')) return invalid(form.elements.city, 'Please enter the city for an in-person signing.');
+        if (values('signing_type').indexOf('public') >= 0 && !value('state')) return invalid(form.elements.state, 'Please choose the state for an in-person signing.');
+        if (!/^https?:\/\/\S+\.\S+/.test(value('source_url'))) return invalid(form.elements.source_url, 'Please add a link to the official announcement or order page, starting with https://, or upload a flyer.');
         if (!email.test(value('submitter_email'))) return invalid(form.elements.submitter_email, 'Please enter a valid email address so we can follow up.');
         if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
       } else if (kind === 'contact') {
@@ -163,6 +218,9 @@
         ['signing_type', 'sport', 'event_date', 'event_time_text', 'order_deadline', 'venue', 'city', 'state', 'source_url', 'price_text', 'notes', 'submitter_name', 'submitter_email']
           .forEach(function (k) { data[k] = value(k) || null; });
         data.captcha_token = captchaToken() || null;
+        data.signing_types = values('signing_type');
+        data.signing_type = data.signing_types[0] || null;
+        if (flyerData) data.flyer = flyerData;
         data.athlete_names = value('athlete_names').split(',').map(function (n) { return n.trim(); }).filter(Boolean);
       } else if (kind === 'contact') {
         ['name', 'email', 'topic', 'message'].forEach(function (k) { data[k] = value(k) || null; });
@@ -231,6 +289,7 @@
           }
           if (r && r.ok) {
             form.reset();
+            clearFlyer();
             favorites = [];
             renderFavorites();
             started = Date.now();
