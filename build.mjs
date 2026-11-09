@@ -861,7 +861,7 @@ function homePage(list) {
   <div class="section-head">
     <div>
       <h2>Coming up</h2>
-      <p class="muted" data-home-pane="all">${list.length} upcoming signing${list.length === 1 ? '' : 's'}, soonest first.</p>
+      <p class="muted" data-home-pane="all">${list.length} upcoming signing${list.length === 1 ? '' : 's'}${((r) => r ? `, including ${r} rumor${r === 1 ? '' : 's'}` : '')(list.filter((s) => s.rumor).length)}, soonest first.</p>
       <p class="muted" data-home-pane="mine" data-my-count hidden></p>
     </div>
     <div class="home-head-end">
