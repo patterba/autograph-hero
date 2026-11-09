@@ -620,3 +620,12 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .admin-edit-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px 16px; margin-top: 10px; align-items: end; }
 .admin-check { margin-right: 14px; white-space: nowrap; }
 .admin-rumor { display: block; margin: 6px 0 10px; font-weight: 600; }
+
+/* Thank-you screen after Submit a signing */
+.f-thanks { border: 2px solid var(--ink); border-radius: 14px; padding: 24px; background: var(--paper); }
+.f-thanks:focus { outline: none; }
+.f-thanks h2 { margin-top: 0; }
+.f-thanks-flyer { display: block; max-width: 260px; max-height: 340px; border-radius: 8px; border: 1px solid rgba(0,0,0,.15); margin: 6px 0 14px; background: #fff; }
+.f-thanks-list { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0 0 20px; }
+.f-thanks-list dt { font-weight: 700; }
+.f-thanks-list dd { margin: 0; overflow-wrap: anywhere; }

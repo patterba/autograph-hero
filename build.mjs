@@ -36,7 +36,7 @@ const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.C
 // Contact address shown on the Terms and Privacy pages (GitHub variable CONTACT_EMAIL).
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 // Date the Terms and Privacy pages were last changed. Update it when you edit them.
-const POLICY_DATE = '2026-11-05';
+const POLICY_DATE = '2026-11-08';
 // Our own cookie-free unique visitor count (supabase/functions/site-visit). VISIT_COUNT=off turns it off.
 const COUNT_VISITS = process.env.VISIT_COUNT !== 'off';
 // The beacon on every page: one empty POST when the page opens (a page view, which also starts or
@@ -1330,7 +1330,7 @@ function addPage() {
       <div class="f-flyer-preview" hidden><img alt="Your flyer" loading="lazy"><button class="btn btn-ghost btn-sm" type="button" data-flyer-clear>Remove</button></div>
       <div class="f-row">
         ${field('ff-name', 'Your name', '<input id="ff-name" name="submitter_name" type="text" maxlength="120" autocomplete="name">')}
-        ${field('ff-email', 'Your email <span class="req">Required</span>', '<input id="ff-email" name="submitter_email" type="email" required maxlength="254" autocomplete="email">', 'Only used if we have a question about this listing.')}
+        ${field('ff-email', 'Your email <span class="req">Required</span>', '<input id="ff-email" name="submitter_email" type="email" required maxlength="254" autocomplete="email">', 'We send one thank-you email with what you sent, and only write again if we have a question.')}
       </div>
     </fieldset>
     ${honeypot.replace(/f-website/g, 'ff-website')}
@@ -1379,7 +1379,7 @@ function addPage() {
       <legend><span class="f-n">04</span>About you</legend>
       <div class="f-row">
         ${field('f-name', 'Your name', '<input id="f-name" name="submitter_name" type="text" maxlength="120" autocomplete="name">')}
-        ${field('f-email', 'Your email <span class="req">Required</span>', '<input id="f-email" name="submitter_email" type="email" required maxlength="254" autocomplete="email" aria-describedby="f-email-hint">', 'Only used if we have a question about this listing.')}
+        ${field('f-email', 'Your email <span class="req">Required</span>', '<input id="f-email" name="submitter_email" type="email" required maxlength="254" autocomplete="email" aria-describedby="f-email-hint">', 'We send one thank-you email with what you sent, and only write again if we have a question.')}
       </div>
     </fieldset>
     ${honeypot}
@@ -1819,7 +1819,7 @@ function privacyPage() {
       <li><strong>When you log in:</strong> your login is remembered in your browser's storage on that device for up to 3 days, or until you log out, along with a copy of your favorites so the home page can show your signings. If you forget your password, we email you a link to set a new one.</li>
       <li><strong>Reminders:</strong> if you ask for a reminder on a signing page, we keep your email and which signing it's for, send one reminder email (plus a confirmation with a cancel link), and delete the record 30 days after it's sent. Deleting your account removes your reminders too.</li>
       <li><strong>The app and offline pages:</strong> your browser keeps copies of the pages you open so they work without a signal, and remembers if you closed the "Get the app" banner. These stay on your device and are never sent to us. Clearing the site's data in your browser removes them.</li>
-      <li><strong>When you submit a signing:</strong> the event details you enter, plus your name (optional) and email address so we can follow up. We check every submission before it goes on the calendar. Your name and email are never shown on the site.</li>
+      <li><strong>When you submit a signing:</strong> the event details you enter (or the flyer picture you upload, which an AI service, Anthropic's Claude, reads to fill in the details), plus your name (optional) and email address. We email you one thank-you note listing what you sent (several sent close together come in one email) and only write again if we have a question. We check every submission before it goes on the calendar. Your name and email are never shown on the site.</li>
       <li><strong>When you contact us:</strong> your name (optional), email address, topic and message. We email it to ourselves so we can reply, and keep a copy to keep track of conversations. We don't add you to any mailing list.</li>
       <li><strong>To stop spam:</strong> a scrambled, one-way code made from your internet (IP) address, used to limit how many forms one visitor can send in an hour. The Submit a Signing form also uses a Cloudflare Turnstile check to tell people from bots.</li>
       <li><strong>Weekly alerts:</strong> once a week, if new signings were added for your favorites, we email you a short list with photos and links. Weeks with nothing new, you get nothing.</li>
