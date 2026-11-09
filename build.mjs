@@ -2096,7 +2096,8 @@ function aboutPage() {
 }
 
 // "Signing Archives": signings that have happened, newest first, a section per month.
-function archivePage(archive) {
+function archivePage(archive, opts = {}) {
+  const { pathname = '/archive/', trail = [['Home', '/'], ['Signing Archives', '/archive/']], eyebrow = 'Past signings', h1 = 'Signing Archives', lede = null, title = 'Signing Archives: Past Autograph Signings', what = 'autograph signings and meet & greets', noindex = false } = opts;
   const months = new Map();
   for (const s of archive) {
     const key = s.sortDate.slice(0, 7);
@@ -2104,22 +2105,23 @@ function archivePage(archive) {
   }
   const monthName = (k) => fmt(`${k}-01`, { month: 'long', year: 'numeric' });
   const body = `
-${crumbsNav([['Home', '/'], ['Signing Archives', '/archive/']])}
+${crumbsNav(trail)}
 <section class="page-head">
-  <div class="eyebrow accent">Past signings</div>
-  <h1>Signing Archives</h1>
-  <p class="lede">Autograph signings and meet &amp; greets we've listed that have already happened, newest first. Don't miss the next one: <a href="${esc(link('/signup/'))}">sign up for alerts</a> or <a href="${esc(link('/events/'))}">see what's coming up</a>.</p>
+  <div class="eyebrow accent">${esc(eyebrow)}</div>
+  <h1>${esc(h1)}</h1>
+  <p class="lede">${lede || `Autograph signings and meet &amp; greets we've listed that have already happened, newest first. Don't miss the next one: <a href="${esc(link('/signup/'))}">sign up for alerts</a> or <a href="${esc(link('/events/'))}">see what's coming up</a>.`}</p>
 </section>
 ${archive.length ? [...months.entries()].map(([k, items]) => `<section class="band band-tight archive-month">
   <div class="section-head"><h2>${esc(monthName(k))}</h2><span class="muted">${items.length} signing${items.length === 1 ? '' : 's'}</span></div>
   <div class="grid">${items.map(card).join('\n')}</div>
 </section>`).join('\n') : `<section class="band band-tight"><p class="empty">No past signings yet. Signings move here after their date.</p></section>`}`;
   return page({
-    title: 'Signing Archives: Past Autograph Signings',
-    description: `${archive.length} past autograph signings and meet & greets, newest first${archive[0] ? `, including ${[...new Set(archive.flatMap((s) => s.names))].slice(0, 3).join(', ')}` : ''}.`,
-    pathname: '/archive/',
+    title,
+    description: `${archive.length} past ${what}, newest first${archive[0] ? `, including ${[...new Set(archive.flatMap((s) => s.names))].slice(0, 3).join(', ')}` : ''}.`,
+    pathname,
     body,
-    ld: [breadcrumbLd([['Home', '/'], ['Signing Archives', '/archive/']])],
+    noindex,
+    ld: [breadcrumbLd(trail)],
   });
 }
 
@@ -2131,6 +2133,7 @@ ${archive.length ? [...months.entries()].map(([k, items]) => `<section class="ba
 
 const signerPath = (slug) => `/autographs/${slug}/`;
 const teamPath = (slug) => `/teams/${slug}/`;
+const teamArchivePath = (slug) => `/teams/${slug}/archive/`;
 const sportPath = (sport) => `/sports/${slugify(sport)}/`;
 
 // ---------- categories: Sports, Entertainment, Musicians, Authors, Artists ----------
@@ -2344,7 +2347,7 @@ function crumbsNav(trail) {
     : `<span>${esc(name)}</span>`)).join('')}</nav>`;
 }
 
-function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', list, past = [], sections = [], title, description }) {
+function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
   const cards = list.length
     ? `<div class="grid">${list.map(card).join('\n')}</div>`
     : `<div class="empty"><p><strong>Nothing is listed right now.</strong> Signings are added every week. Sign up and we'll email you when one is announced.</p></div>`;
@@ -2365,8 +2368,8 @@ ${intro}
   ${cards}
 </section>
 ${past.length ? `<section class="band">
-  <div class="section-head"><h2>Past signings</h2><a class="more" href="${esc(link('/archive/'))}">Signing Archives ${ICON.arrow}</a></div>
-  <div class="grid">${past.slice(0, 8).map(card).join('\n')}</div>
+  <div class="section-head"><h2>${esc(pastTitle)}</h2><a class="more" href="${esc(link(pastMore?.path || '/archive/'))}">${esc(pastMore?.label || 'Signing Archives')} ${ICON.arrow}</a></div>
+  <div class="grid">${past.slice(0, pastLimit).map(card).join('\n')}</div>
 </section>` : ''}
 ${sections.filter((x) => x && x.items.length).map((x) => `<section class="band band-alt">
   <div class="section-head"><h2>${esc(x.title)}</h2></div>
@@ -2478,6 +2481,22 @@ function leaguePage(lg, hubs) {
   });
 }
 
+// /teams/<slug>/archive/: every past signing with the team's current and former players.
+function teamArchivePage(t) {
+  const lg = LEAGUES.find((x) => x.key === t.league);
+  const base = lg ? [['Home', '/'], ['Sports', categoryPath('Sports')], [lg.name, leaguePath(lg)]] : [['Home', '/'], ['Teams', '/teams/']];
+  return archivePage(t.past, {
+    pathname: teamArchivePath(t.slug),
+    trail: [...base, [t.name, teamPath(t.slug)], ['Past signings', teamArchivePath(t.slug)]],
+    eyebrow: `${t.name} · Signing archive`,
+    h1: `Past ${t.name} Autograph Signings`,
+    lede: `Every autograph signing with current and former ${esc(t.name)} players that we've listed, newest first. <a href="${esc(link(teamPath(t.slug)))}">See upcoming ${esc(t.name)} signings</a> or <a href="${esc(link(`/signup/?fav=${encodeURIComponent(t.name)}`))}">get ${esc(t.name)} signing alerts</a>.`,
+    title: `Past ${t.name} Autograph Signings`,
+    what: `${t.name} autograph signings`,
+    noindex: t.past.length ? false : 'follow',
+  });
+}
+
 function teamPage(t) {
   const n = t.list.length;
   const people = [...t.signers].sort(byName);
@@ -2496,6 +2515,9 @@ function teamPage(t) {
     alertText: `Get ${t.name} signing alerts`,
     list: t.list,
     past: t.past,
+    pastLimit: 5,
+    pastTitle: `Last ${Math.min(5, t.past.length)} ${t.name} signing${Math.min(5, t.past.length) === 1 ? '' : 's'}`,
+    pastMore: { path: teamArchivePath(t.slug), label: `All ${t.past.length} past ${t.name} signings` },
     sections: [{ title: `${t.name} signers`, items: people, path: (o) => signerPath(o.slug) }],
     title: `${t.name} Autograph Signings ${THIS_YEAR}${n ? ` (${n} upcoming)` : ''}`,
     description: n
@@ -2646,7 +2668,10 @@ async function main() {
   await put('photo-credits/index.html', creditsPage([...list, ...archive]));
   const hubs = buildHubs(list, athletes, archive);
   for (const h of hubs.signers.values()) await put(`autographs/${h.slug}/index.html`, signerPage(h));
-  for (const t of hubs.teams.values()) await put(`teams/${t.slug}/index.html`, teamPage(t));
+  for (const t of hubs.teams.values()) {
+    await put(`teams/${t.slug}/index.html`, teamPage(t));
+    if (t.past.length) await put(`teams/${t.slug}/archive/index.html`, teamArchivePage(t));
+  }
   for (const sp of hubs.sports.values()) await put(`sports/${sp.slug}/index.html`, sportPage(sp));
   for (const c of CATEGORIES) await put(`categories/${slugify(c)}/index.html`, categoryPage(c, list.filter((s) => s.category === c), hubs));
   for (const lg of LEAGUES) await put(`categories/sports/${slugify(lg.key)}/index.html`, leaguePage(lg, hubs));
@@ -2707,6 +2732,7 @@ async function main() {
     ...CATEGORIES.map((c) => list.filter((s) => s.category === c)).filter((l) => l.length).map((l) => [categoryPath(l[0].category), newest(l)]),
     ...live(hubs.signers).map((h) => [signerPath(h.slug), newest(h.list, h.past)]),
     ...live(hubs.teams).map((t) => [teamPath(t.slug), newest(t.list, t.past)]),
+    ...[...hubs.teams.values()].filter((t) => t.past.length).map((t) => [teamArchivePath(t.slug), newest(t.past)]),
     ...live(hubs.states).map((st) => [statePath(st.code), newest(st.list, st.past)]),
     ...list.map((s) => [`/signing/${s.slug}/`, s.updated]),
     ...archive.map((s) => [`/signing/${s.slug}/`, s.updated]),
