@@ -6,14 +6,13 @@ on:
   schedule:
     # Every hour at :17, so approved listings and crawl results show up within the hour.
     - cron: '17 * * * *'
+    # Every 10 minutes: publish only if a listing was approved since the last check, so approvals
+    # go live within minutes (the signer's team lookup runs at approval and is done by then).
+    - cron: '*/10 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
-
-concurrency:
-  group: publish
-  cancel-in-progress: false
 
 env:
   # Where the site lives on autographhero.com: "" = the domain root (live since Oct 25, 2026).
@@ -23,8 +22,33 @@ env:
   SITE_NOINDEX: '0'
 
 jobs:
-  publish:
+  gate:
     runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.check.outputs.go }}
+    steps:
+      - name: Anything newly approved?
+        id: check
+        env:
+          SUPABASE_READ_KEY: ${{ secrets.SUPABASE_READ_KEY }}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ] || [ "${{ github.event.schedule }}" = "17 * * * *" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          since=$(date -u -d '-15 minutes' +%Y-%m-%dT%H:%M:%SZ)
+          n=$(curl -sS --max-time 30 "https://ravavlocylqvkmthevtv.supabase.co/rest/v1/submissions?select=id&status=eq.approved&reviewed_at=gte.${since}" \
+                -H "apikey: $SUPABASE_READ_KEY" | grep -o '"id"' | wc -l)
+          echo "approved since $since: $n"
+          if [ "$n" -gt 0 ]; then echo "go=true" >> "$GITHUB_OUTPUT"; else echo "go=false" >> "$GITHUB_OUTPUT"; fi
+
+  publish:
+    needs: gate
+    if: needs.gate.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    # One publish at a time (on the job, so the 10-minute checks never bump a queued hourly build).
+    concurrency:
+      group: publish
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
