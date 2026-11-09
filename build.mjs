@@ -713,7 +713,7 @@ ${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
     <p>Autograph Hero is a passion project built by a lifelong autograph and sports card collector. I made it so fans can find every signing, meet &amp; greet and mail-in in one place, and never miss the chance to get something signed by the people they root for. <a href="${esc(link('/about/'))}">Read the story</a> · <a href="${esc(link('/contact/'))}">Contact us</a></p>
   </div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
-  <p class="small footer-links"><a href="${esc(link('/about/'))}">About</a><a href="${esc(link('/contact/'))}">Contact</a><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/states/'))}">Signings by State</a><a href="${esc(link('/account/'))}" data-login-link data-login-short><span data-login-label>Log In</span></a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
+  <p class="small footer-links"><a href="${esc(link('/about/'))}">About</a><a href="${esc(link('/contact/'))}">Contact</a><a href="${esc(link('/faq/'))}">FAQ</a><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/states/'))}">Signings by State</a><a href="${esc(link('/account/'))}" data-login-link data-login-short><span data-login-label>Log In</span></a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''}
@@ -1914,7 +1914,7 @@ function contactPage() {
       <div class="f-actions"><button class="btn btn-accent" type="submit">Send message</button></div>
       ${formStatus}
     </fieldset>
-    <p class="muted small">Know about a signing we don't have? The fastest way is <a href="${esc(link('/add/'))}">Submit A Signing</a>. You can also find us on <a href="${X_URL}" rel="noopener" target="_blank">X @autographheroX</a>.</p>
+    <p class="muted small">Quick question? The <a href="${esc(link('/faq/'))}">FAQ</a> may already have the answer. Know about a signing we don't have? The fastest way is <a href="${esc(link('/add/'))}">Submit A Signing</a>. You can also find us on <a href="${X_URL}" rel="noopener" target="_blank">X @autographheroX</a>.</p>
   </form>
 </section>`;
   return page({
@@ -1925,6 +1925,83 @@ function contactPage() {
     forms: true,
     captcha: Boolean(TURNSTILE_SITE_KEY),
     ld: [breadcrumbLd([['Home', '/'], ['Contact', '/contact/']]), { '@context': 'https://schema.org', '@type': 'ContactPage', name: 'Contact Autograph Hero', url: abs('/contact/') }],
+  });
+}
+
+// FAQ (/faq/): questions grouped by topic as <details> panels, plus FAQPage JSON-LD.
+// Answers are trusted HTML written here; internal links go through link().
+function faqGroups() {
+  const a = (p, text) => `<a href="${esc(link(p))}">${text}</a>`;
+  return [
+    ['Getting started', [
+      ['What is Autograph Hero?', `<p>Autograph Hero is one place to find upcoming autograph signings, meet &amp; greets and mail-in signings. We gather them from promoter and shop websites so you don't have to check dozens of pages. Athletes come first, but you'll also find actors, musicians, authors and artists. ${a('/events/', 'See every upcoming signing')}.</p>`],
+      ['Is it free?', `<p>Yes. Browsing signings, signing up for alerts and setting reminders are all free.</p>`],
+      ['Do I need an account?', `<p>No. You can browse every signing without one. ${a('/signup/', 'Sign up')} (free) to pick your favorite teams, players and people. You'll then get email alerts and a personal feed of their signings.</p>`],
+      ['Is there an app?', `<p>Yes, and it's free. It installs straight from your browser on iPhone, iPad or Android, no app store needed. ${a('/app/', 'Here\'s how to add it to your home screen')}.</p>`],
+    ]],
+    ['Finding signings', [
+      ['Where do your listings come from?', `<p>We check promoter, card shop, convention and bookstore websites every week, and fans ${a('/add/', 'send in the ones we miss')}. Every fan submission is checked before it goes live. The site refreshes every hour, and every listing links back to the promoter or shop running the signing.</p>`],
+      ['What\'s the difference between in-person, private and mail-in signings?', `<ul>
+        <li><strong>In person:</strong> you go to the event (a show, card shop or convention), meet the signer and get your item signed in front of you.</li>
+        <li><strong>Private signing:</strong> you send or drop off your item, or buy one from the promoter, before the order deadline. It's signed without you there and shipped back.</li>
+        <li><strong>Mail-in:</strong> you order from home and everything is handled by mail. These ship anywhere, so they don't depend on where you live.</li>
+      </ul><p>Some signings offer more than one of these.</p>`],
+      ['What kinds of signers do you list?', `<p>Browse by category: ${a('/categories/sports/', 'Sports')}, ${a('/categories/entertainment/', 'Entertainment')}, ${a('/categories/musicians/', 'Musicians')}, ${a('/categories/authors/', 'Authors')} and ${a('/categories/artists/', 'Artists')}. You can also look up a ${a('/autographs/', 'signer A–Z')} or a ${a('/teams/', 'team')}.</p>`],
+      ['How do I find signings near me?', `<p>Pick your state in the "Where" box on the home page, or open ${a('/states/', 'Signings by State')}. Choose "Mail-in · ships anywhere" to see signings you can order from wherever you are.</p>`],
+      ['A signing I know about isn\'t listed. Can I add it?', `<p>Please do. Use ${a('/add/', 'Submit A Signing')} and fill in what you know, or just upload a photo of the flyer and we'll read the details from it. We check every submission before it goes live.</p>`],
+      ['What does "Rumor" mean on a listing?', `<p>A rumor is a signing we've heard about but the promoter hasn't confirmed yet. Treat it as a heads-up, and wait for the official announcement before you make plans.</p>`],
+      ['What if a signing is canceled or changes?', `<p>We update listings when the promoter does, but plans can change quickly. Always check the details with the promoter before you order or travel. If you spot something wrong, ${a('/contact/?topic=a%20signing', 'let us know')}.</p>`],
+      ['Can I see signings that already happened?', `<p>Yes. The ${a('/archive/', 'Signing Archives')} list past signings by month, newest first.</p>`],
+    ]],
+    ['Alerts and reminders', [
+      ['How do alerts work?', `<p>${a('/signup/', 'Sign up')} and pick your favorite teams, players and people. Every Friday we email you any new signings for them, plus a few more coming up soon. If nothing new was added for your favorites that week, we don't email you.</p>`],
+      ['Can I get a reminder for one signing?', `<p>Yes. On any upcoming signing's page, tap "Email me a reminder." For in-person signings we email you about a day before. For private and mail-in signings we email you the day before the order deadline. You can also add a signing to your calendar from the same page.</p>`],
+      ['How do I change my favorites or stop alerts?', `<p>${a('/account/', 'Log in')} and open "Change Preferences" to add or remove favorites or pause alerts. Every alert email also has a link at the bottom to stop alerts.</p>`],
+    ]],
+    ['Buying and authenticity', [
+      ['Do you sell tickets or autographs?', `<p>No. Autograph Hero is a free listing site, not a store. Every listing links to the promoter or shop running the signing, and they handle tickets, orders and shipping.</p>`],
+      ['I have a problem with my order. Who do I contact?', `<p>The promoter or shop you ordered from. We don't take orders, so we can't change, track or refund them.</p>`],
+      ['Are the autographs authentic?', `<p>Authentication is up to each promoter. Many offer certificates or holograms from known authenticators such as JSA, PSA or Beckett, often as an add-on. If you're not sure how a signing is authenticated, ask the promoter before you order.</p>`],
+      ['What does the "From" price mean?', `<p>It's the lowest autograph price the promoter lists. Add-ons like authentication and inscriptions cost extra and aren't included. The signing page shows the full price list.</p>`],
+    ]],
+    ['For promoters and shops', [
+      ['How do I get my signings listed?', `<p>Listing is free. Use ${a('/add/', 'Submit A Signing')} for a single event. If you run signings regularly, ${a('/contact/?topic=promoter', 'send us a message')} with your website and we'll add it to the sites we check every week.</p>`],
+      ['Can I advertise on Autograph Hero?', `<p>Yes. ${a('/contact/?topic=advertise', 'Get in touch')} and tell us what you'd like to promote.</p>`],
+      ['One of our listings has a mistake. How do I fix it?', `<p>${a('/contact/?topic=a%20signing', 'Send us a message')} with the signing's link and what needs to change, and we'll correct it.</p>`],
+    ]],
+  ];
+}
+
+function faqPage() {
+  const groups = faqGroups();
+  const plain = (html) => html.replace(/<li>/g, '\n• ').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/[ \t]+/g, ' ').replace(/\n\s*/g, '\n').trim();
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">FAQ</div>
+  <h1>Frequently asked questions</h1>
+  <p class="lede">How Autograph Hero works, how to find signings and get alerts, and who to contact about an order.</p>
+  <nav class="faq-jump" aria-label="FAQ topics">${groups.map(([g]) => `<a href="#${slugify(g)}">${esc(g)}</a>`).join('')}</nav>
+</section>
+<section class="band band-tight">
+  <div class="faq">
+    ${groups.map(([g, qs]) => `<h2 id="${slugify(g)}">${esc(g)}</h2>
+    ${qs.map(([q, ans]) => `<details class="faq-item"><summary>${esc(q)}</summary><div class="faq-a">${ans}</div></details>`).join('\n    ')}`).join('\n    ')}
+    <p class="muted faq-more">Didn't find your answer? <a href="${esc(link('/contact/'))}">Send us a message</a> and we'll reply by email.</p>
+  </div>
+</section>`;
+  return page({
+    title: 'FAQ',
+    description: 'Answers about Autograph Hero: where listings come from, in-person vs. private vs. mail-in signings, email alerts and reminders, orders, authenticity and getting your signings listed.',
+    pathname: '/faq/',
+    body,
+    ld: [
+      breadcrumbLd([['Home', '/'], ['FAQ', '/faq/']]),
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: groups.flatMap(([, qs]) => qs.map(([q, ans]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: plain(ans) } }))),
+      },
+    ],
   });
 }
 
@@ -2471,6 +2548,7 @@ async function main() {
   await put('archive/index.html', archivePage(archive));
   await put('about/index.html', aboutPage());
   await put('contact/index.html', contactPage());
+  await put('faq/index.html', faqPage());
   // Google Search Console ownership file (HTML file method). Keep it: removing it can lose Search Console access.
   await put('google9017fd775e03a772.html', 'google-site-verification: google9017fd775e03a772.html');
   await put('photo-credits/index.html', creditsPage([...list, ...archive]));
@@ -2530,7 +2608,7 @@ async function main() {
   const pages = [
     ['/', newest(list)], ['/events/', newest(list)], ['/archive/', newest(archive)],
     ['/autographs/', newest(list)], ['/teams/', newest(list)], ['/states/', newest(list)],
-    ...['/about/', '/contact/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/'].map((p) => [p, null]),
+    ...['/about/', '/contact/', '/faq/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/'].map((p) => [p, null]),
     ...live(hubs.sports).map((sp) => [sportPath(sp.name), newest(sp.list)]),
     ...CATEGORIES.map((c) => list.filter((s) => s.category === c)).filter((l) => l.length).map((l) => [categoryPath(l[0].category), newest(l)]),
     ...live(hubs.signers).map((h) => [signerPath(h.slug), newest(h.list, h.past)]),
