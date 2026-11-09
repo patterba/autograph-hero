@@ -224,15 +224,51 @@ const THIS_YEAR = Number(TODAY.slice(0, 4));
 // but a page for them would be near-empty and drag down how search engines rate the site.
 const HUB_LEAGUES = new Set(['MLB', 'NFL', 'NBA', 'NHL', 'WNBA', 'MLS']);
 let MAJOR_TEAMS = new Set();
+// Every current team in the four big leagues, so the league pages (/categories/sports/<league>/)
+// list all of them, even before we know a signer from that team. Names match Wikipedia's.
+const LEAGUES = [
+  { key: 'NFL', name: 'NFL', long: 'football', teams: ['Arizona Cardinals', 'Atlanta Falcons', 'Baltimore Ravens', 'Buffalo Bills', 'Carolina Panthers', 'Chicago Bears', 'Cincinnati Bengals', 'Cleveland Browns', 'Dallas Cowboys', 'Denver Broncos', 'Detroit Lions', 'Green Bay Packers', 'Houston Texans', 'Indianapolis Colts', 'Jacksonville Jaguars', 'Kansas City Chiefs', 'Las Vegas Raiders', 'Los Angeles Chargers', 'Los Angeles Rams', 'Miami Dolphins', 'Minnesota Vikings', 'New England Patriots', 'New Orleans Saints', 'New York Giants', 'New York Jets', 'Philadelphia Eagles', 'Pittsburgh Steelers', 'San Francisco 49ers', 'Seattle Seahawks', 'Tampa Bay Buccaneers', 'Tennessee Titans', 'Washington Commanders'] },
+  { key: 'MLB', name: 'MLB', long: 'baseball', teams: ['Arizona Diamondbacks', 'Athletics', 'Atlanta Braves', 'Baltimore Orioles', 'Boston Red Sox', 'Chicago Cubs', 'Chicago White Sox', 'Cincinnati Reds', 'Cleveland Guardians', 'Colorado Rockies', 'Detroit Tigers', 'Houston Astros', 'Kansas City Royals', 'Los Angeles Angels', 'Los Angeles Dodgers', 'Miami Marlins', 'Milwaukee Brewers', 'Minnesota Twins', 'New York Mets', 'New York Yankees', 'Philadelphia Phillies', 'Pittsburgh Pirates', 'San Diego Padres', 'San Francisco Giants', 'Seattle Mariners', 'St. Louis Cardinals', 'Tampa Bay Rays', 'Texas Rangers', 'Toronto Blue Jays', 'Washington Nationals'] },
+  { key: 'NBA', name: 'NBA', long: 'basketball', teams: ['Atlanta Hawks', 'Boston Celtics', 'Brooklyn Nets', 'Charlotte Hornets', 'Chicago Bulls', 'Cleveland Cavaliers', 'Dallas Mavericks', 'Denver Nuggets', 'Detroit Pistons', 'Golden State Warriors', 'Houston Rockets', 'Indiana Pacers', 'Los Angeles Clippers', 'Los Angeles Lakers', 'Memphis Grizzlies', 'Miami Heat', 'Milwaukee Bucks', 'Minnesota Timberwolves', 'New Orleans Pelicans', 'New York Knicks', 'Oklahoma City Thunder', 'Orlando Magic', 'Philadelphia 76ers', 'Phoenix Suns', 'Portland Trail Blazers', 'Sacramento Kings', 'San Antonio Spurs', 'Toronto Raptors', 'Utah Jazz', 'Washington Wizards'] },
+  { key: 'NHL', name: 'NHL', long: 'hockey', teams: ['Anaheim Ducks', 'Boston Bruins', 'Buffalo Sabres', 'Calgary Flames', 'Carolina Hurricanes', 'Chicago Blackhawks', 'Colorado Avalanche', 'Columbus Blue Jackets', 'Dallas Stars', 'Detroit Red Wings', 'Edmonton Oilers', 'Florida Panthers', 'Los Angeles Kings', 'Minnesota Wild', 'Montreal Canadiens', 'Nashville Predators', 'New Jersey Devils', 'New York Islanders', 'New York Rangers', 'Ottawa Senators', 'Philadelphia Flyers', 'Pittsburgh Penguins', 'San Jose Sharks', 'Seattle Kraken', 'St. Louis Blues', 'Tampa Bay Lightning', 'Toronto Maple Leafs', 'Utah Mammoth', 'Vancouver Canucks', 'Vegas Golden Knights', 'Washington Capitals', 'Winnipeg Jets'] },
+];
+// Former names -> today's franchise, so an Oakland Raiders great also shows on the Las Vegas Raiders page.
+const FRANCHISE_OF = {
+  'Oakland Raiders': 'Las Vegas Raiders', 'Los Angeles Raiders': 'Las Vegas Raiders', 'San Diego Chargers': 'Los Angeles Chargers',
+  'St. Louis Rams': 'Los Angeles Rams', 'Houston Oilers': 'Tennessee Titans', 'Tennessee Oilers': 'Tennessee Titans',
+  'Washington Redskins': 'Washington Commanders', 'Washington Football Team': 'Washington Commanders', 'St. Louis Cardinals (NFL)': 'Arizona Cardinals',
+  'Phoenix Cardinals': 'Arizona Cardinals', 'Baltimore Colts': 'Indianapolis Colts', 'Boston Patriots': 'New England Patriots',
+  'Oakland Athletics': 'Athletics', 'Kansas City / Oakland Athletics': 'Athletics', 'Kansas City Athletics': 'Athletics', 'Philadelphia Athletics': 'Athletics',
+  'Cleveland Indians': 'Cleveland Guardians', 'Florida Marlins': 'Miami Marlins', 'Tampa Bay Devil Rays': 'Tampa Bay Rays', 'Montreal Expos': 'Washington Nationals',
+  'Anaheim Angels': 'Los Angeles Angels', 'California Angels': 'Los Angeles Angels', 'California / Anaheim Angels': 'Los Angeles Angels', 'Los Angeles Angels of Anaheim': 'Los Angeles Angels',
+  'Brooklyn Dodgers': 'Los Angeles Dodgers', 'New York Giants (baseball)': 'San Francisco Giants', 'Seattle Pilots': 'Milwaukee Brewers',
+  'New Jersey Nets': 'Brooklyn Nets', 'Seattle SuperSonics': 'Oklahoma City Thunder', 'Washington Bullets': 'Washington Wizards', 'Washington Bullets / Wizards': 'Washington Wizards',
+  'Vancouver Grizzlies': 'Memphis Grizzlies', 'Charlotte Bobcats': 'Charlotte Hornets', 'New Orleans Hornets': 'New Orleans Pelicans', 'Cincinnati Royals': 'Sacramento Kings',
+  'Kansas City Kings': 'Sacramento Kings', 'San Diego Clippers': 'Los Angeles Clippers', 'Buffalo Braves': 'Los Angeles Clippers', 'New Orleans Jazz': 'Utah Jazz',
+  'Mighty Ducks of Anaheim': 'Anaheim Ducks', 'Hartford Whalers': 'Carolina Hurricanes', 'Quebec Nordiques': 'Colorado Avalanche', 'Minnesota North Stars': 'Dallas Stars',
+  'Atlanta Thrashers': 'Winnipeg Jets', 'Atlanta Flames': 'Calgary Flames', 'Kansas City Scouts': 'New Jersey Devils', 'Colorado Rockies (NHL)': 'New Jersey Devils',
+  'Phoenix Coyotes': 'Utah Mammoth', 'Arizona Coyotes': 'Utah Mammoth',
+};
+const leaguePath = (lg) => `/categories/sports/${slugify(lg.key)}/`;
+// Team name -> league key, from the lists above and from signers' Wikipedia teams (old names like
+// Oakland Raiders). A name used in two leagues (St. Louis Cardinals) keeps its list league.
+let TEAM_LEAGUE = new Map();
 function majorTeams(athletes) {
   const out = new Set();
+  const league = new Map();
+  for (const lg of LEAGUES) for (const t of lg.teams) { out.add(t); league.set(t, lg.key); }
   for (const rows of athletes.values()) {
     for (const a of rows) {
       for (const t of a.teams || []) {
-        if (t && typeof t.team === 'string' && t.team.trim() && HUB_LEAGUES.has(t.league)) out.add(t.team.trim());
+        if (t && typeof t.team === 'string' && t.team.trim() && HUB_LEAGUES.has(t.league)) {
+          const name = t.team.trim();
+          out.add(name);
+          if (!league.has(name)) league.set(name, t.league);
+        }
       }
     }
   }
+  TEAM_LEAGUE = league;
   return out;
 }
 const hasTeamPage = (name) => MAJOR_TEAMS.has(String(name).trim());
@@ -2185,6 +2221,7 @@ function categoryPage(c, list, hubs) {
     eyebrow: 'Browse by category',
     h1: copy.h1,
     lede: n ? `${esc(plural(n, 'signing'))} with ${esc(copy.who)} (${esc(typeMix(list))}), soonest first.${esc(nextLine(list))}` : `No signings with ${esc(copy.who)} are listed right now.`,
+    intro: c === 'Sports' ? leagueButtons(hubs) : '',
     list,
     sections: [
       ...(sports.length ? [{ title: 'By sport', items: sports, path: (sp) => sportPath(sp.name) }] : []),
@@ -2215,6 +2252,9 @@ function stateCode(v) {
 }
 const statePath = (code) => `/states/${slugify(STATE_NAMES[code])}/`;
 
+// A signing's teams plus the current franchise of any former name (each once).
+const franchises = (names) => [...new Set(names.flatMap((n) => [n, FRANCHISE_OF[String(n).trim()]].filter(Boolean)))];
+
 function buildHubs(list, athletes, archive = []) {
   const signers = new Map();
   const teams = new Map();
@@ -2237,7 +2277,7 @@ function buildHubs(list, athletes, archive = []) {
   const team = (name) => {
     const slug = slugify(name);
     if (!slug || !hasTeamPage(name)) return null;
-    if (!teams.has(slug)) teams.set(slug, { slug, name: name.trim(), sports: new Map(), list: [], past: [], signers: new Set() });
+    if (!teams.has(slug)) teams.set(slug, { slug, name: name.trim(), league: TEAM_LEAGUE.get(name.trim()) || null, sports: new Map(), list: [], past: [], signers: new Set() });
     return teams.get(slug);
   };
   const sport = (name) => {
@@ -2248,15 +2288,16 @@ function buildHubs(list, athletes, archive = []) {
   };
 
   for (const rows of athletes.values()) for (const a of rows) if (typeof a.name === 'string') signer(a.name, a.sport);
+  for (const lg of LEAGUES) for (const t of lg.teams) team(t);
   for (const s of list) {
     for (const n of new Set(s.names)) signer(n, s.sport)?.list.push(s);
-    for (const t of new Set(s.teams)) team(t)?.list.push(s);
+    for (const t of franchises(s.teams)) team(t)?.list.push(s);
     if (s.sport) sport(s.sport)?.list.push(s);
     if (!s.mailOnly) state(s.state)?.list.push(s);
   }
   for (const s of archive) {
     for (const n of new Set(s.names)) signer(n, s.sport)?.past.push(s);
-    for (const t of new Set(s.teams)) team(t)?.past.push(s);
+    for (const t of franchises(s.teams)) team(t)?.past.push(s);
     if (!s.mailOnly) state(s.state)?.past.push(s);
   }
   for (const h of signers.values()) {
@@ -2264,7 +2305,7 @@ function buildHubs(list, athletes, archive = []) {
     h.allTeams = ts;
     h.teams = ts.map((t) => team(t)).filter(Boolean);
     h.primary = (primary && team(primary)) || h.teams[0] || null;
-    for (const t of h.teams) {
+    for (const t of franchises(h.teams.map((x) => x.name)).map(team).filter(Boolean)) {
       t.signers.add(h);
       if (h.sport) t.sports.set(h.sport, (t.sports.get(h.sport) || 0) + 1);
     }
@@ -2272,7 +2313,7 @@ function buildHubs(list, athletes, archive = []) {
     if (h.sport) sport(h.sport)?.signers.add(h);
   }
   for (const t of teams.values()) {
-    t.sport = [...t.sports.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+    t.sport = [...t.sports.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || LEAGUES.find((lg) => lg.key === t.league)?.long.replace(/^./, (c) => c.toUpperCase()) || null;
     if (t.sport) sport(t.sport)?.teams.add(t);
   }
   for (const st of states.values()) {
@@ -2303,7 +2344,7 @@ function crumbsNav(trail) {
     : `<span>${esc(name)}</span>`)).join('')}</nav>`;
 }
 
-function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, list, past = [], sections = [], title, description }) {
+function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', list, past = [], sections = [], title, description }) {
   const cards = list.length
     ? `<div class="grid">${list.map(card).join('\n')}</div>`
     : `<div class="empty"><p><strong>Nothing is listed right now.</strong> Signings are added every week. Sign up and we'll email you when one is announced.</p></div>`;
@@ -2318,6 +2359,7 @@ ${crumbsNav(trail)}
   </div>
   ${pic ? `<figure class="hub-photo"><img src="${esc(pic.url)}" alt="${esc(pic.of || h1)}" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"><figcaption class="credit">Photo: ${pic.page ? `<a href="${esc(pic.page)}" rel="noopener">${esc(pic.credit)}</a>` : esc(pic.credit)}${pic.license ? `, ${esc(pic.license)}` : ''}, via Wikimedia Commons</figcaption></figure>` : ''}
 </section>
+${intro}
 <section class="band band-tight hub-list">
   <div class="section-head"><h2>Upcoming signings</h2></div>
   ${cards}
@@ -2390,14 +2432,63 @@ function signerPage(h) {
   });
 }
 
+// Upcoming signings with anyone who played for a team in the league (a signing counts once).
+function leagueList(lg, hubs) {
+  const seen = new Set();
+  const list = [];
+  for (const t of hubs.teams.values()) {
+    if (t.league !== lg.key) continue;
+    for (const s of t.list) if (!seen.has(s)) { seen.add(s); list.push(s); }
+  }
+  return list.sort((a, b) => a.sortDate.localeCompare(b.sortDate) || a.id - b.id);
+}
+
+// NFL / MLB / NBA / NHL buttons on the Sports category page; each opens its league page.
+function leagueButtons(hubs) {
+  return `<section class="band band-tight league-pick">
+  <div class="section-head"><h2>Browse by league</h2></div>
+  <ul class="league-btns">${LEAGUES.map((lg) => {
+    const n = leagueList(lg, hubs).length;
+    return `<li><a class="league-btn" href="${esc(link(leaguePath(lg)))}"><span class="league-name">${esc(lg.name)}</span><span class="league-sub">${esc(`${lg.teams.length} teams`)}${n ? ` · ${n} upcoming` : ''}</span></a></li>`;
+  }).join('')}</ul>
+</section>`;
+}
+
+// /categories/sports/<league>/: every current team in the league, plus former team names we know.
+function leaguePage(lg, hubs) {
+  const list = leagueList(lg, hubs);
+  const n = list.length;
+  const current = lg.teams.map((name) => hubs.teams.get(slugify(name))).filter(Boolean);
+  const former = [...hubs.teams.values()].filter((t) => t.league === lg.key && !lg.teams.includes(t.name) && (t.list.length || t.past.length || t.signers.size)).sort(byName);
+  const others = LEAGUES.filter((x) => x !== lg);
+  return hubPage({
+    pathname: leaguePath(lg),
+    trail: [['Home', '/'], ['Sports', categoryPath('Sports')], [lg.name, leaguePath(lg)]],
+    eyebrow: `${lg.name} · Team signings`,
+    h1: `${lg.name} Autograph Signings by Team`,
+    lede: `Pick a team to see autograph signings with its current and former players.${n ? ` ${esc(plural(n, 'signing'))} with ${esc(lg.name)} players right now.${esc(nextLine(list))}` : ''} <a href="${esc(link(categoryPath('Sports')))}">All sports</a> · ${others.map((x) => `<a href="${esc(link(leaguePath(x)))}">${esc(x.name)}</a>`).join(' · ')}`,
+    intro: `<section class="band band-tight">
+  <div class="section-head"><h2>${esc(lg.name)} teams</h2></div>
+  <ul class="team-grid">${current.map((t) => `<li><a href="${esc(link(teamPath(t.slug)))}"><span>${esc(t.name)}</span>${t.list.length ? `<span class="chip-n">${t.list.length}</span>` : ''}</a></li>`).join('')}</ul>
+</section>`,
+    list,
+    sections: [{ title: 'Former team names', items: former, path: (t) => teamPath(t.slug) }],
+    title: `${lg.name} Autograph Signings by Team ${THIS_YEAR}`,
+    description: `${lg.name} autograph signings for all ${lg.teams.length} teams${n ? `: ${n} upcoming` : ''}. Pick your team to see signings with current and former players, with dates, prices and order deadlines.`,
+  });
+}
+
 function teamPage(t) {
   const n = t.list.length;
   const people = [...t.signers].sort(byName);
+  const lg = LEAGUES.find((x) => x.key === t.league);
   return hubPage({
     pathname: teamPath(t.slug),
-    trail: [['Home', '/'], ['Teams', '/teams/'], [t.name, teamPath(t.slug)]],
-    eyebrow: [t.sport, 'Team signings'].filter(Boolean).join(' · '),
-    h1: `${t.name} autograph signings`,
+    trail: lg
+      ? [['Home', '/'], ['Sports', categoryPath('Sports')], [lg.name, leaguePath(lg)], [t.name, teamPath(t.slug)]]
+      : [['Home', '/'], ['Teams', '/teams/'], [t.name, teamPath(t.slug)]],
+    eyebrow: [lg?.name || t.sport, 'Team signings'].filter(Boolean).join(' · '),
+    h1: `${t.name} Autograph Signings`,
     lede: n
       ? `${esc(plural(n, 'signing'))} with current and former ${esc(t.name)} players (${esc(typeMix(t.list))}).${esc(nextLine(t.list))}`
       : `No signings with ${esc(t.name)} players are listed right now.`,
@@ -2558,6 +2649,7 @@ async function main() {
   for (const t of hubs.teams.values()) await put(`teams/${t.slug}/index.html`, teamPage(t));
   for (const sp of hubs.sports.values()) await put(`sports/${sp.slug}/index.html`, sportPage(sp));
   for (const c of CATEGORIES) await put(`categories/${slugify(c)}/index.html`, categoryPage(c, list.filter((s) => s.category === c), hubs));
+  for (const lg of LEAGUES) await put(`categories/sports/${slugify(lg.key)}/index.html`, leaguePage(lg, hubs));
   const mailIn = list.filter((s) => s.mailIn).length;
   for (const st of hubs.states.values()) await put(`states/${st.slug}/index.html`, statePage(st, hubs.states, mailIn));
   await put('states/index.html', statesIndexPage(hubs.states));
@@ -2611,6 +2703,7 @@ async function main() {
     ['/autographs/', newest(list)], ['/teams/', newest(list)], ['/states/', newest(list)],
     ...['/about/', '/contact/', '/faq/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/'].map((p) => [p, null]),
     ...live(hubs.sports).map((sp) => [sportPath(sp.name), newest(sp.list)]),
+    ...LEAGUES.map((lg) => [leaguePath(lg), newest(leagueList(lg, hubs))]),
     ...CATEGORIES.map((c) => list.filter((s) => s.category === c)).filter((l) => l.length).map((l) => [categoryPath(l[0].category), newest(l)]),
     ...live(hubs.signers).map((h) => [signerPath(h.slug), newest(h.list, h.past)]),
     ...live(hubs.teams).map((t) => [teamPath(t.slug), newest(t.list, t.past)]),

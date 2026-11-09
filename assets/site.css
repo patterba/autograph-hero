@@ -442,6 +442,16 @@ h1, h2, h3, p { margin: 0; }
 .chips a { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); font-weight: 600; font-size: 15px; text-decoration: none; }
 .chips a:hover { border-color: var(--accent); }
 .chip-n { background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 1px 8px; font-family: var(--mono); font-size: 12px; }
+/* League buttons (Sports category) and team grid (league pages) */
+.league-btns { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.league-btn { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; border: 1.5px solid var(--ink); border-radius: 16px; background: var(--card); text-decoration: none; color: var(--ink); transition: border-color .15s, transform .15s; }
+.league-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+.league-name { font-family: var(--display); font-size: clamp(34px, 3.4vw, 48px); line-height: 1; text-transform: uppercase; }
+.league-sub { font-family: var(--mono); font-size: 12px; color: var(--muted, inherit); }
+.team-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.team-grid a { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px; border: 1.5px solid var(--ink); border-radius: 12px; background: var(--card); font-weight: 600; text-decoration: none; color: var(--ink); }
+.team-grid a:hover { border-color: var(--accent); }
+@media (max-width: 720px) { .league-btns { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .dir-h { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 2.6vw, 34px); text-transform: uppercase; line-height: 1; }
 .ticket dd a { text-underline-offset: 3px; }
 @media (max-width: 640px) {
