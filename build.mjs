@@ -1322,19 +1322,31 @@ function addPage() {
   <p class="lede">Know about an autograph signing, meet &amp; greet or mail-in we don't have yet? Send it in. We check every listing against its source before it goes live.</p>
 </section>
 <section class="band band-tight">
-  <form class="f-form" data-form="listing" data-endpoint="${esc(FORMS_URL)}" novalidate>
-    <fieldset class="f-flyer">
-      <legend><span class="f-n">00</span>Have a flyer? Upload it</legend>
-      <p class="f-hint">The fastest way: upload a screenshot or photo of the flyer or post. We'll read the details from it, so you can skip the rest and just add your email at the bottom.</p>
-      ${field('f-flyer', 'Flyer or screenshot', '<input id="f-flyer" name="flyer" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*">', 'JPG, PNG or WebP image.')}
+  <form class="f-form f-flyer" data-form="listing" data-endpoint="${esc(FORMS_URL)}" novalidate>
+    <fieldset>
+      <legend><span class="f-n">A</span>Have a flyer? Upload it</legend>
+      <p class="f-hint">The fastest way: upload a screenshot or photo of the flyer or post. We'll read the details from it.</p>
+      ${field('f-flyer', 'Flyer or screenshot <span class="req">Required</span>', '<input id="f-flyer" name="flyer" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*">', 'JPG, PNG or WebP image.')}
       <div class="f-flyer-preview" hidden><img alt="Your flyer" loading="lazy"><button class="btn btn-ghost btn-sm" type="button" data-flyer-clear>Remove</button></div>
+      <div class="f-row">
+        ${field('ff-name', 'Your name', '<input id="ff-name" name="submitter_name" type="text" maxlength="120" autocomplete="name">')}
+        ${field('ff-email', 'Your email <span class="req">Required</span>', '<input id="ff-email" name="submitter_email" type="email" required maxlength="254" autocomplete="email">', 'Only used if we have a question about this listing.')}
+      </div>
     </fieldset>
+    ${honeypot.replace(/f-website/g, 'ff-website')}
+    ${captchaBox().replace(/captcha-label/g, 'ff-captcha-label')}
+    <div class="f-actions"><button class="btn btn-accent" type="submit">Send flyer for review</button></div>
+    ${formStatus}
+  </form>
+  <div class="f-or" role="separator" aria-label="or"><span>OR</span></div>
+  <h2 class="f-or-title">Fill in the details</h2>
+  <form class="f-form" data-form="listing" data-endpoint="${esc(FORMS_URL)}" novalidate>
     <fieldset>
       <legend><span class="f-n">01</span>The signing</legend>
-      ${field('f-names', 'Who is signing? <span class="req">Required without a flyer</span>', '<input id="f-names" name="athlete_names" type="text" maxlength="300" autocomplete="off" aria-describedby="f-names-hint">', 'For a group signing, separate names with commas.')}
+      ${field('f-names', 'Who is signing? <span class="req">Required</span>', '<input id="f-names" name="athlete_names" type="text" maxlength="300" autocomplete="off" aria-describedby="f-names-hint">', 'For a group signing, separate names with commas.')}
       <div class="f-row">
         ${field('f-sport', 'Sport', `<select id="f-sport" name="sport"><option value="">Choose one</option>${SPORT_CHOICES.map((x) => `<option>${x}</option>`).join('')}</select>`)}
-        <div class="f-field"><span class="f-label" id="f-type-label">How does it work? <span class="req">Required without a flyer</span></span>
+        <div class="f-field"><span class="f-label" id="f-type-label">How does it work? <span class="req">Required</span></span>
           <div class="f-choices" role="group" aria-labelledby="f-type-label" aria-describedby="f-type-hint">
             <label><input type="checkbox" name="signing_type" value="public"> In person</label>
             <label><input type="checkbox" name="signing_type" value="private"> Private signing</label>
@@ -1359,7 +1371,7 @@ function addPage() {
     </fieldset>
     <fieldset>
       <legend><span class="f-n">03</span>Details</legend>
-      ${field('f-url', 'Link to the official announcement or order page <span class="req">Required without a flyer</span>', '<input id="f-url" name="source_url" type="url" maxlength="1000" placeholder="https://" aria-describedby="f-url-hint">', 'A post or page from the promoter, venue, team or the person signing. This is how we confirm it.')}
+      ${field('f-url', 'Link to the official announcement or order page <span class="req">Required</span>', '<input id="f-url" name="source_url" type="url" maxlength="1000" placeholder="https://" aria-describedby="f-url-hint">', 'A post or page from the promoter, venue, team or the person signing. This is how we confirm it.')}
       ${field('f-prices', 'Prices', '<textarea id="f-prices" name="price_text" rows="3" maxlength="1000" placeholder="Autograph $40, photo op $50…"></textarea>')}
       ${field('f-notes', 'Anything else we should know?', '<textarea id="f-notes" name="notes" rows="3" maxlength="2000"></textarea>')}
     </fieldset>

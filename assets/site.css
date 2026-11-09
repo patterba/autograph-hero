@@ -606,6 +606,10 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 
 /* Flyer upload on /add/ */
 .f-flyer { border: 2px dashed var(--accent); border-radius: 12px; padding: 18px 20px; }
+.f-or { display: flex; align-items: center; gap: 18px; margin: 36px 0 20px; }
+.f-or::before, .f-or::after { content: ""; flex: 1; border-top: 2px solid var(--ink); }
+.f-or span { font-size: 40px; font-weight: 900; letter-spacing: .06em; line-height: 1; color: var(--accent); }
+.f-or-title { margin: 0 0 14px; }
 .f-flyer-preview { display: flex; gap: 14px; align-items: flex-start; margin-top: 10px; }
 .f-flyer-preview img { max-width: 220px; max-height: 280px; border-radius: 8px; border: 1px solid rgba(0,0,0,.12); object-fit: contain; background: #fff; }
 

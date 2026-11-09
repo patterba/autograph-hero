@@ -168,18 +168,19 @@
     function validate() {
       Array.prototype.forEach.call(form.querySelectorAll('[aria-invalid]'), function (el) { el.removeAttribute('aria-invalid'); });
       var email = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-      if (kind === 'listing' && flyerData) {
-        // With a flyer we read the details from the picture; only the email is needed.
+      if (kind === 'listing' && flyerInput) {
+        // The flyer form: we read the details from the picture; only the flyer and email are needed.
+        if (!flyerData) return invalid(flyerInput, 'Please choose a picture of the flyer.');
         if (!email.test(value('submitter_email'))) return invalid(form.elements.submitter_email, 'Please enter a valid email address so we can follow up.');
         if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
       } else if (kind === 'listing') {
         if (!value('athlete_names')) return invalid(form.elements.athlete_names, 'Please enter who is signing.');
-        if (!values('signing_type').length) return invalid(form.querySelector('input[name="signing_type"]'), 'Please tick how the signing works (In person, Private signing and/or Mail-in), or upload a flyer.');
+        if (!values('signing_type').length) return invalid(form.querySelector('input[name="signing_type"]'), 'Please tick how the signing works (In person, Private signing and/or Mail-in).');
         if (!value('event_date') && !value('order_deadline')) return invalid(form.elements.event_date, 'Please enter the signing date or the order deadline.');
         // In-person signings need a place so they show up under their state.
         if (values('signing_type').indexOf('public') >= 0 && !value('city')) return invalid(form.elements.city, 'Please enter the city for an in-person signing.');
         if (values('signing_type').indexOf('public') >= 0 && !value('state')) return invalid(form.elements.state, 'Please choose the state for an in-person signing.');
-        if (!/^https?:\/\/\S+\.\S+/.test(value('source_url'))) return invalid(form.elements.source_url, 'Please add a link to the official announcement or order page, starting with https://, or upload a flyer.');
+        if (!/^https?:\/\/\S+\.\S+/.test(value('source_url'))) return invalid(form.elements.source_url, 'Please add a link to the official announcement or order page, starting with https://');
         if (!email.test(value('submitter_email'))) return invalid(form.elements.submitter_email, 'Please enter a valid email address so we can follow up.');
         if (captcha && !captchaToken()) return invalid(null, 'Please complete the quick check above the button.');
       } else if (kind === 'contact') {
