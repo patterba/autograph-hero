@@ -288,7 +288,8 @@ function shape(row, athletes) {
   const listed = [...new Set((Array.isArray(row.signing_types) ? row.signing_types : []).filter((t) => typeof t === 'string' && TYPE_LABEL[t]))];
   const type = TYPE_LABEL[row.signing_type] && row.signing_type !== 'unknown' ? row.signing_type : (listed[0] || 'unknown');
   const types = listed.length ? listed : [type];
-  const listingUrl = safeUrl(row.listing_url);
+  // Fan submissions without a link get a placeholder address (/add/#submission-N): no button for it.
+  const listingUrl = /autographhero\.com\/add\/#submission-/i.test(String(row.listing_url || '')) ? null : safeUrl(row.listing_url);
   const host = listingUrl ? new URL(listingUrl).hostname.replace(/^www\./, '') : null;
   const source = row.image_source === 'promoter' && row.image_credit ? row.image_credit : host;
   const place = [row.city, row.state].filter(Boolean).join(', ');
