@@ -141,6 +141,7 @@
     Object.keys(panes).forEach(function (k) { panes[k].hidden = k !== name; });
     if (name === 'analytics' && !analyticsLoaded) loadAnalytics();
     if (name === 'captcha') loadCaptcha();
+    if (name === 'flyers') loadFlyerKey();
   }
 
   // ---- data
@@ -167,6 +168,71 @@
     dl.appendChild(dd);
   }
 
+  function typeText(s) {
+    var t = (s.signing_types && s.signing_types.length) ? s.signing_types : [s.signing_type];
+    return t.map(function (x) { return TYPE[x] || x || ''; }).filter(Boolean).join(' · ');
+  }
+
+  // A one-hour link to a flyer in the private "flyers" bucket (admins only).
+  function flyerUrl(path) {
+    return token().then(function (t) {
+      return fetch(API + '/storage/v1/object/sign/flyers/' + path, {
+        method: 'POST',
+        headers: { apikey: KEY, Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expiresIn: 3600 }),
+      });
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { var u = j && (j.signedURL || j.signedUrl); return u ? API + '/storage/v1' + u : null; })
+      .catch(function () { return null; });
+  }
+
+  // "Edit details": fix a pending submission (names, types, dates, place…) before approving.
+  var EDIT_FIELDS = [
+    ['athlete_names', 'Who is signing (commas between names)', 'text'],
+    ['sport', 'Sport', 'text'], ['event_date', 'Signing date', 'date'], ['event_time_text', 'Time', 'text'],
+    ['order_deadline', 'Order deadline', 'date'], ['venue', 'Venue', 'text'], ['city', 'City', 'text'],
+    ['state', 'State', 'text'], ['price_text', 'Prices', 'text'], ['source_url', 'Source link', 'url'],
+  ];
+  function editor(s) {
+    var wrapBox = el('div', 'admin-edit');
+    var toggle = el('button', 'btn btn-ghost btn-sm', 'Edit details');
+    toggle.type = 'button';
+    var form = el('div', 'admin-edit-form'); form.hidden = true;
+    var inputs = {};
+    EDIT_FIELDS.forEach(function (f) {
+      var id = 'ed-' + s.id + '-' + f[0];
+      var box = el('div', 'f-field');
+      var lab = el('label', 'f-label', f[1]); lab.htmlFor = id;
+      var inp = el('input'); inp.id = id; inp.type = f[2];
+      var v = s[f[0]];
+      inp.value = Array.isArray(v) ? v.join(', ') : (v || '');
+      inputs[f[0]] = inp;
+      box.appendChild(lab); box.appendChild(inp); form.appendChild(box);
+    });
+    var typesBox = el('div', 'f-field');
+    typesBox.appendChild(el('span', 'f-label', 'How it works'));
+    var have = (s.signing_types && s.signing_types.length) ? s.signing_types : [s.signing_type];
+    var checks = ['public', 'private', 'mail-in'].map(function (t) {
+      var l = el('label', 'admin-check'); var c = el('input'); c.type = 'checkbox'; c.value = t; c.checked = have.indexOf(t) >= 0;
+      l.appendChild(c); l.appendChild(document.createTextNode(' ' + TYPE[t] + ' ')); typesBox.appendChild(l); return c;
+    });
+    form.appendChild(typesBox);
+    var save = el('button', 'btn btn-accent btn-sm', 'Save details'); save.type = 'button';
+    form.appendChild(save);
+    toggle.addEventListener('click', function () { form.hidden = !form.hidden; });
+    save.addEventListener('click', function () {
+      var p = {};
+      Object.keys(inputs).forEach(function (k) { p[k] = inputs[k].value.trim(); });
+      p.athlete_names = p.athlete_names.split(',').map(function (n) { return n.trim(); }).filter(Boolean);
+      p.signing_types = checks.filter(function (c) { return c.checked; }).map(function (c) { return c.value; });
+      save.disabled = true;
+      rpc('admin_update_submission', { p_id: s.id, p: p }).then(function () { refresh('Details saved.'); })
+        .catch(function (e) { if (e.expired) loggedOut(e.message); else { status(panelStatus, e.message, 'is-error'); save.disabled = false; } });
+    });
+    wrapBox.appendChild(toggle); wrapBox.appendChild(form);
+    return wrapBox;
+  }
+
   function renderPending(list) {
     var pane = panes.pending;
     pane.textContent = '';
@@ -176,8 +242,23 @@
       var card = el('article', 'admin-card');
       var head = el('div', 'admin-card-head');
       head.appendChild(el('h2', null, names(s.athlete_names) || 'Unnamed signing'));
-      head.appendChild(el('span', 'badge badge-outline', TYPE[s.signing_type] || s.signing_type || ''));
+      head.appendChild(el('span', 'badge badge-outline', typeText(s)));
+      if (s.from_flyer) head.appendChild(el('span', 'badge badge-rumor', 'Flyer'));
       card.appendChild(head);
+      if (s.from_flyer) {
+        var read = { ok: 'Claude read the flyer and filled in the blanks below. Check them against the picture, and fix anything with "Edit details".',
+          failed: "Claude couldn't read this flyer. Type the details in with \"Edit details\".",
+          off: 'Flyer reading is off (no Anthropic key on the Flyer reading tab). Type the details in with "Edit details".' }[s.flyer_read]
+          || 'Claude is still reading this flyer. Refresh in a minute.';
+        card.appendChild(el('p', 'notice', read));
+        if (s.flyer_path) {
+          var fig = el('a', 'admin-flyer');
+          fig.target = '_blank'; fig.rel = 'noopener noreferrer';
+          var im = el('img'); im.alt = 'Uploaded flyer'; fig.appendChild(im);
+          card.appendChild(fig);
+          flyerUrl(s.flyer_path).then(function (u) { if (u) { im.src = u; fig.href = u; } else fig.textContent = "The flyer picture couldn't be loaded."; });
+        }
+      }
       if (s.possible_duplicate) card.appendChild(el('p', 'notice', 'Possible duplicate: a signing with the same name and date is already listed.'));
       var dl = el('dl', 'admin-dl');
       row(dl, 'Sport', s.sport);
@@ -196,6 +277,7 @@
       row(dl, 'Sent by', [s.submitter_name, s.submitter_email].filter(Boolean).join(' · '));
       row(dl, 'Sent', day(s.created_at));
       card.appendChild(dl);
+      card.appendChild(editor(s));
 
       var noteId = 'note-' + s.id;
       var lab = el('label', 'f-label', 'Note (optional, only you see it)');
@@ -204,6 +286,12 @@
       note.id = noteId; note.rows = 2; note.maxLength = 1000;
       var nf = el('div', 'f-field'); nf.appendChild(lab); nf.appendChild(note);
       card.appendChild(nf);
+
+      var rumorBox = el('label', 'admin-rumor');
+      var rumor = el('input'); rumor.type = 'checkbox';
+      rumorBox.appendChild(rumor);
+      rumorBox.appendChild(document.createTextNode(' Post it as a Rumor (shows a "Rumor" badge and "not yet confirmed" note on the site)'));
+      card.appendChild(rumorBox);
 
       var actions = el('div', 'f-actions');
       var approve = el('button', 'btn btn-accent', 'Approve');
@@ -217,7 +305,7 @@
         choice = isApprove;
         approve.hidden = reject.hidden = true;
         yes.hidden = cancel.hidden = false;
-        yes.textContent = isApprove ? 'Yes, put it on the calendar' : 'Yes, reject it';
+        yes.textContent = isApprove ? (rumor.checked ? 'Yes, post it as a Rumor' : 'Yes, put it on the calendar') : 'Yes, reject it';
         yes.focus();
       }
       approve.addEventListener('click', function () { ask(true); });
@@ -228,8 +316,8 @@
       });
       yes.addEventListener('click', function () {
         yes.disabled = cancel.disabled = true;
-        rpc('admin_decide', { p_id: s.id, p_approve: choice, p_note: note.value.trim() || null }).then(function () {
-          refresh(choice ? 'Approved. It goes live with the next hourly site update.' : 'Rejected.');
+        rpc('admin_decide', { p_id: s.id, p_approve: choice, p_note: note.value.trim() || null, p_rumor: choice && rumor.checked }).then(function () {
+          refresh(choice ? (rumor.checked ? 'Approved as a Rumor. ' : 'Approved. ') + 'It goes live with the next hourly site update.' : 'Rejected.');
         }).catch(function (e) {
           if (e.expired) loggedOut(e.message);
           else { status(panelStatus, e.message, 'is-error'); yes.disabled = cancel.disabled = false; }
@@ -251,7 +339,7 @@
       top.appendChild(el('strong', null, names(s.athlete_names)));
       top.appendChild(el('span', 'badge ' + (s.status === 'approved' ? 'badge-public' : 'badge-outline'), s.status));
       li.appendChild(top);
-      li.appendChild(el('span', 'muted small', [TYPE[s.signing_type] || '', day(s.event_date || s.order_deadline), s.reviewed_at ? 'reviewed ' + day(s.reviewed_at) : ''].filter(Boolean).join(' · ')));
+      li.appendChild(el('span', 'muted small', [typeText(s), day(s.event_date || s.order_deadline), s.reviewed_at ? 'reviewed ' + day(s.reviewed_at) : ''].filter(Boolean).join(' · ')));
       if (s.review_note) li.appendChild(el('span', 'small', 'Note: ' + s.review_note));
       ul.appendChild(li);
     });
@@ -783,6 +871,41 @@
     saveCaptcha(v);
   });
   captchaForm.querySelector('[data-captcha-off]').addEventListener('click', function () { saveCaptcha(''); });
+
+  // ---- flyer reading: the Anthropic key is saved to the database's secret store (admin_set_anthropic)
+  var flyerForm = panes.flyers;
+  var flyerState = flyerForm.querySelector('[data-flyer-state]');
+  function showFlyerKey(on) {
+    flyerState.className = 'notice ' + (on ? 'notice-ok' : '');
+    flyerState.textContent = on
+      ? 'On: Claude reads uploaded flyers. Paste a new key below only if you change it.'
+      : 'Off: flyers still arrive, but you type the details in yourself.';
+  }
+  function loadFlyerKey() {
+    rpc('admin_anthropic_on').then(showFlyerKey).catch(function (e) {
+      if (e.expired) loggedOut(e.message); else flyerState.textContent = e.message;
+    });
+  }
+  function saveFlyerKey(v) {
+    var st = flyerForm.querySelector('.f-status');
+    var buttons = flyerForm.querySelectorAll('button');
+    Array.prototype.forEach.call(buttons, function (b) { b.disabled = true; });
+    status(st, 'Saving…', '');
+    rpc('admin_set_anthropic', { p_key: v }).then(function (r) {
+      flyerForm.reset();
+      showFlyerKey(r && r.on);
+      status(st, r && r.on ? 'Saved. New flyers will be read automatically.' : 'Turned off.', 'is-success');
+    }).catch(function (e) {
+      if (e.expired) loggedOut(e.message); else status(st, e.message, 'is-error');
+    }).then(function () { Array.prototype.forEach.call(buttons, function (b) { b.disabled = false; }); });
+  }
+  flyerForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = flyerForm.elements.secret.value.trim();
+    if (!/^sk-ant-[A-Za-z0-9_-]{20,}$/.test(v)) { status(flyerForm.querySelector('.f-status'), 'Paste the whole API key. It starts with sk-ant-.', 'is-error'); return; }
+    saveFlyerKey(v);
+  });
+  flyerForm.querySelector('[data-flyer-off]').addEventListener('click', function () { saveFlyerKey(''); });
 
   // ---- password change
   panes.settings.addEventListener('submit', function (e) {
