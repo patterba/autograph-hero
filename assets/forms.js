@@ -202,6 +202,66 @@
       return true;
     }
 
+    // Thank-you screen after a listing is sent: shows what they sent, hides the forms,
+    // and "Submit another signing" brings the forms back. Built with textContent (no HTML).
+    var TYPE_NAMES = { public: 'In person', private: 'Private signing', 'mail-in': 'Mail-in' };
+    function fmtDate(v) {
+      if (!v) return '';
+      var d = new Date(v + 'T12:00:00');
+      return isNaN(d) ? v : d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    function thanks(d, message) {
+      var box = document.createElement('section');
+      box.className = 'f-thanks';
+      box.setAttribute('tabindex', '-1');
+      var h = document.createElement('h2'); h.textContent = 'Thank you!'; box.appendChild(h);
+      var p = document.createElement('p'); p.textContent = message || "We got it."; box.appendChild(p);
+      var p2 = document.createElement('p'); p2.className = 'muted';
+      p2.textContent = "We check every listing against its source before it goes live. We'll also email you a copy of what you sent" + (d.submitter_email ? ' at ' + d.submitter_email : '') + ' in about 15 minutes.';
+      box.appendChild(p2);
+      var h3 = document.createElement('h3'); h3.textContent = 'What you sent'; box.appendChild(h3);
+      if (d.flyer) {
+        var img = document.createElement('img'); img.src = d.flyer; img.alt = 'Your flyer'; img.className = 'f-thanks-flyer';
+        box.appendChild(img);
+      }
+      var dl = document.createElement('dl'); dl.className = 'f-thanks-list';
+      function add(label, value) {
+        if (!value) return;
+        var dt = document.createElement('dt'); dt.textContent = label;
+        var dd = document.createElement('dd'); dd.textContent = value;
+        dl.appendChild(dt); dl.appendChild(dd);
+      }
+      add('Who', (d.athlete_names || []).join(', '));
+      add('Type', (d.signing_types || []).map(function (t) { return TYPE_NAMES[t] || t; }).join(' · '));
+      add('Sport', d.sport);
+      add('Date', fmtDate(d.event_date));
+      add('Time', d.event_time_text);
+      add('Order by', fmtDate(d.order_deadline));
+      add('Where', [d.venue, d.city, d.state].filter(Boolean).join(', '));
+      add('Prices', d.price_text);
+      add('Link', d.source_url);
+      add('Notes', d.notes);
+      add('Your name', d.submitter_name);
+      add('Your email', d.submitter_email);
+      if (d.flyer) add('Details', "We'll read them from your flyer.");
+      box.appendChild(dl);
+      var again = document.createElement('button');
+      again.type = 'button'; again.className = 'btn btn-accent'; again.textContent = 'Submit another signing';
+      box.appendChild(again);
+      var hide = document.querySelectorAll('form[data-form="listing"], .f-or, .f-or-title');
+      Array.prototype.forEach.call(hide, function (el) { el.hidden = true; });
+      var first = document.querySelector('form[data-form="listing"]');
+      first.parentNode.insertBefore(box, first);
+      if (status) status.hidden = true;
+      again.addEventListener('click', function () {
+        Array.prototype.forEach.call(hide, function (el) { el.hidden = false; });
+        box.parentNode.removeChild(box);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      box.focus();
+      box.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+
     // Turnstile puts its one-time token in a hidden input inside the form.
     function captchaToken() {
       var t = form.querySelector('input[name="cf-turnstile-response"]');
@@ -270,10 +330,11 @@
       if (!validate()) return;
       button.disabled = true;
       show('Sending…', '');
+      var sent = payload();
       fetch(form.getAttribute('data-endpoint'), {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body: JSON.stringify(payload()),
+        body: JSON.stringify(sent),
       })
         .then(function (res) {
           return res.json().catch(function () { return { ok: false }; });
@@ -287,6 +348,13 @@
               form.reset(); favorites = []; renderFavorites(); started = Date.now();
               show((r.message || "You're signed up!") + ' Log in with your email and password on the Log In page.', 'is-success');
             });
+          }
+          if (r && r.ok && kind === 'listing') {
+            thanks(sent, r.message);
+            form.reset();
+            clearFlyer();
+            started = Date.now();
+            return;
           }
           if (r && r.ok) {
             form.reset();
