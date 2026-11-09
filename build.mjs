@@ -2335,7 +2335,8 @@ ${sections.filter((x) => x && x.items.length).map((x) => `<section class="band b
     description,
     pathname,
     body,
-    noindex: list.length ? false : 'follow',
+    // Indexed when it lists any signing, upcoming or past; an empty page stays out of search results.
+    noindex: list.length || past.length ? false : 'follow',
     image: pic?.url || list.find((s) => s.photo)?.photo.url || null,
     imageAlt: h1,
     ld: [
@@ -2599,8 +2600,8 @@ async function main() {
     body: `<section class="page-head"><h1>That signing is over or moved</h1><p class="lede">Past signings come off the calendar. <a href="${esc(link('/events/'))}">See what is coming up.</a></p></section>`,
   }));
   // Search engines: a sitemap of every page, only once the site is meant to be indexed.
-  // Only pages meant for search results: hub pages with nothing coming up are left out.
-  const live = (m) => [...m.values()].filter((h) => h.list.length);
+  // Only pages meant for search results: hub pages with no signings at all (upcoming or past) are left out.
+  const live = (m) => [...m.values()].filter((h) => h.list.length || h.past?.length);
   // lastmod is the newest crawl update among the signings a page shows, so search engines
   // re-read the pages that changed. Pages that don't depend on signings get no lastmod
   // (a date that changes every hourly build would teach search engines to ignore it).
