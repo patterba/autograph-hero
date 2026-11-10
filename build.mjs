@@ -12,6 +12,9 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(ROOT, 'dist');
 // Google AdSense (publisher ca-pub-8886224668564234): loader in every public page's <head>, plus /ads.txt.
 const ADSENSE_CLIENT = 'ca-pub-8886224668564234';
+const ADSENSE_SLOT_HOME = '3448772835'; // in-article (fluid) unit, 8th spot in the home feed
+// ADS=on shows the ad cards; anything else builds without them (the loader in <head> stays either way).
+const ADS_ON = (process.env.ADS || '').toLowerCase() === 'on';
 const ADSENSE_SCRIPT = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}" crossorigin="anonymous"></script>`;
 
 // The publishable key is safe to ship: the database only lets it read rows
@@ -39,7 +42,7 @@ const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.C
 // Contact address shown on the Terms and Privacy pages (GitHub variable CONTACT_EMAIL).
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 // Date the Terms and Privacy pages were last changed. Update it when you edit them.
-const POLICY_DATE = '2026-11-08';
+const POLICY_DATE = '2026-11-09';
 // Our own cookie-free unique visitor count (supabase/functions/site-visit). VISIT_COUNT=off turns it off.
 const COUNT_VISITS = process.env.VISIT_COUNT !== 'off';
 // The beacon on every page: one empty POST when the page opens (a page view, which also starts or
@@ -501,6 +504,15 @@ function card(s) {
 </a>`;
 }
 
+// A card-sized ad that sits among the signings, labelled Sponsored.
+function adCard(slot) {
+  return `<div class="card card-ad" aria-label="Advertisement">
+  <span class="eyebrow">Sponsored</span>
+  <ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${slot}"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>`;
+}
+
 // A card-sized prompt that sits among the signings and asks fans to add one.
 function submitPrompt() {
   return `<a class="promo" href="${esc(link('/add/'))}">
@@ -877,7 +889,7 @@ function homePage(list) {
     </div>
   </div>
   <div data-home-pane="all">
-  ${soon.length ? `<div class="grid grid-feed">${soon.map(card).join('\n')}
+  ${soon.length ? `<div class="grid grid-feed">${soon.map((s, i) => (ADS_ON && i === 7 ? adCard(ADSENSE_SLOT_HOME) : '') + card(s)).join('\n')}
 ${moreCard(list.length, list.length - soon.length)}</div>` : '<p class="empty">No upcoming signings are listed right now. Check back after the next weekly update.</p>'}
   </div>
   <div data-home-pane="mine" hidden>
@@ -1865,14 +1877,16 @@ function privacyPage() {
       <li><strong>Weekly alerts:</strong> once a week, if new signings were added for your favorites, we email you a short list with photos and links. Weeks with nothing new, you get nothing.</li>
       <li><strong>Site statistics:</strong> we use Cloudflare Web Analytics to count visits and popular pages. It does not use cookies and does not follow you to other websites.</li>
       <li><strong>Unique visitor count:</strong> to count how many different people visit each day, each page sends us your IP address and browser name, which we immediately scramble together with a random code that changes every day. We keep only the scrambled result, which can't be turned back into your IP address or linked from one day to the next. No cookies are used.</li>
+      <li><strong>Ads:</strong> some pages show ads from Google AdSense, marked "Sponsored". Google and its partners use cookies and similar technology to show ads and measure them, which can include ads based on your visits to this and other websites. You can turn off personalized ads at <a href="https://adssettings.google.com">Google's Ads Settings</a> (or for many ad companies at <a href="https://www.aboutads.info/choices/">aboutads.info</a>), and read <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a>. We don't share your name, email or favorites with advertisers.</li>
       <li><strong>Visit length:</strong> with the same scrambled code, we count how many pages you open in one visit and how long the pages are on your screen (when you leave or switch away from a page, it tells us the number of seconds). This shows us how long people stay, in total; it isn't linked to your account, your email or any other day.</li>
     </ul>`],
-      ['What we don\'t do', `<p>We don't sell or rent your information, we don't show ads, and we don't use advertising or tracking cookies. We only email you about signings for the favorites you chose, and about your account (such as login links).</p>`],
+      ['What we don\'t do', `<p>We don't sell or rent your information, and our own statistics don't use cookies. We only email you about signings for the favorites you chose, and about your account (such as login links).</p>`],
       ['Who helps us run the site', `<p>These services handle some information on our behalf, only to run Autograph Hero:</p>
     <ul>
       <li><strong>Supabase</strong>: stores sign-ups and submissions, and handles logins.</li>
       <li><strong>Resend</strong>: sends the welcome email, login links and alert emails.</li>
       <li><strong>Cloudflare</strong>: site statistics and the spam check.</li>
+      <li><strong>Google AdSense</strong>: the ads on some pages.</li>
       <li><strong>Bluehost</strong>: hosts the website.</li>
       <li><strong>Google Fonts, Wikimedia Commons and promoter websites</strong>: the site's fonts and some photos load from these services, so they receive your IP address when your browser fetches them, as with any website.</li>
     </ul>`],

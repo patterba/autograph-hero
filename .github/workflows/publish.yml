@@ -80,6 +80,7 @@ jobs:
           TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
           # Cloudflare Web Analytics token (public, from the JS snippet). Empty = no analytics.
           CF_ANALYTICS_TOKEN: ${{ vars.CF_ANALYTICS_TOKEN }}
+          ADS: ${{ vars.ADS }}
           # Contact address shown on the Terms and Privacy pages.
           CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
           # Search engine ownership codes (public), from Google Search Console / Bing Webmaster Tools.
