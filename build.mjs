@@ -13,8 +13,8 @@ const OUT = path.join(ROOT, 'dist');
 // Google AdSense (publisher ca-pub-8886224668564234): loader in every public page's <head>, plus /ads.txt.
 const ADSENSE_CLIENT = 'ca-pub-8886224668564234';
 const ADSENSE_SLOT_HOME = '3448772835'; // in-article (fluid) unit, 8th spot in the home feed
-// Ad cards show unless ADS=off (the loader in <head> stays either way).
-const ADS_ON = (process.env.ADS || '').toLowerCase() !== 'off';
+// Ad cards are off until AdSense approves the site; ADS=on (or flip this default) turns them on.
+const ADS_ON = (process.env.ADS || '').toLowerCase() === 'on';
 const ADSENSE_SCRIPT = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}" crossorigin="anonymous"></script>`;
 
 // The publishable key is safe to ship: the database only lets it read rows
