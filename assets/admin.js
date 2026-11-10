@@ -383,13 +383,15 @@
   // ---- analytics: our own numbers (admin_stats) plus visitors from Cloudflare (admin-analytics function)
   var ANALYTICS = root.getAttribute('data-analytics');
   var analyticsLoaded = false;
-  // The range every visitor number on the tab uses: { days: 7 | 30 } or one Pacific day { date: 'YYYY-MM-DD' }.
+  // The range every visitor number on the tab uses: { days: 7 | 30 }, one Pacific day { date: 'YYYY-MM-DD' },
+  // or a start and end day { from, to } (Pacific, inclusive, up to 31 days in the last 90).
   var range = { days: 30 };
   var ZONE = 'America/Los_Angeles';
   function laToday() { return new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
   function addDays(d, n) { var x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
   function daysBack(d) { return Math.round((Date.parse(laToday() + 'T12:00:00Z') - Date.parse(d + 'T12:00:00Z')) / 86400000); }
   function rangeText() {
+    if (range.from) return shortDay(range.from) + ' – ' + shortDay(range.to);
     if (!range.date) return 'the last ' + range.days + ' days';
     if (range.date === laToday()) return 'today';
     return shortDay(range.date);
@@ -538,20 +540,37 @@
       b.addEventListener('click', function () { range = o[1]; loadRange(); });
       pick.appendChild(b);
     });
-    var lab = el('label', 'stat-day');
-    lab.appendChild(el('span', null, 'Pick a day'));
-    var input = el('input');
-    input.type = 'date';
-    input.max = today;
-    input.min = addDays(today, -90);
-    if (range.date && range.date !== today) { input.value = range.date; lab.className += ' is-on'; }
-    input.addEventListener('change', function () {
-      if (!input.value || input.value > today || daysBack(input.value) > 90) return;
-      range = { date: input.value };
-      loadRange();
+    // Start and end day (same day twice = that one day, shown by hour).
+    var cur = range.from ? [range.from, range.to] : range.date && range.date !== today ? [range.date, range.date] : ['', ''];
+    var inputs = ['From', 'To'].map(function (name, i) {
+      var lab = el('label', 'stat-day' + (cur[i] ? ' is-on' : ''));
+      lab.appendChild(el('span', null, name));
+      var input = el('input');
+      input.type = 'date';
+      input.max = today;
+      input.min = addDays(today, -90);
+      input.value = cur[i];
+      input.setAttribute('aria-label', name === 'From' ? 'Start day' : 'End day');
+      lab.appendChild(input);
+      pick.appendChild(lab);
+      return input;
     });
-    lab.appendChild(input);
-    pick.appendChild(lab);
+    var note = el('span', 'stat-note');
+    note.hidden = true;
+    pick.appendChild(note);
+    function apply() {
+      var f = inputs[0].value, t = inputs[1].value;
+      if (f && !t) { t = f; inputs[1].value = f; }
+      if (!f && t) { f = t; inputs[0].value = t; }
+      if (!f || f > today || t > today || daysBack(f) > 90) return;
+      if (f > t) { var x = f; f = t; t = x; }
+      // Cloudflare answers about a month per question.
+      var first = addDays(t, -30);
+      if (f < first) { f = first; note.textContent = 'Ranges go up to 31 days, so this starts ' + shortDay(f) + '.'; note.hidden = false; }
+      range = f === t ? { date: f } : { from: f, to: t };
+      loadRange();
+    }
+    inputs.forEach(function (input) { input.addEventListener('change', apply); });
     rangeBox.appendChild(pick);
   }
 
@@ -566,7 +585,7 @@
   }
 
   function loadVisitors(box) {
-    var ask = range.date ? { date: range.date } : { days: range.days };
+    var ask = range.from ? { from: range.from, to: range.to } : range.date ? { date: range.date } : { days: range.days };
     token().then(function (t) {
       return fetch(ANALYTICS, { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify(ask) });
     }).then(function (r) {
@@ -587,7 +606,7 @@
     box.textContent = '';
     var oneDay = !!range.date;
     var head = el('div', 'stat-head');
-    head.appendChild(el('h2', 'admin-h2', 'Visitors' + (oneDay ? ' · ' + (range.date === laToday() ? 'Today' : shortDay(range.date)) : '')));
+    head.appendChild(el('h2', 'admin-h2', 'Visitors · ' + (oneDay ? (range.date === laToday() ? 'Today' : shortDay(range.date)) : range.from ? rangeText() : 'Last ' + range.days + ' days')));
     box.appendChild(head);
 
     if (!d.connected) { box.appendChild(connectForm(false)); return; }
@@ -615,8 +634,17 @@
     grid.appendChild(ub);
     var uchart = el('div', 'stat-chart');
     uchart.hidden = true;
-    rpc('admin_unique_visitors', { p_days: oneDay ? daysBack(range.date) + 1 : range.days }).then(function (r) {
-      var list = (r.byDay || []).filter(function (x) { return !oneDay || x.date === range.date; });
+    var uhour = el('div', 'stat-chart');
+    uhour.hidden = true;
+    var uargs = range.from ? { p_from: range.from, p_to: range.to } : oneDay ? { p_from: range.date, p_to: range.date } : { p_days: range.days };
+    rpc('admin_unique_visitors', uargs).then(function (r) {
+      var list = r.byDay || [];
+      if (oneDay && r.byHour && r.byHour.length) {
+        uhour.appendChild(el('h3', 'stat-sub', 'Unique visitors by hour (Pacific)'));
+        uhour.appendChild(bars(trimHours(r.byHour, range.date), function (x) { return hourLabel(x.hour); }, function (x) { return x.uniques || 0; }, 'Unique visitors by hour'));
+        uhour.appendChild(el('p', 'muted small', 'People on the site during each hour. Someone who stays across two hours counts in both, so the hours add up to more than the day\'s total.'));
+        uhour.hidden = false;
+      }
       var total = list.reduce(function (n, x) { return n + (x.uniques || 0); }, 0);
       un.textContent = num(total);
       var first = list[0];
@@ -641,10 +669,14 @@
       var hours = trimHours(d.byHour, range.date);
       box.appendChild(el('h3', 'stat-sub', 'Page views by hour (Pacific)'));
       box.appendChild(bars(hours, function (x) { return hourLabel(x.hour); }, function (x) { return x.views; }, 'Page views by hour'));
+      box.appendChild(uhour);
     } else if (!oneDay && d.byDay && d.byDay.length) {
       box.appendChild(el('h3', 'stat-sub', 'Page views by day'));
       box.appendChild(bars(d.byDay, function (x) { return shortDay(x.date); }, function (x) { return x.views; }, 'Page views by day'));
     }
+    var when = oneDay ? (range.date === laToday() ? 'today' : shortDay(range.date)) : rangeText();
+    box.appendChild(el('h3', 'stat-sub', 'Pages, sources, countries and devices · ' + when.charAt(0).toUpperCase() + when.slice(1)));
+    box.appendChild(el('p', 'muted small', 'These lists count only ' + (oneDay ? (range.date === laToday() ? 'today so far' : 'that day') : rangeText()) + ', the range picked above.'));
     var cols = el('div', 'stat-cols');
     cols.appendChild(topTable('Top pages', d.pages, [function (r) { return r.label || '/'; }, function (r) { return num(r.views); }]));
     cols.appendChild(topTable('Where visitors came from', d.referrers, [function (r) { return r.label; }, function (r) { return num(r.visits); }]));
@@ -665,7 +697,7 @@
 
   // ---- sessions and time on site: our own cookie-free count (site-visit function → admin_sessions)
   function loadSessions(box) {
-    var args = range.date ? { p_date: range.date } : { p_days: range.days };
+    var args = range.from ? { p_from: range.from, p_to: range.to } : range.date ? { p_date: range.date } : { p_days: range.days };
     rpc('admin_sessions', args).then(function (r) { renderSessions(box, r); }).catch(function (e) {
       if (e.expired) { loggedOut(e.message); return; }
       box.textContent = '';

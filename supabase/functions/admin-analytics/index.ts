@@ -83,6 +83,20 @@ Deno.serve(async (req) => {
       const back = (Date.parse(today) - Date.parse(body.date)) / 86400000;
       if (back >= 0 && back <= 90) date = body.date;
     }
+    // A start and end day (Pacific, inclusive): "from"/"to" as YYYY-MM-DD, within the last 90 days.
+    let from: string | null = null, to: string | null = null;
+    const ymd = (v: unknown) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
+    if (!date && ymd(body?.from)) {
+      const min = laDay(new Date(Date.now() - 90 * 86400000));
+      to = ymd(body?.to) || body.from;
+      if (to! > today) to = today;
+      from = body.from < min ? min : body.from;
+      if (from! > to!) from = to;
+      // Cloudflare answers at most about a month per query: keep the range to 31 days.
+      const first = laDay(new Date(Date.parse(`${to}T12:00:00Z`) - 30 * 86400000));
+      if (from! < first) from = first;
+      if (from === to) { date = from; from = to = null; }
+    }
 
     const { token, account: savedAccount } = await settings();
     if (!token) return reply({ connected: false });
@@ -102,7 +116,11 @@ Deno.serve(async (req) => {
     }
 
     let range: Record<string, string>;
-    if (date) {
+    if (from && to) {
+      const next = laMidnight(laDay(new Date(laMidnight(to).getTime() + 36 * 3600000)));
+      const end = next.getTime() > Date.now() ? new Date() : new Date(next.getTime() - 1000);
+      range = { datetime_geq: laMidnight(from).toISOString(), datetime_leq: end.toISOString() };
+    } else if (date) {
       const from = laMidnight(date);
       const next = new Date(from.getTime() + 36 * 3600000);
       const to = laMidnight(laDay(next));
@@ -121,7 +139,7 @@ Deno.serve(async (req) => {
     const tags = [...new Set(groups
       .filter((g: any) => String(g.dimensions?.requestHost || '').replace(/^www\./, '') === HOST)
       .map((g: any) => g.dimensions.siteTag))];
-    if (!tags.length) return reply({ connected: true, days, date, empty: true });
+    if (!tags.length) return reply({ connected: true, days, date, from, to, empty: true });
 
     const f = lit({ AND: [range, { siteTag_in: tags }] });
     const top = (alias: string, dim: string, order = 'count_DESC', limit = 10) =>
@@ -153,7 +171,7 @@ Deno.serve(async (req) => {
     return reply({
       connected: true,
       days: date ? 1 : days,
-      date,
+      date, from, to,
       byHour,
       totals: { views: a.total?.[0]?.count ?? 0, visits: a.total?.[0]?.sum?.visits ?? 0 },
       byDay: (a.byDay || []).map((g: any) => ({ date: g.dimensions?.date, views: g.count ?? 0, visits: g.sum?.visits ?? 0 })),
