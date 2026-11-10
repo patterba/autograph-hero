@@ -1224,10 +1224,11 @@ function eventLd(s) {
   if (s.rumor || !s.inPerson || !s.eventDate || !(s.venue || s.city)) return null;
   const us = s.state && US_STATES.includes(s.state);
   const { name: venueName, street } = venueParts(s.venue);
+  const validFrom = s.publishedAt ? new Date(s.publishedAt).toISOString() : undefined;
   const offer = s.listingUrl
     ? s.priceLow !== null && s.priceHigh !== null && s.priceHigh > s.priceLow
-      ? { '@type': 'AggregateOffer', url: s.listingUrl, lowPrice: s.priceLow, highPrice: s.priceHigh, priceCurrency: 'USD', availability: 'https://schema.org/InStock' }
-      : { '@type': 'Offer', url: s.listingUrl, ...(s.priceLow !== null ? { price: s.priceLow, priceCurrency: 'USD' } : {}), availability: 'https://schema.org/InStock' }
+      ? { '@type': 'AggregateOffer', url: s.listingUrl, lowPrice: s.priceLow, highPrice: s.priceHigh, priceCurrency: 'USD', availability: 'https://schema.org/InStock', validFrom }
+      : { '@type': 'Offer', url: s.listingUrl, ...(s.priceLow !== null ? { price: s.priceLow, priceCurrency: 'USD' } : {}), availability: 'https://schema.org/InStock', validFrom }
     : undefined;
   return {
     '@context': 'https://schema.org',
@@ -1242,7 +1243,7 @@ function eventLd(s) {
       name: venueName || s.place,
       address: { '@type': 'PostalAddress', streetAddress: street || undefined, addressLocality: s.city || undefined, addressRegion: s.state || undefined, addressCountry: us ? 'US' : undefined },
     },
-    image: s.photo ? [s.photo.url] : undefined,
+    image: [s.photo ? s.photo.url : abs('/assets/social.png')],
     url: abs(`/signing/${s.slug}/`),
     performer: s.names.length ? s.names.map((n) => ({ '@type': 'Person', name: n })) : undefined,
     organizer: s.source ? { '@type': 'Organization', name: s.source, url: s.listingUrl ? originOf(s.listingUrl) : undefined } : undefined,
