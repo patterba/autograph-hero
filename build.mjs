@@ -177,12 +177,20 @@ async function loadSignings() {
     // Same rows the public read rules allowed, so a private key (which skips those rules) sees no more.
     or: '(status.eq.published,and(status.eq.past,was_listed.is.true))',
     order: 'event_date.asc.nullslast,id.asc',
-    limit: '5000',
   });
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/signings?${qs}`, { headers: { apikey: READ_KEY } });
-  if (!res.ok) throw new Error(`Supabase returned ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  const rows = await res.json();
-  if (!Array.isArray(rows)) throw new Error('Supabase did not return a list of signings');
+  // Supabase caps each response (1000 rows by default), so read in pages until one comes back short.
+  const PAGE = 1000;
+  const rows = [];
+  for (let from = 0; ; from += PAGE) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/signings?${qs}`, {
+      headers: { apikey: READ_KEY, Range: `${from}-${from + PAGE - 1}`, 'Range-Unit': 'items' },
+    });
+    if (!res.ok) throw new Error(`Supabase returned ${res.status}: ${(await res.text()).slice(0, 300)}`);
+    const page = await res.json();
+    if (!Array.isArray(page)) throw new Error('Supabase did not return a list of signings');
+    rows.push(...page);
+    if (page.length < PAGE) break;
+  }
   return rows;
 }
 
