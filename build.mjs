@@ -502,7 +502,7 @@ function priceLine(s) {
 
 function card(s) {
   const q = [s.name, s.title, s.venue, s.city, s.state, s.sport, s.teamCity, ...s.teams, s.source].filter(Boolean).join(' ').toLowerCase();
-  return `<a class="card" href="${esc(link(`/signing/${s.slug}/`))}" data-q="${esc(q)}" data-sport="${esc(s.sport || '')}" data-cat="${esc(s.category || '')}" data-type="${esc(s.types.join(' '))}" data-state="${esc(s.state || '')}">
+  return `<a class="card" href="${esc(link(`/signing/${s.slug}/`))}" data-q="${esc(q)}" data-sport="${esc(s.sport || '')}" data-cat="${esc(s.category || '')}" data-type="${esc(s.types.join(' '))}" data-state="${esc(s.state || '')}" data-price="${s.priceLow ?? ''}" data-added="${s.publishedAt || ''}">
   <div class="card-photo">${photo(s)}${badge(s)}</div>
   <div class="card-body">
     <div class="eyebrow">${esc([s.sport, s.primaryTeam].filter(Boolean).join(' · ') || 'Autographs')}</div>
@@ -2380,6 +2380,18 @@ function crumbsNav(trail) {
     : `<span>${esc(name)}</span>`)).join('')}</nav>`;
 }
 
+// Sort buttons over a hub page's upcoming grid (assets/app.js reorders the cards by data-price / data-added).
+function sortBar(list) {
+  const counts = new Map();
+  list.forEach((s) => s.sport && counts.set(s.sport, (counts.get(s.sport) || 0) + 1));
+  const sports = [...counts].sort((a, b) => b[1] - a[1]);
+  const sportRow = sports.length > 1
+    ? `<div class="view-toggle sort-toggle" role="group" aria-label="Filter by sport" data-sport-bar hidden><button type="button" data-sport-pick="" aria-pressed="true">All sports</button>${sports.map(([n, c]) => `<button type="button" data-sport-pick="${esc(n)}" aria-pressed="false">${esc(n)} <span class="chip-n">${c}</span></button>`).join('')}</div>`
+    : '';
+  const b = (k, label, on) => `<button type="button" data-sort="${k}" aria-pressed="${on}">${label}</button>`;
+  return `<div class="view-toggle sort-toggle" role="group" aria-label="Sort signings" data-sort-bar hidden>${b('soon', 'Soonest', true)}${b('recent', 'Recently added', false)}${b('low', 'Price: low', false)}${b('high', 'Price: high', false)}</div>${sportRow}`;
+}
+
 function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
   const cards = list.length
     ? `<div class="grid">${list.map(card).join('\n')}</div>`
@@ -2397,7 +2409,7 @@ ${crumbsNav(trail)}
 </section>
 ${intro}
 <section class="band band-tight hub-list">
-  <div class="section-head"><h2>Upcoming signings</h2></div>
+  <div class="section-head"><h2>Upcoming signings</h2>${list.length > 1 ? sortBar(list) : ''}</div>
   ${cards}
 </section>
 ${past.length ? `<section class="band">
