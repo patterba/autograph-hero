@@ -417,10 +417,12 @@ function shape(row, athletes) {
 // ---------- components ----------
 
 const X_URL = 'https://x.com/autographheroX';
+const IG_URL = 'https://www.instagram.com/autographheroig/';
 const FB_URL = 'https://www.facebook.com/profile.php?id=61595776965486';
 
 const ICON = {
   x: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+  instagram: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.6" cy="6.4" r="1" fill="currentColor" stroke="none"/></svg>',
   facebook: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.026 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971H15.83c-1.491 0-1.956.931-1.956 1.886v2.264h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>',
   search: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
   arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
@@ -766,6 +768,7 @@ ${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
     <div class="socials">
       <a class="social" href="${X_URL}" rel="me noopener" target="_blank" aria-label="Autograph Hero on X (Twitter)">${ICON.x}<span>@autographheroX</span></a>
       <a class="social" href="${FB_URL}" rel="me noopener" target="_blank" aria-label="Autograph Hero on Facebook">${ICON.facebook}<span>Facebook</span></a>
+      <a class="social" href="${IG_URL}" rel="me noopener" target="_blank" aria-label="Autograph Hero on Instagram">${ICON.instagram}<span>Instagram</span></a>
     </div>
   </div>
   <div class="footer-about">
@@ -950,7 +953,7 @@ ${moreCard(list.length, list.length - soon.length)}</div>` : '<p class="empty">N
         url: abs('/'),
         potentialAction: { '@type': 'SearchAction', target: { '@type': 'EntryPoint', urlTemplate: `${abs('/events/')}?q={search_term_string}` }, 'query-input': 'required name=search_term_string' },
       },
-      { '@context': 'https://schema.org', '@type': 'Organization', name: SITE_NAME, url: abs('/'), logo: abs('/assets/email-logo.png'), sameAs: [X_URL, FB_URL] },
+      { '@context': 'https://schema.org', '@type': 'Organization', name: SITE_NAME, url: abs('/'), logo: abs('/assets/email-logo.png'), sameAs: [X_URL, FB_URL, IG_URL] },
     ],
   });
 }
