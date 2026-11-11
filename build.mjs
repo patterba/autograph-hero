@@ -2512,7 +2512,7 @@ function moreSportButtons(hubs) {
     .sort((a, b) => b.list.length - a.list.length || a.name.localeCompare(b.name));
   if (!more.length) return '';
   return `<div class="section-head more-sports-head"><h2>More sports</h2></div>
-  <ul class="league-btns">${more.map((sp) => `<li><a class="league-btn" href="${esc(link(sportPath(sp.name)))}"><span class="league-name">${esc(sp.name)}</span><span class="league-sub">${esc(plural(sp.list.length, 'upcoming signing'))}</span></a></li>`).join('')}</ul>`;
+  <ul class="league-btns">${more.map((sp) => `<li><a class="league-btn" href="${esc(link(sportPath(sp.name)))}"><span class="league-name">${esc(sp.name)}</span><span class="league-sub">${esc(plural(sp.list.length, 'signing'))}</span></a></li>`).join('')}</ul>`;
 }
 
 // /categories/sports/<league>/: every current team in the league, plus former team names we know.
