@@ -2499,7 +2499,20 @@ function leagueButtons(hubs) {
     const n = leagueList(lg, hubs).length;
     return `<li><a class="league-btn" href="${esc(link(leaguePath(lg)))}"><span class="league-name">${esc(lg.name)}</span><span class="league-sub">${esc(`${lg.teams.length} teams`)}${n ? ` · ${n} upcoming` : ''}</span></a></li>`;
   }).join('')}</ul>
+  ${moreSportButtons(hubs)}
 </section>`;
+}
+
+// "More sports" buttons under the leagues: every other sport with upcoming signings (Soccer, Boxing,
+// MMA, Wrestling, Golf…), most signings first, each to its /sports/<slug>/ page.
+const LEAGUE_SPORTS = new Set(['football', 'baseball', 'basketball', 'hockey']);
+function moreSportButtons(hubs) {
+  const more = [...hubs.sports.values()]
+    .filter((sp) => sp.list.length && !LEAGUE_SPORTS.has(sp.name.toLowerCase()))
+    .sort((a, b) => b.list.length - a.list.length || a.name.localeCompare(b.name));
+  if (!more.length) return '';
+  return `<div class="section-head more-sports-head"><h2>More sports</h2></div>
+  <ul class="league-btns">${more.map((sp) => `<li><a class="league-btn" href="${esc(link(sportPath(sp.name)))}"><span class="league-name">${esc(sp.name)}</span><span class="league-sub">${esc(plural(sp.list.length, 'upcoming signing'))}</span></a></li>`).join('')}</ul>`;
 }
 
 // /categories/sports/<league>/: every current team in the league, plus former team names we know.

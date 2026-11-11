@@ -674,3 +674,4 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 /* Hub page sort buttons (sortBar() in build.mjs) */
 .sort-toggle { flex-wrap: wrap; border-radius: 22px; }
 @media (max-width: 520px) { .sort-toggle { width: 100%; justify-content: space-between; } }
+.more-sports-head { margin-top: 28px; }
