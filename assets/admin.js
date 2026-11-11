@@ -465,11 +465,15 @@
     list.forEach(function (x) {
       var v = valueOf(x);
       var b = el('div', 'bar');
-      b.title = labelOf(x) + ': ' + fmt(v);
+      // opts.top: the part of the bar drawn in blue on top (returning visitors).
+      var top = opts && opts.top ? Math.min(v, opts.top(x) || 0) : 0;
+      var tip = labelOf(x) + ': ' + fmt(v) + (opts && opts.top ? ' (' + fmt(v - top) + ' new, ' + fmt(top) + ' returning)' : '');
+      b.title = tip;
       var fill = el('span', 'bar-fill');
       fill.style.height = Math.max(v ? 4 : 0, Math.round((v / max) * 100)) + '%';
+      if (top) { var seg = el('span', 'bar-top'); seg.style.height = Math.round((top / v) * 100) + '%'; fill.appendChild(seg); }
       b.appendChild(fill);
-      b.appendChild(el('span', 'sr-only', labelOf(x) + ': ' + fmt(v)));
+      b.appendChild(el('span', 'sr-only', tip));
       row.appendChild(b);
     });
     area.appendChild(row);
@@ -637,11 +641,45 @@
     var uhour = el('div', 'stat-chart');
     uhour.hidden = true;
     var uargs = range.from ? { p_from: range.from, p_to: range.to } : oneDay ? { p_from: range.date, p_to: range.date } : { p_days: range.days };
+    var ulatest = el('div', 'stat-latest');
+    ulatest.hidden = true;
+    var ustates = el('div', 'stat-chart');
+    ustates.hidden = true;
+    function legend() {
+      var lg = el('p', 'bars-legend');
+      lg.appendChild(el('span', 'key-new', 'New'));
+      lg.appendChild(el('span', 'key-ret', 'Returning'));
+      return lg;
+    }
+    function topFn(x) { return x.returning || 0; }
     rpc('admin_unique_visitors', uargs).then(function (r) {
       var list = r.byDay || [];
+      // Callout: the most recent day in the range.
+      var last = list[list.length - 1];
+      if (last) {
+        var lu = last.uniques || 0, lr = last.returning || 0;
+        ulatest.appendChild(el('h3', 'stat-sub', (last.date === laToday() ? 'Today so far' : shortDay(last.date))));
+        var lg = el('div', 'stats');
+        stat(lg, num(lu), 'Unique visitors');
+        stat(lg, num(lu - lr), 'New' + (lu ? ' · ' + Math.round(((lu - lr) / lu) * 100) + '%' : ''));
+        stat(lg, num(lr), 'Returning' + (lu ? ' · ' + Math.round((lr / lu) * 100) + '%' : ''));
+        if (oneDay && r.byHour && r.byHour.length) {
+          var pk = r.byHour.reduce(function (m, x) { return (x.uniques || 0) > (m.uniques || 0) ? x : m; }, r.byHour[0]);
+          if (pk.uniques) stat(lg, hourLabel(pk.hour), 'Busiest hour · ' + num(pk.uniques));
+        }
+        ulatest.appendChild(lg);
+        ulatest.hidden = false;
+      }
+      var states = r.topStates || [];
+      if (states.length) {
+        ustates.appendChild(topTable('Top 5 states · unique visitors', states, [function (x) { return x.state; }, function (x) { return num(x.visitors); }]));
+        ustates.appendChild(el('p', 'muted small', 'US visitors only, from the IP address (looked up on our server, only the state is kept). ' + num(r.located || 0) + ' visitors in this range had a US location.'));
+        ustates.hidden = false;
+      }
       if (oneDay && r.byHour && r.byHour.length) {
         uhour.appendChild(el('h3', 'stat-sub', 'Unique visitors by hour (Pacific)'));
-        uhour.appendChild(bars(trimHours(r.byHour, range.date), function (x) { return hourLabel(x.hour); }, function (x) { return x.uniques || 0; }, 'Unique visitors by hour'));
+        uhour.appendChild(legend());
+        uhour.appendChild(bars(trimHours(r.byHour, range.date), function (x) { return hourLabel(x.hour); }, function (x) { return x.uniques || 0; }, 'Unique visitors by hour', { top: topFn }));
         uhour.appendChild(el('p', 'muted small', 'People on the site during each hour. Someone who stays across two hours counts in both, so the hours add up to more than the day\'s total.'));
         uhour.hidden = false;
       }
@@ -653,7 +691,9 @@
       var days = list.filter(function (x) { return !r.since || x.date >= r.since; });
       if (days.length > 1) {
         uchart.appendChild(el('h3', 'stat-sub', 'Unique visitors by day'));
-        uchart.appendChild(bars(days, function (x) { return shortDay(x.date); }, function (x) { return x.uniques || 0; }, 'Unique visitors by day'));
+        uchart.appendChild(legend());
+        uchart.appendChild(bars(days, function (x) { return shortDay(x.date); }, function (x) { return x.uniques || 0; }, 'Unique visitors by day', { top: topFn }));
+        uchart.appendChild(el('p', 'muted small', 'Returning = this browser had visited on an earlier day. Counted from Nov 11, 2026, so earlier days show everyone as new.'));
         uchart.hidden = false;
       }
     }).catch(function () { un.textContent = '—'; });
@@ -664,7 +704,9 @@
       stat(grid, num(perDay), 'Page views a day');
     }
     box.appendChild(grid);
+    box.appendChild(ulatest);
     box.appendChild(uchart);
+    box.appendChild(ustates);
     if (oneDay && d.byHour && d.byHour.length) {
       var hours = trimHours(d.byHour, range.date);
       box.appendChild(el('h3', 'stat-sub', 'Page views by hour (Pacific)'));

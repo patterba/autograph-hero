@@ -42,18 +42,20 @@ const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.C
 // Contact address shown on the Terms and Privacy pages (GitHub variable CONTACT_EMAIL).
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 // Date the Terms and Privacy pages were last changed. Update it when you edit them.
-const POLICY_DATE = '2026-11-09';
+const POLICY_DATE = '2026-11-11';
 // Our own cookie-free unique visitor count (supabase/functions/site-visit). VISIT_COUNT=off turns it off.
 const COUNT_VISITS = process.env.VISIT_COUNT !== 'off';
-// The beacon on every page: one empty POST when the page opens (a page view, which also starts or
-// continues a session), then {"t": seconds} each time the page is hidden or closed, with how long
+// The beacon on every page: one POST when the page opens (a page view, which also starts or
+// continues a session; {"r":1} when this browser's localStorage 'ah-first' holds an earlier day, i.e. a
+// returning visitor — only that yes/no is sent), then {"t": seconds} each time the page is hidden or closed, with how long
 // it was on screen since the last report. Background-tab time isn't counted.
 function visitScript() {
   const url = JSON.stringify(`${SUPABASE_URL}/functions/v1/site-visit`);
-  return `(function(){var u=${url},n=navigator,d=document,on=0,ms=0;function b(x){try{n.sendBeacon(u,x)}catch(e){}}b();` +
+  return `(function(){var u=${url},n=navigator,d=document,on=0,ms=0,r='';function b(x){try{n.sendBeacon(u,x)}catch(e){}}` +
+    `try{var t=new Date(),k=t.getFullYear()*1e4+(t.getMonth()+1)*100+t.getDate(),f=+localStorage.getItem('ah-first');if(f&&f<k)r='{"r":1}';else if(!f)localStorage.setItem('ah-first',k)}catch(e){}b(r||undefined);` +
     `function start(){if(d.visibilityState==='visible'&&!on)on=Date.now()}` +
     `function report(){if(on){ms+=Date.now()-on;on=0}var s=Math.round(ms/1000);if(s>0){ms=0;b(JSON.stringify({t:s}))}}` +
-    `start();d.addEventListener('visibilitychange',function(){d.visibilityState==='hidden'?report():start()});addEventListener('pagehide',report);addEventListener('pageshow',function(e){if(e.persisted){b();start()}})})()`;
+    `start();d.addEventListener('visibilitychange',function(){d.visibilityState==='hidden'?report():start()});addEventListener('pagehide',report);addEventListener('pageshow',function(e){if(e.persisted){b(r||undefined);start()}})})()`;
 }
 // The live address, for canonical links, the sitemap and share previews.
 const ORIGIN = (process.env.SITE_ORIGIN || 'https://autographhero.com').replace(/\/$/, '');
@@ -1889,6 +1891,7 @@ function privacyPage() {
       <li><strong>Weekly alerts:</strong> once a week, if new signings were added for your favorites, we email you a short list with photos and links. Weeks with nothing new, you get nothing.</li>
       <li><strong>Site statistics:</strong> we use Cloudflare Web Analytics to count visits and popular pages. It does not use cookies and does not follow you to other websites.</li>
       <li><strong>Unique visitor count:</strong> to count how many different people visit each day, each page sends us your IP address and browser name, which we immediately scramble together with a random code that changes every day. We keep only the scrambled result, which can't be turned back into your IP address or linked from one day to the next. No cookies are used.</li>
+      <li><strong>New or returning, and state:</strong> your browser keeps the date of your first visit in its own storage (not a cookie) and only tells us yes or no: have you been here on an earlier day. Before scrambling your IP address we also look up which US state it belongs to in a table kept on our own server (IP location data by <a href="https://db-ip.com">DB-IP</a>, CC BY 4.0), and keep only the state name. Your IP address isn't sent anywhere else. Clearing your browser's site data resets the yes/no.</li>
       <li><strong>Ads:</strong> some pages show ads from Google AdSense, marked "Sponsored". Google and its partners use cookies and similar technology to show ads and measure them, which can include ads based on your visits to this and other websites. You can turn off personalized ads at <a href="https://adssettings.google.com">Google's Ads Settings</a> (or for many ad companies at <a href="https://www.aboutads.info/choices/">aboutads.info</a>), and read <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a>. We don't share your name, email or favorites with advertisers.</li>
       <li><strong>Visit length:</strong> with the same scrambled code, we count how many pages you open in one visit and how long the pages are on your screen (when you leave or switch away from a page, it tells us the number of seconds). This shows us how long people stay, in total; it isn't linked to your account, your email or any other day.</li>
     </ul>`],

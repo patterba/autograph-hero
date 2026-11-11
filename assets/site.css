@@ -546,6 +546,13 @@ input[list]::-webkit-calendar-picker-indicator { display: none !important; }
 .bar { flex: 1; height: 100%; display: flex; align-items: flex-end; min-width: 0; }
 .bar-fill { display: block; width: 100%; background: var(--accent); border-radius: 3px 3px 0 0; }
 .bar:hover .bar-fill { background: var(--ink); }
+.bar-fill { display: flex; flex-direction: column; overflow: hidden; }
+.bar-top { display: block; flex: none; width: 100%; background: #2a78d6; border-bottom: 2px solid var(--card); }
+.bars-legend { display: flex; gap: 16px; margin: -6px 0 0; font-size: 12px; color: var(--muted); }
+.bars-legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.key-new::before { background: var(--accent); }
+.key-ret::before { background: #2a78d6; }
+.stat-latest { display: flex; flex-direction: column; gap: 10px; }
 .bars-axis { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .stat-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
 .stat-box { display: flex; flex-direction: column; gap: 8px; min-width: 0; }

@@ -23,19 +23,25 @@ Deno.serve(async (req) => {
   // Only real browsers on the live site count.
   if (!ua || BOTS.test(ua) || !SITE.test(from)) return new Response(null, { status: 204, headers: cors });
   const ip = (req.headers.get('cf-connecting-ip') || req.headers.get('x-real-ip') || req.headers.get('x-forwarded-for') || '').split(',')[0].trim();
-  // An empty body is a page view. {"t": seconds} is sent when the page is hidden or closed:
+  // A page view sends an empty body or {"r": 1} (r = this browser has been here on an earlier day,
+  // remembered in its own localStorage). {"t": seconds} is sent when the page is hidden or closed:
   // how long it was on screen, added to the visitor's current session.
   const text = await req.text().catch(() => '');
   let seconds: number | null = null;
+  let returning = false;
   if (text) {
-    try { const t = Number(JSON.parse(text)?.t); if (Number.isFinite(t)) seconds = Math.round(t); } catch { /* not JSON */ }
-    if (seconds === null || seconds <= 0) return new Response(null, { status: 204, headers: cors });
+    let body: any = null;
+    try { body = JSON.parse(text); } catch { /* not JSON */ }
+    if (body && body.t !== undefined) {
+      const t = Number(body.t); if (Number.isFinite(t)) seconds = Math.round(t);
+      if (seconds === null || seconds <= 0) return new Response(null, { status: 204, headers: cors });
+    } else if (body && body.r) returning = true;
   }
   if (ip) {
     await fetch(`${SUPABASE_URL}/rest/v1/rpc/site_record_visit`, {
       method: 'POST',
       headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(seconds === null ? { p_ip: ip, p_ua: ua.slice(0, 300) } : { p_ip: ip, p_ua: ua.slice(0, 300), p_seconds: Math.min(seconds, 1800) }),
+      body: JSON.stringify(seconds === null ? { p_ip: ip, p_ua: ua.slice(0, 300), p_returning: returning } : { p_ip: ip, p_ua: ua.slice(0, 300), p_seconds: Math.min(seconds, 1800) }),
     }).catch(() => null);
   }
   return new Response(null, { status: 204, headers: cors });
