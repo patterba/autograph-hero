@@ -698,7 +698,7 @@ self.addEventListener('notificationclick', (e) => {
 // noindex: true keeps a page out of search results; 'follow' does the same but lets search engines follow its links.
 // image: an absolute photo URL for share previews (defaults to assets/social.png). ld: structured data objects.
 function page({ title, description, pathname, body, script = false, forms = false, captcha = false, account = false, admin = false, remind = false, myfeed = false, noindex = false, image = null, imageAlt = null, ld = [], ogType = 'website' }) {
-  const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: Autograph Signings, Meet & Greets and Mail-Ins`;
+  const full = title ? `${title} | ${SITE_NAME}` : `Free Autograph Signing Tracker | ${SITE_NAME}`;
   const hidden = NOINDEX || admin || noindex;
   const robots = NOINDEX || admin ? 'noindex, nofollow' : noindex === 'follow' ? 'noindex, follow' : noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
   const canonical = pathname.endsWith('/') ? abs(pathname) : null;
@@ -938,7 +938,7 @@ ${moreCard(list.length, list.length - soon.length)}</div>` : '<p class="empty">N
 
   return page({
     title: '',
-    description: `Find ${list.length} upcoming autograph signings, meet & greets and mail-in signings with athletes and celebrities. Dates, prices and order deadlines, plus email alerts for your favorites.`,
+    description: 'Autograph Hero tracks signings and meet & greets with athletes, celebrities, musicians, authors and artists across the country. The largest autograph signing directory, with 1,000+ listings.',
     pathname: '/',
     body,
     myfeed: true,
