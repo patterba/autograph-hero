@@ -2517,7 +2517,6 @@ function leagueButtons(hubs) {
     const n = leagueList(lg, hubs).length;
     return `<li><a class="league-btn" href="${esc(link(leaguePath(lg)))}"><span class="league-name">${esc(lg.name)}</span><span class="league-sub">${esc(`${lg.teams.length} teams`)}${n ? ` · ${n} upcoming` : ''}</span></a></li>`;
   }).join('')}</ul>
-  ${moreSportButtons(hubs)}
 </section>`;
 }
 
