@@ -1291,6 +1291,19 @@ function remindBox(s) {
       </div>`;
 }
 
+// Each signer's most recent past signing (archive is newest first), for "Last signed" lines.
+const LAST_SIGNED = new Map();
+function rememberLastSigned(archive) {
+  LAST_SIGNED.clear();
+  for (const p of archive) for (const n of p.names) { const k = slugify(n); if (k && !LAST_SIGNED.has(k)) LAST_SIGNED.set(k, p); }
+}
+// "Sat, Oct 4, 2026 · from $49" (price = the lowest autograph price, add-ons left out).
+function lastSignedText(p) {
+  const d = isDate(p.eventDate) ? p.eventDate : isDate(p.deadline) ? p.deadline : p.sortDate;
+  const date = fmt(d, { month: 'short', day: 'numeric', year: 'numeric' });
+  return p.priceLow != null ? `${date} · from $${Number(p.priceLow).toLocaleString('en-US')}` : date;
+}
+
 function signingPage(s, list) {
   const cal = s.past ? null : calendarFor(s);
   // 5 related + the "See more" card = 6, which fills complete rows at 3, 2 or 1 per row.
@@ -1305,6 +1318,11 @@ function signingPage(s, list) {
     s.place ? ['City', s.city && stateCode(s.state) && !s.mailOnly
       ? { html: `${esc(s.city)}, <a href="${esc(link(statePath(stateCode(s.state))))}">${esc(s.state)}</a>` }
       : s.place] : null,
+    ...[...new Set(s.names)].map((n) => {
+      const p = LAST_SIGNED.get(slugify(n));
+      if (!p || p.id === s.id || p.sortDate >= s.sortDate) return null;
+      return [s.names.length > 1 ? `${n} last signed` : 'Last signed', { html: `<a href="${esc(link(`/signing/${p.slug}/`))}">${esc(lastSignedText(p))}</a>` }];
+    }),
     s.teams.length ? [s.teams.length === 1 ? 'Team' : 'Teams', { html: s.teams.map((t) => (hasTeamPage(t) ? `<a href="${esc(link(teamPath(slugify(t))))}">${esc(t)}</a>` : esc(t))).join(', ') }, 'wide'] : null,
   ].filter(Boolean);
   const trail = [['Home', '/'], ...(s.sport ? [[s.sport, sportPath(s.sport)]] : [['All signings', '/events/']]), [s.name, `/signing/${s.slug}/`]];
@@ -2457,6 +2475,7 @@ function signerPage(h) {
   const lede = n
     ? `${esc(h.name)} has ${esc(plural(n, 'autograph signing'))} (${esc(typeMix(h.list))}).${esc(nextLine(h.list))} See dates, prices and order deadlines below.`
     : `There are no ${esc(h.name)} autograph signings listed right now.`;
+  const last = h.past[0] ? ` ${esc(h.name)} last signed <a href="${esc(link(`/signing/${h.past[0].slug}/`))}">${esc(lastSignedText(h.past[0]))}</a>.` : '';
   // Other signers from the team they're best known for, ones with signings coming up first.
   const related = [...(h.primary?.signers || [])].filter((o) => o !== h).sort((a, b) => (b.list.length > 0) - (a.list.length > 0) || byName(a, b)).slice(0, 30);
   return hubPage({
@@ -2464,7 +2483,7 @@ function signerPage(h) {
     trail: [['Home', '/'], ['Signers', '/autographs/'], [h.name, signerPath(h.slug)]],
     eyebrow: [h.sport, 'Autograph signings'].filter(Boolean).join(' · '),
     h1: `${h.name} autograph signings`,
-    lede: lede + (teamText ? ` ${esc(teamText)}` : ''),
+    lede: lede + last + (teamText ? ` ${esc(teamText)}` : ''),
     photo: h.photo,
     favorite: h.name,
     list: h.list,
@@ -2708,6 +2727,7 @@ async function main() {
   await mkdir(OUT, { recursive: true });
   await cp(path.join(ROOT, 'assets'), path.join(OUT, 'assets'), { recursive: true });
 
+  rememberLastSigned(archive);
   await put('index.html', homePage(list));
   await put('events/index.html', eventsPage(list));
   for (const s of list) {
