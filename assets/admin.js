@@ -148,6 +148,8 @@
   function refresh(message) {
     if (views.panel.hidden) showView('loading');
     return rpc('admin_queue').then(function (q) {
+      // An admin login worked in this browser: stop the site's visitor beacon counting it (see visitScript in build.mjs).
+      try { localStorage.setItem('ah-nocount', '1'); } catch (e) {}
       renderPending(q.pending || []);
       renderReviewed(q.reviewed || []);
       renderFans(q.fans || [], q.tally || []);
@@ -703,15 +705,16 @@
       var perDay = d.byDay && d.byDay.length ? Math.round(d.totals.views / d.byDay.length) : 0;
       stat(grid, num(perDay), 'Page views a day');
     }
-    box.appendChild(grid);
-    box.appendChild(ulatest);
+    // Visitor charts first, then the numbers.
     box.appendChild(uchart);
+    box.appendChild(uhour);
+    box.appendChild(ulatest);
+    box.appendChild(grid);
     box.appendChild(ustates);
     if (oneDay && d.byHour && d.byHour.length) {
       var hours = trimHours(d.byHour, range.date);
       box.appendChild(el('h3', 'stat-sub', 'Page views by hour (Pacific)'));
       box.appendChild(bars(hours, function (x) { return hourLabel(x.hour); }, function (x) { return x.views; }, 'Page views by hour'));
-      box.appendChild(uhour);
     } else if (!oneDay && d.byDay && d.byDay.length) {
       box.appendChild(el('h3', 'stat-sub', 'Page views by day'));
       box.appendChild(bars(d.byDay, function (x) { return shortDay(x.date); }, function (x) { return x.views; }, 'Page views by day'));

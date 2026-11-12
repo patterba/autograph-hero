@@ -45,13 +45,14 @@ const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 const POLICY_DATE = '2026-11-11';
 // Our own cookie-free unique visitor count (supabase/functions/site-visit). VISIT_COUNT=off turns it off.
 const COUNT_VISITS = process.env.VISIT_COUNT !== 'off';
+// Browsers where the admin page has been logged into (localStorage 'ah-nocount') send nothing.
 // The beacon on every page: one POST when the page opens (a page view, which also starts or
 // continues a session; {"r":1} when this browser's localStorage 'ah-first' holds an earlier day, i.e. a
 // returning visitor — only that yes/no is sent), then {"t": seconds} each time the page is hidden or closed, with how long
 // it was on screen since the last report. Background-tab time isn't counted.
 function visitScript() {
   const url = JSON.stringify(`${SUPABASE_URL}/functions/v1/site-visit`);
-  return `(function(){var u=${url},n=navigator,d=document,on=0,ms=0,r='';function b(x){try{n.sendBeacon(u,x)}catch(e){}}` +
+  return `(function(){try{if(localStorage.getItem('ah-nocount'))return}catch(e){}var u=${url},n=navigator,d=document,on=0,ms=0,r='';function b(x){try{n.sendBeacon(u,x)}catch(e){}}` +
     `try{var t=new Date(),k=t.getFullYear()*1e4+(t.getMonth()+1)*100+t.getDate(),f=+localStorage.getItem('ah-first');if(f&&f<k)r='{"r":1}';else if(!f)localStorage.setItem('ah-first',k)}catch(e){}b(r||undefined);` +
     `function start(){if(d.visibilityState==='visible'&&!on)on=Date.now()}` +
     `function report(){if(on){ms+=Date.now()-on;on=0}var s=Math.round(ms/1000);if(s>0){ms=0;b(JSON.stringify({t:s}))}}` +
