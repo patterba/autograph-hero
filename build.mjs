@@ -2403,11 +2403,10 @@ function sortBar(list) {
   const counts = new Map();
   list.forEach((s) => s.sport && counts.set(s.sport, (counts.get(s.sport) || 0) + 1));
   const sports = [...counts].sort((a, b) => b[1] - a[1]);
-  const sportRow = sports.length > 1
-    ? `<div class="view-toggle sort-toggle" role="group" aria-label="Filter by sport" data-sport-bar hidden><button type="button" data-sport-pick="" aria-pressed="true">All sports</button>${sports.map(([n, c]) => `<button type="button" data-sport-pick="${esc(n)}" aria-pressed="false">${esc(n)} <span class="chip-n">${c}</span></button>`).join('')}</div>`
+  const sport = sports.length > 1
+    ? `<label class="hub-pick"><span>Sport</span><select data-sport-pick><option value="">All sports</option>${sports.map(([n, c]) => `<option value="${esc(n)}">${esc(n)} (${c})</option>`).join('')}</select></label>`
     : '';
-  const b = (k, label, on) => `<button type="button" data-sort="${k}" aria-pressed="${on}">${label}</button>`;
-  return `<div class="view-toggle sort-toggle" role="group" aria-label="Sort signings" data-sort-bar hidden>${b('soon', 'Soonest', true)}${b('recent', 'Recently added', false)}${b('low', 'Price: low', false)}${b('high', 'Price: high', false)}</div>${sportRow}`;
+  return `<div class="hub-picks" data-hub-tools hidden>${sport}<label class="hub-pick"><span>Sort</span><select data-sort-pick><option value="soon">Soonest</option><option value="recent">Recently added</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label></div>`;
 }
 
 function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {

@@ -671,10 +671,13 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .faq-a a { font-weight: 600; text-underline-offset: 3px; }
 .faq-more { margin-top: 28px; }
 
-/* Hub page sort buttons (sortBar() in build.mjs) */
-.sort-toggle { flex-wrap: wrap; border-radius: 22px; }
-@media (max-width: 520px) { .sort-toggle { width: 100%; justify-content: space-between; } }
 .more-sports-head { margin-top: 28px; }
 /* Sort + sport filter sit right beside the "Upcoming signings" heading, not pushed to the far edge */
 .hub-list-head { justify-content: flex-start; align-items: center; }
 .hub-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.hub-picks { display: flex; gap: 8px; flex-wrap: wrap; }
+.hub-picks[hidden] { display: none; }
+.hub-pick { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); font: 600 14px var(--body); }
+.hub-pick span { font-family: var(--mono); font-size: 12px; text-transform: uppercase; color: var(--muted, #666); }
+.hub-pick select { border: none; background: transparent; font: 600 15px var(--body); color: var(--ink); cursor: pointer; }
+.hub-pick select:focus-visible { outline: 2px solid var(--accent); }

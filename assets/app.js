@@ -186,47 +186,27 @@
   });
 })();
 
-// Hub page sort (sortBar() in build.mjs): Soonest (built order), Recently added, Price low/high.
-// Cards with no price go last for either price sort.
+// Hub page Sport + Sort dropdowns (sortBar() in build.mjs). Soonest = built order; cards with no price go last.
 (() => {
-  const bar = document.querySelector('[data-sort-bar]');
-  const grid = bar && bar.closest('section').querySelector('.grid');
+  const tools = document.querySelector('[data-hub-tools]');
+  const grid = tools && tools.closest('section').querySelector('.grid');
   if (!grid) return;
   const cards = [...grid.querySelectorAll('.card')];
-  const num = (c, k) => (c.dataset[k] === '' || c.dataset[k] == null ? null : Number(c.dataset[k]));
-  const rank = {
+  const num = (c, k) => (c.dataset[k] ? Number(c.dataset[k]) : null);
+  const byPrice = (dir) => [...cards].sort((a, b) => {
+    const x = num(a, 'price'), y = num(b, 'price');
+    if (x === null || y === null) return (x === null) - (y === null);
+    return (x - y) * dir;
+  });
+  const order = {
     soon: () => cards,
     recent: () => [...cards].sort((a, b) => (num(b, 'added') || 0) - (num(a, 'added') || 0)),
     low: () => byPrice(1),
     high: () => byPrice(-1),
   };
-  function byPrice(dir) {
-    return [...cards].sort((a, b) => {
-      const x = num(a, 'price'), y = num(b, 'price');
-      if (x === null || y === null) return (x === null) - (y === null);
-      return (x - y) * dir;
-    });
-  }
-  bar.hidden = false;
-  bar.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-sort]');
-    if (!btn) return;
-    bar.querySelectorAll('[data-sort]').forEach((x) => x.setAttribute('aria-pressed', String(x === btn)));
-    rank[btn.dataset.sort]().forEach((c) => grid.appendChild(c));
-  });
-})();
-
-// Hub page sport filter (sortBar() in build.mjs): shows only cards whose data-sport matches.
-(() => {
-  const bar = document.querySelector('[data-sport-bar]');
-  const grid = bar && bar.closest('section').querySelector('.grid');
-  if (!grid) return;
-  bar.hidden = false;
-  bar.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-sport-pick]');
-    if (!btn) return;
-    bar.querySelectorAll('[data-sport-pick]').forEach((x) => x.setAttribute('aria-pressed', String(x === btn)));
-    const want = btn.dataset.sportPick;
-    grid.querySelectorAll('.card').forEach((c) => { c.hidden = !!want && c.dataset.sport !== want; });
-  });
+  const sport = tools.querySelector('[data-sport-pick]');
+  const sort = tools.querySelector('[data-sort-pick]');
+  tools.hidden = false;
+  sort.addEventListener('change', () => order[sort.value]().forEach((c) => grid.appendChild(c)));
+  if (sport) sport.addEventListener('change', () => cards.forEach((c) => { c.hidden = !!sport.value && c.dataset.sport !== sport.value; }));
 })();
