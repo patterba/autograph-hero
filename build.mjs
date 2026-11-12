@@ -2409,7 +2409,7 @@ ${crumbsNav(trail)}
 </section>
 ${intro}
 <section class="band band-tight hub-list">
-  <div class="section-head"><h2>Upcoming signings</h2>${list.length > 1 ? sortBar(list) : ''}</div>
+  <div class="section-head hub-list-head"><h2>Upcoming signings</h2>${list.length > 1 ? `<div class="hub-tools">${sortBar(list)}</div>` : ''}</div>
   ${cards}
 </section>
 ${past.length ? `<section class="band">

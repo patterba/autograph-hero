@@ -675,3 +675,6 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .sort-toggle { flex-wrap: wrap; border-radius: 22px; }
 @media (max-width: 520px) { .sort-toggle { width: 100%; justify-content: space-between; } }
 .more-sports-head { margin-top: 28px; }
+/* Sort + sport filter sit right beside the "Upcoming signings" heading, not pushed to the far edge */
+.hub-list-head { justify-content: flex-start; align-items: center; }
+.hub-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
