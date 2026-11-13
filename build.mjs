@@ -357,6 +357,10 @@ function shape(row, athletes) {
     : [row.price_min, row.price_max].map((v) => (v !== null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null));
   const priceMin = money(low);
   const priceMax = money(high);
+  // Base autograph price: the cheapest plain autograph ticket (category 'autograph'), so signed
+  // items, photo ops and combos don't count; listings without categories fall back to the low end.
+  const autos = itemized.filter((p) => String(p.category || '').toLowerCase() === 'autograph').map((p) => Number(p.price));
+  const baseAuto = autos.length ? Math.min(...autos) : low;
   const { teams, primary } = teamsFor(names, row.sport, athletes);
   // Promoter photo first; a free Commons photo of the player is the backup, used when
   // there is no promoter photo or it fails to load in the browser.
@@ -400,6 +404,7 @@ function shape(row, athletes) {
     priceMax,
     priceLow: low,
     priceHigh: high,
+    baseAuto,
     prices,
     sport: row.sport || null,
     teamCity: row.team_city || null,
@@ -1294,9 +1299,18 @@ function remindBox(s) {
 
 // Each signer's most recent past signing (archive is newest first), for "Last signed" lines.
 const LAST_SIGNED = new Map();
+// Past signings per signer slug, newest first (archive order), for the "last signings" tables.
+const PAST_BY_SIGNER = new Map();
 function rememberLastSigned(archive) {
   LAST_SIGNED.clear();
-  for (const p of archive) for (const n of p.names) { const k = slugify(n); if (k && !LAST_SIGNED.has(k)) LAST_SIGNED.set(k, p); }
+  PAST_BY_SIGNER.clear();
+  for (const p of archive) for (const n of p.names) {
+    const k = slugify(n);
+    if (!k) continue;
+    if (!LAST_SIGNED.has(k)) LAST_SIGNED.set(k, p);
+    if (!PAST_BY_SIGNER.has(k)) PAST_BY_SIGNER.set(k, []);
+    PAST_BY_SIGNER.get(k).push(p);
+  }
 }
 // "Sat, Oct 4, 2026 · from $49" (price = the lowest autograph price, add-ons left out).
 function lastSignedText(p) {
@@ -1341,6 +1355,7 @@ ${crumbsNav(trail)}
     <p class="lede">${esc(s.types.map((t) => TYPE_BLURB[t]).join(' '))}</p>
     ${s.prices.length ? `<h2>Prices</h2>
     <div class="prices">${s.prices.map((p) => `<div><span>${esc(p.item).replace(/\//g, '/<wbr>')}</span><span class="mono">${esc(p.price)}</span></div>`).join('')}</div>` : ''}
+    ${signingHistory(s)}
     <p class="muted small">Listed from ${esc(s.source || 'the organizer')}. Autograph Hero does not sell tickets or handle orders.</p>
     <a class="inline-submit" href="${esc(link('/add/'))}">
       <span>${ICON.plus}</span>
@@ -2410,7 +2425,7 @@ function sortBar(list) {
   return `<div class="hub-picks" data-hub-tools hidden>${sport}<label class="hub-pick"><span>Sort</span><select data-sort-pick><option value="soon">Soonest</option><option value="recent">Recently added</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label></div>`;
 }
 
-function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
+function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', afterList = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
   const cards = list.length
     ? `<div class="grid">${list.map(card).join('\n')}</div>`
     : `<div class="empty"><p><strong>Nothing is listed right now.</strong> Signings are added every week. Sign up and we'll email you when one is announced.</p></div>`;
@@ -2430,6 +2445,7 @@ ${intro}
   <div class="section-head hub-list-head"><h2>Upcoming signings</h2>${list.length > 1 ? `<div class="hub-tools">${sortBar(list)}</div>` : ''}</div>
   ${cards}
 </section>
+${afterList}
 ${past.length ? `<section class="band">
   <div class="section-head"><h2>${esc(pastTitle)}</h2><a class="more" href="${esc(link(pastMore?.path || '/archive/'))}">${esc(pastMore?.label || 'Signing Archives')} ${ICON.arrow}</a></div>
   <div class="grid">${past.slice(0, pastLimit).map(card).join('\n')}</div>
@@ -2468,6 +2484,49 @@ const nextLine = (list) => {
   return first ? ` The next one is ${longDate(first.eventDate)}${first.place && first.inPerson ? ` in ${first.place}` : ''}.` : '';
 };
 
+// The last 3 past signings, newest first, with the base autograph price, so fans can see what a
+// signer usually charges. Used on signer pages and (for the first signer) on signing pages.
+// Trial: only these signers' pages show the tables for now. Empty the set to turn it on for everyone.
+const LAST_SIGNINGS_ONLY = new Set(['jerry-rice']);
+const lastSigningsOn = (name) => !LAST_SIGNINGS_ONLY.size || LAST_SIGNINGS_ONLY.has(slugify(name));
+const usd = (n) => `$${Number(n).toLocaleString('en-US')}`;
+function lastSigningsTable(name, rows, { heading, note = '' } = {}) {
+  rows = rows.slice(0, 3);
+  if (!rows.length) return '';
+  const tr = rows.map((p) => {
+    const d = isDate(p.eventDate) ? p.eventDate : isDate(p.deadline) ? p.deadline : p.sortDate;
+    return `<tr><td><a href="${esc(link(`/signing/${p.slug}/`))}">${esc(fmt(d, { month: 'short', day: 'numeric', year: 'numeric' }))}</a></td><td>${esc(typeText(p))}</td><td class="num">${p.baseAuto != null ? esc(usd(p.baseAuto)) : '—'}</td></tr>`;
+  }).join('');
+  return `<div class="recent-signings">
+  <h2>${esc(heading || `Last ${rows.length} ${name} signing${rows.length === 1 ? '' : 's'}`)}</h2>
+  <div class="recent-wrap"><table class="recent-table"><thead><tr><th>Date of signing</th><th>Type</th><th class="num">Base auto price</th></tr></thead><tbody>${tr}</tbody></table></div>
+  ${note ? `<p class="recent-note"><strong>${esc(note)}</strong></p>` : ''}
+  <p class="recent-note">Base auto price is the starting price for one autograph on your own item, before inscriptions and authentication.</p>
+</div>`;
+}
+
+function recentSignings(h) {
+  if (!lastSigningsOn(h.name)) return '';
+  const t = lastSigningsTable(h.name, h.past);
+  return t ? `<section class="band band-tight">${t}</section>` : '';
+}
+
+// Signing pages: the first signer's signings before this one, with a price comparison line.
+function signingHistory(s) {
+  const name = s.names[0];
+  if (!name || !lastSigningsOn(name)) return '';
+  const before = (PAST_BY_SIGNER.get(slugify(name)) || []).filter((p) => p.id !== s.id && (!s.sortDate || !p.sortDate || p.sortDate <= s.sortDate));
+  if (!before.length) return '';
+  const n = Math.min(3, before.length);
+  let note = '';
+  const last = before[0].baseAuto;
+  if (!s.past && s.baseAuto != null && last != null && s.baseAuto !== last) {
+    const diff = Math.abs(s.baseAuto - last);
+    note = `This signing starts at ${usd(s.baseAuto)}, ${usd(diff)} ${s.baseAuto < last ? 'less' : 'more'} than last time.`;
+  }
+  return lastSigningsTable(name, before, { heading: n === 1 ? `${name}'s last signing` : `${name}'s last ${n} signings`, note });
+}
+
 function signerPage(h) {
   const n = h.list.length;
   // Every team they played for, including ones without a team page.
@@ -2486,6 +2545,7 @@ function signerPage(h) {
     lede: lede + last + (teamText ? ` ${esc(teamText)}` : ''),
     photo: h.photo,
     favorite: h.name,
+    afterList: recentSignings(h),
     list: h.list,
     past: h.past,
     sections: [

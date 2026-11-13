@@ -681,3 +681,13 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .hub-pick span { font-family: var(--mono); font-size: 12px; text-transform: uppercase; color: var(--muted, #666); }
 .hub-pick select { border: none; background: transparent; font: 600 15px var(--body); color: var(--ink); cursor: pointer; }
 .hub-pick select:focus-visible { outline: 2px solid var(--accent); }
+
+/* Signer pages: last 3 signings with base autograph price */
+.recent-wrap { overflow-x: auto; border: 1.5px solid var(--ink); border-radius: 16px; background: var(--paper); }
+.recent-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.recent-table th { text-align: left; font-family: var(--mono, monospace); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 12px 16px; border-bottom: 1.5px dashed var(--ink); }
+.recent-table td { padding: 12px 16px; border-top: 1px solid var(--paper-alt); vertical-align: top; }
+.recent-table tr:first-child td { border-top: 0; }
+.recent-table .num { text-align: right; white-space: nowrap; font-weight: 600; }
+.recent-note { margin-top: 10px; font-size: 13px; }
+.detail-text .recent-signings { margin: 24px 0; }
