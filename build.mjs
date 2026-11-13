@@ -2487,7 +2487,7 @@ const nextLine = (list) => {
 // The last 3 past signings, newest first, with the base autograph price, so fans can see what a
 // signer usually charges. Used on signer pages and (for the first signer) on signing pages.
 // Trial: only these signers' pages show the tables for now. Empty the set to turn it on for everyone.
-const LAST_SIGNINGS_ONLY = new Set(['jerry-rice', 'drew-pearson']);
+const LAST_SIGNINGS_ONLY = new Set();
 const lastSigningsOn = (name) => !LAST_SIGNINGS_ONLY.size || LAST_SIGNINGS_ONLY.has(slugify(name));
 const usd = (n) => `$${Number(n).toLocaleString('en-US')}`;
 function lastSigningsTable(name, rows, { heading, note = '' } = {}) {
