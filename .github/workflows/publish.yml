@@ -128,19 +128,46 @@ jobs:
           # "certificate common name doesn't match" and shows the new fingerprint in
           # brackets: put it in a repository variable named FTP_CERT_FINGERPRINT.
           FTP_CERT_FINGERPRINT: ${{ vars.FTP_CERT_FINGERPRINT || '1D:A4:47:AF:66:EC:58:06:8E:2B:AB:4C:38:BF:23:24:2B:26:D1:2D' }}
+        # Only changed files are sent. Every build rewrites every page, so lftp's
+        # size+time check saw all ~4,500 files as new, the upload took over an hour,
+        # and one dropped transfer failed the whole job. Now each upload ends by
+        # saving .deploy-manifest (a hash of every file) on Bluehost; the next run
+        # sends only files whose hash changed and deletes files that went away. If
+        # an upload fails, the manifest isn't replaced, so the next run sends the
+        # same files again. No manifest on Bluehost (first run, or delete it to
+        # force one) = upload everything the old way.
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-          lftp --env-password -u "$FTP_USERNAME" "$FTP_SERVER" -e "
-            set ftp:ssl-allow true;
-            set ftp:ssl-force true;
-            set ftp:ssl-protect-data true;
-            set ssl:verify-certificate/$FTP_CERT_FINGERPRINT no;
-            set ftp:passive-mode true;
-            set net:max-retries 2;
-            rm -r -f .git;
-            mirror --reverse --no-perms --verbose=1 --exclude-glob signing/ --exclude-glob .git/ dist/ ./;
-            mirror --reverse --delete --no-perms --verbose=1 dist/signing/ ./signing/;
-            quit"
+          SETTINGS="set ftp:ssl-allow true; set ftp:ssl-force true; set ftp:ssl-protect-data true;
+            set ssl:verify-certificate/$FTP_CERT_FINGERPRINT no; set ftp:passive-mode true;
+            set net:max-retries 5; set net:reconnect-interval-base 10; set net:timeout 60; set cmd:fail-exit yes;"
+          ftp() { lftp --env-password -u "$FTP_USERNAME" "$FTP_SERVER" -e "$SETTINGS $1 quit"; }
+
+          (cd dist && find . -type f -not -path './.git/*' -not -name .deploy-manifest -print0 \
+            | sort -z | xargs -0 sha1sum) | sort -k2 > new-manifest
+          ftp "get .deploy-manifest -o old-manifest;" >/dev/null 2>&1 || true
+          [ -f old-manifest ] || : > old-manifest
+          echo "files in build: $(wc -l < new-manifest); in last upload: $(wc -l < old-manifest)"
+
+          if [ ! -s old-manifest ]; then
+            echo "No manifest on Bluehost: uploading everything."
+            ftp "rm -r -f .git;
+              mirror --reverse --no-perms --parallel=4 --verbose=1 --exclude-glob signing/ --exclude-glob .git/ dist/ ./;
+              mirror --reverse --delete --no-perms --parallel=4 --verbose=1 dist/signing/ ./signing/;"
+          else
+            comm -13 <(sort old-manifest) <(sort new-manifest) | cut -c43- > changed
+            comm -23 <(cut -c43- old-manifest | sort) <(cut -c43- new-manifest | sort) > removed
+            echo "changed: $(wc -l < changed); removed: $(wc -l < removed)"
+            mkdir stage
+            while IFS= read -r p; do mkdir -p "stage/$(dirname "$p")"; cp "dist/$p" "stage/$p"; done < changed
+            : > deletes
+            while IFS= read -r p; do printf 'rm -f "%s";\n' "${p#./}" >> deletes; done < removed
+            if [ -s changed ] || [ -s removed ]; then
+              ftp "rm -r -f .git; $(cat deletes) $( [ -s changed ] && echo 'mirror --reverse --no-perms --parallel=4 --verbose=1 stage/ ./;' )"
+            fi
+          fi
+          cp new-manifest dist/.deploy-manifest
+          ftp "put dist/.deploy-manifest -o .deploy-manifest;"
 
       # Writes a short report to the "deploy-check" branch: which top-level names are in
       # the FTP folder, and what the site returns from Bluehost directly (skipping
