@@ -692,9 +692,8 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .recent-note { margin-top: 10px; font-size: 13px; }
 .detail-text .recent-signings { margin: 24px 0; }
 
-/* eBay affiliate card (league pages), same shape as the ad cards */
-.card.card-shop:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
-.shop-art { flex-direction: column; gap: 6px; background: #fff; }
-.shop-logo { font: 700 64px/1 Arial, sans-serif; letter-spacing: -3px; }
-.shop-tag { font-family: var(--mono); text-transform: uppercase; font-size: 13px; color: var(--muted); }
+/* eBay Smart Placement card on league pages (shopCard() in build.mjs): the 300x236 banner sits centered
+   in the 4:3 photo box and is scaled down to fit (--ebay-scale, set by the card's script), never cut off. */
+.card-ad .ebay-box { position: relative; display: block; background: #fff; overflow: hidden; }
+.ebay-fit { position: absolute; top: 50%; left: 50%; transform-origin: center; transform: translate(-50%, -50%) scale(var(--ebay-scale, 1)); }
 .shop-note { font-size: 13px; color: var(--muted); margin: 0; }

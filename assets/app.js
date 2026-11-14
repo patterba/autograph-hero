@@ -192,9 +192,18 @@
   const grid = tools && tools.closest('section').querySelector('.grid');
   if (!grid) return;
   const cards = [...grid.querySelectorAll('.card:not(.card-ad)')];
-  const ads = [...grid.querySelectorAll('.card-ad')];
-  // Put signing cards back in the new order with the ads in spots 8, 20, 32…
-  const place = (list) => { let a = 0; list.forEach((c, i) => { if (i >= 7 && (i - 7) % 12 === 0 && ads[a]) grid.appendChild(ads[a++]); grid.appendChild(c); }); };
+  const ads = [...grid.querySelectorAll('.card-ad:not(.card-ebay)')];
+  const ebay = grid.querySelector('.card-ebay');
+  // Put signing cards back in the new order with the eBay card in spot 3 and the AdSense ads in spots 8, 20, 32…
+  const place = (list) => {
+    let a = 0;
+    list.forEach((c, i) => {
+      if (i >= 7 && (i - 7) % 12 === 0 && ads[a]) grid.appendChild(ads[a++]);
+      if (i === 2 && ebay) grid.appendChild(ebay);
+      grid.appendChild(c);
+    });
+    if (ebay && list.length < 3) grid.appendChild(ebay);
+  };
   const num = (c, k) => (c.dataset[k] ? Number(c.dataset[k]) : null);
   const byPrice = (dir) => [...cards].sort((a, b) => {
     const x = num(a, 'price'), y = num(b, 'price');
