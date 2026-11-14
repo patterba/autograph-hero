@@ -147,13 +147,10 @@ h1, h2, h3, p { margin: 0; }
 .card-more-title { font-family: var(--display); font-size: clamp(38px, 3.4vw, 52px); line-height: 0.95; text-transform: uppercase; }
 .card-more-arrow { align-self: flex-end; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
 .card-more-arrow svg { width: 24px; height: 24px; }
-.card.card-ad { gap: 10px; padding: 18px 20px; justify-content: flex-start; }
-.card.card-ad:hover { transform: none; box-shadow: none; }
 .card.card-ad { min-width: 0; }
-.card-ad .adsbygoogle { flex: 1; width: 100%; max-width: 100%; min-width: 0; overflow: hidden; }
-/* Google sizes the fluid ad's frames on its own; keep them inside the card. */
-.card-ad .adsbygoogle iframe, .card-ad .adsbygoogle > div { max-width: 100% !important; }
-/* The card keeps its normal width so Google sizes the ad to it; it's removed only if Google has no ad to show. */
+.card.card-ad:hover { transform: none; box-shadow: none; }
+.card-ad .ad-box { display: flex; align-items: center; justify-content: center; background: var(--paper-alt); }
+.card-ad .ad-box .adsbygoogle { max-width: 100%; max-height: 100%; overflow: hidden; }
 .card.card-ad:has(ins[data-ad-status="unfilled"]) { display: none; }
 .card { display: flex; flex-direction: column; background: var(--card); border: 1.5px solid var(--ink); border-radius: 16px; overflow: hidden; text-decoration: none; color: var(--ink); transition: transform 0.12s ease, box-shadow 0.12s ease; }
 .card:hover { color: var(--ink); transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }

@@ -12,8 +12,9 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(ROOT, 'dist');
 // Google AdSense (publisher ca-pub-8886224668564234): loader in every public page's <head>, plus /ads.txt.
 const ADSENSE_CLIENT = 'ca-pub-8886224668564234';
-const ADSENSE_SLOT_HOME = '5644678416'; // in-feed unit "Home feed card" (image above), 8th spot in the home feed
-const ADSENSE_LAYOUT_HOME = '-6l+eq+17-71+9l';
+// Display ad unit for the 8th spot in the home feed, sized to the card's photo box. Empty = no ad card.
+// (The in-feed unit 5644678416 sized itself and stretched the card.)
+const ADSENSE_SLOT_HOME = '';
 // Ad cards show unless ADS=off (AdSense approved the site 2026-11-11).
 const ADS_ON = (process.env.ADS || '').toLowerCase() !== 'off';
 const ADSENSE_SCRIPT = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}" crossorigin="anonymous"></script>`;
@@ -525,10 +526,12 @@ function card(s) {
 
 // A card-sized ad that sits among the signings, labelled Sponsored.
 function adCard(slot) {
+  // The ad fills the photo-sized box at the top (exact pixel size set just before the ad is requested,
+  // so Google serves an ad that fits); the text area below reads "Sponsored content".
   return `<div class="card card-ad" aria-label="Advertisement">
-  <span class="eyebrow">Sponsored</span>
-  <ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="${ADSENSE_LAYOUT_HOME}" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${slot}"></ins>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  <div class="card-photo ad-box"><ins class="adsbygoogle" style="display:block" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${slot}"></ins></div>
+  <div class="card-body"><div class="eyebrow">Advertisement</div><h3>Sponsored content</h3></div>
+  <script>(function(){var s=document.currentScript,b=s.parentNode.querySelector('.ad-box'),i=b.querySelector('ins');i.style.width=b.clientWidth+'px';i.style.height=b.clientHeight+'px';(adsbygoogle=window.adsbygoogle||[]).push({});})();</script>
 </div>`;
 }
 
@@ -909,7 +912,7 @@ function homePage(list) {
     </div>
   </div>
   <div data-home-pane="all">
-  ${soon.length ? `<div class="grid grid-feed">${soon.map((s, i) => (ADS_ON && i === 7 ? adCard(ADSENSE_SLOT_HOME) : '') + card(s)).join('\n')}
+  ${soon.length ? `<div class="grid grid-feed">${soon.map((s, i) => (ADS_ON && ADSENSE_SLOT_HOME && i === 7 ? adCard(ADSENSE_SLOT_HOME) : '') + card(s)).join('\n')}
 ${moreCard(list.length, list.length - soon.length)}</div>` : '<p class="empty">No upcoming signings are listed right now. Check back after the next weekly update.</p>'}
   </div>
   <div data-home-pane="mine" hidden>
