@@ -3,7 +3,7 @@
 (function () {
   var form = document.getElementById('filters');
   if (!form) return;
-  var cards = Array.prototype.slice.call(document.querySelectorAll('#results .card'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('#results .card:not(.card-ad)'));
   var count = document.getElementById('count');
   var empty = document.getElementById('empty');
   var keys = ['q', 'what', 'type', 'state'];
@@ -105,6 +105,7 @@
     // The "Submit A Signing" card in the results steps aside when the no-results message (which has its own button) shows.
     var promo = document.querySelector('#results .promo');
     if (promo) promo.hidden = shown === 0;
+    document.querySelectorAll('#results .card-ad').forEach(function (a) { a.hidden = shown === 0; });
 
     var next = new URLSearchParams();
     keys.forEach(function (k) {

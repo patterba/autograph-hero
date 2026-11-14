@@ -1061,7 +1061,7 @@ function eventsPage(list) {
   </form>
   <p class="muted" id="count" aria-live="polite">${list.length} signing${list.length === 1 ? '' : 's'}</p>
   ${statePageLink('f-state-page')}
-  <div class="grid" id="results">${list.map((s, i) => (i === 7 ? submitPrompt() : '') + card(s)).join('\n')}${list.length <= 7 ? submitPrompt() : ''}</div>
+  <div class="grid" id="results">${list.map((s, i) => (ADS_ON && ADSENSE_SLOT_HOME && i >= 7 && (i - 7) % 12 === 0 ? adCard(ADSENSE_SLOT_HOME) : '') + (i === 13 ? submitPrompt() : '') + card(s)).join('\n')}${list.length <= 13 ? submitPrompt() : ''}</div>
   <div class="empty" id="empty" hidden>
     <div class="empty-block" data-empty="alerts" hidden>
       <p><strong data-empty-title>No active signings or meetups right now.</strong> <span data-empty-text>Sign up for alerts and we'll email you as soon as one pops up.</span></p>
