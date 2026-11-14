@@ -2606,7 +2606,7 @@ function moreSportButtons(hubs) {
 // /categories/sports/<league>/: every current team in the league, plus former team names we know.
 // eBay Partner Network links on league pages (affiliate: rel sponsored, labelled on the page and in the privacy policy).
 const LEAGUE_SHOP = {
-  nfl: { url: 'https://www.ebay.com/b/NFL-Fan-Apparel-Souvenirs/206/bn_2310770?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339249901&customid=CategoryNFL&toolid=10001&mkevt=1', label: 'NFL fan gear & souvenirs' },
+  NFL: { url: 'https://www.ebay.com/b/NFL-Fan-Apparel-Souvenirs/206/bn_2310770?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339249901&customid=CategoryNFL&toolid=10001&mkevt=1', label: 'NFL fan gear & souvenirs' },
 };
 function shopBand(lg) {
   const s = LEAGUE_SHOP[lg.key];
