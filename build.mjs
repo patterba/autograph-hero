@@ -17,6 +17,8 @@ const ADSENSE_CLIENT = 'ca-pub-8886224668564234';
 const ADSENSE_SLOT_HOME = '9482696125'; // Display unit "Home feed photo"
 // /events/ display units: spot 8, spot 20, then spot 32 and every 12 after.
 const ADSENSE_SLOTS_EVENTS = ['8907981051', '7594899382', '2763364208'];
+// Spot 44 and below take turns: Home feed photo, Event 1, Event 2, Event 3, then again.
+const eventsAdSlot = (k) => k < 3 ? ADSENSE_SLOTS_EVENTS[k] : [ADSENSE_SLOT_HOME, ...ADSENSE_SLOTS_EVENTS][(k - 3) % 4];
 // Ad cards show unless ADS=off (AdSense approved the site 2026-11-11).
 const ADS_ON = (process.env.ADS || '').toLowerCase() !== 'off';
 const ADSENSE_SCRIPT = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}" crossorigin="anonymous"></script>`;
@@ -1063,7 +1065,7 @@ function eventsPage(list) {
   </form>
   <p class="muted" id="count" aria-live="polite">${list.length} signing${list.length === 1 ? '' : 's'}</p>
   ${statePageLink('f-state-page')}
-  <div class="grid" id="results">${list.map((s, i) => (ADS_ON && i >= 7 && (i - 7) % 12 === 0 ? adCard(ADSENSE_SLOTS_EVENTS[Math.min((i - 7) / 12, 2)]) : '') + card(s)).join('\n')}</div>
+  <div class="grid" id="results">${list.map((s, i) => (ADS_ON && i >= 7 && (i - 7) % 12 === 0 ? adCard(eventsAdSlot((i - 7) / 12)) : '') + card(s)).join('\n')}</div>
   <div class="empty" id="empty" hidden>
     <div class="empty-block" data-empty="alerts" hidden>
       <p><strong data-empty-title>No active signings or meetups right now.</strong> <span data-empty-text>Sign up for alerts and we'll email you as soon as one pops up.</span></p>
