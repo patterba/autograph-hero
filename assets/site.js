@@ -105,7 +105,16 @@
     // The "Submit A Signing" card in the results steps aside when the no-results message (which has its own button) shows.
     var promo = document.querySelector('#results .promo');
     if (promo) promo.hidden = shown === 0;
-    document.querySelectorAll('#results .card-ad').forEach(function (a) { a.hidden = shown === 0; });
+    // Ads only between enough results: one needs 7 matching signings since the previous ad (or the top)
+    // and at least one after it, so a short search never shows ads bunched together.
+    var seen = 0, sinceAd = 0;
+    Array.prototype.forEach.call(document.getElementById('results').children, function (el) {
+      if (el.classList.contains('card-ad')) {
+        var on = sinceAd >= 7 && shown - seen >= 1;
+        el.hidden = !on;
+        if (on) sinceAd = 0;
+      } else if (el.classList.contains('card') && !el.classList.contains('promo') && !el.hidden) { seen++; sinceAd++; }
+    });
 
     var next = new URLSearchParams();
     keys.forEach(function (k) {

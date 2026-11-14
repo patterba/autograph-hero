@@ -221,9 +221,23 @@
   tools.hidden = false;
   sort.addEventListener('change', () => place(order[sort.value]()));
   const team = tools.querySelector('[data-team-pick]');
-  const filter = () => cards.forEach((c) => {
-    c.hidden = !!((sport && sport.value && c.dataset.sport !== sport.value) || (team && team.value && !(c.dataset.teams || '').split('|').includes(team.value)));
-  });
+  const filter = () => {
+    cards.forEach((c) => {
+      c.hidden = !!((sport && sport.value && c.dataset.sport !== sport.value) || (team && team.value && !(c.dataset.teams || '').split('|').includes(team.value)));
+    });
+    // Ads only between enough results (same rule as /events/): an AdSense card needs 7 shown signings since
+    // the previous ad and one after it; the eBay card needs one signing shown.
+    const shown = cards.filter((c) => !c.hidden).length;
+    let seen = 0, sinceAd = 0;
+    [...grid.children].forEach((el) => {
+      if (el.classList.contains('card-ebay')) el.hidden = shown === 0;
+      else if (el.classList.contains('card-ad')) {
+        const on = sinceAd >= 7 && shown - seen >= 1;
+        el.hidden = !on;
+        if (on) sinceAd = 0;
+      } else if (el.classList.contains('card') && !el.hidden) { seen++; sinceAd++; }
+    });
+  };
   if (sport) sport.addEventListener('change', filter);
   if (team) team.addEventListener('change', filter);
 })();
