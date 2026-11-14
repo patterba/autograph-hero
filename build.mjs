@@ -2435,9 +2435,9 @@ function sortBar(list) {
   return `<div class="hub-picks" data-hub-tools hidden>${sport}<label class="hub-pick"><span>Sort</span><select data-sort-pick><option value="soon">Soonest</option><option value="recent">Recently added</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label></div>`;
 }
 
-function hubPage({ pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', afterList = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
+function hubPage({ adsFor = null, pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', afterList = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
   const cards = list.length
-    ? `<div class="grid">${list.map(card).join('\n')}</div>`
+    ? `<div class="grid">${list.map((x, i) => (adsFor && i >= 7 && (i - 7) % 12 === 0 ? hubAd((i - 7) / 12, adsFor) : '') + card(x)).join('\n')}</div>`
     : `<div class="empty"><p><strong>Nothing is listed right now.</strong> Signings are added every week. Sign up and we'll email you when one is announced.</p></div>`;
   const body = `
 ${crumbsNav(trail)}
@@ -2608,15 +2608,19 @@ function moreSportButtons(hubs) {
 const LEAGUE_SHOP = {
   NFL: { url: 'https://www.ebay.com/b/NFL-Fan-Apparel-Souvenirs/206/bn_2310770?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339249901&customid=CategoryNFL&toolid=10001&mkevt=1', label: 'NFL fan gear & souvenirs' },
 };
-function shopBand(lg) {
+// eBay affiliate link as a card in the signings grid, laid out like the AdSense cards.
+function shopCard(lg) {
   const s = LEAGUE_SHOP[lg.key];
-  if (!s) return '';
-  return `<section class="band band-tight shop-band">
-  <div class="shop-box">
-    <div><span class="eyebrow">Shop on eBay</span><h2>${esc(s.label)}</h2><p class="shop-note">Affiliate link: Autograph Hero may earn a commission if you buy, at no extra cost to you.</p></div>
-    <a class="btn btn-ink" href="${esc(s.url)}" target="_blank" rel="sponsored nofollow noopener">Shop ${esc(lg.name)} gear ${ICON.arrow}</a>
-  </div>
-</section>`;
+  return `<a class="card card-ad card-shop" href="${esc(s.url)}" target="_blank" rel="sponsored nofollow noopener" aria-label="Sponsored: ${esc(s.label)} on eBay">
+  <div class="card-photo ad-box shop-art"><span class="shop-logo"><b style="color:#E53238">e</b><b style="color:#0064D2">b</b><b style="color:#F5AF02">a</b><b style="color:#86B817">y</b></span><span class="shop-tag">${esc(lg.name)} gear</span></div>
+  <div class="card-body"><div class="eyebrow">Sponsored · eBay</div><h3>${esc(s.label)}</h3><p class="shop-note">Affiliate link: we may earn a commission, at no extra cost to you.</p></div>
+  <div class="card-foot"><span class="mono">Shop now</span><span class="price">${ICON.arrow}</span></div>
+</a>`;
+}
+// Ad spots in a hub grid: 8, 20, 32… The first is the league's eBay card when it has one, the rest AdSense.
+function hubAd(k, lg) {
+  if (lg && LEAGUE_SHOP[lg.key]) return k === 0 ? shopCard(lg) : ADS_ON ? adCard(eventsAdSlot(k - 1)) : '';
+  return ADS_ON ? adCard(eventsAdSlot(k)) : '';
 }
 
 function leaguePage(lg, hubs) {
@@ -2634,7 +2638,8 @@ function leaguePage(lg, hubs) {
     intro: `<section class="band band-tight">
   <div class="section-head"><h2>${esc(lg.name)} teams</h2></div>
   <ul class="team-grid">${current.map((t) => `<li><a href="${esc(link(teamPath(t.slug)))}"><span>${esc(t.name)}</span>${t.list.length ? `<span class="chip-n">${t.list.length}</span>` : ''}</a></li>`).join('')}</ul>
-</section>${shopBand(lg)}`,
+</section>`,
+    adsFor: lg,
     list,
     sections: [{ title: 'Former team names', items: former, path: (t) => teamPath(t.slug) }],
     title: `${lg.name} Autograph Signings by Team ${THIS_YEAR}`,

@@ -191,7 +191,10 @@
   const tools = document.querySelector('[data-hub-tools]');
   const grid = tools && tools.closest('section').querySelector('.grid');
   if (!grid) return;
-  const cards = [...grid.querySelectorAll('.card')];
+  const cards = [...grid.querySelectorAll('.card:not(.card-ad)')];
+  const ads = [...grid.querySelectorAll('.card-ad')];
+  // Put signing cards back in the new order with the ads in spots 8, 20, 32…
+  const place = (list) => { let a = 0; list.forEach((c, i) => { if (i >= 7 && (i - 7) % 12 === 0 && ads[a]) grid.appendChild(ads[a++]); grid.appendChild(c); }); };
   const num = (c, k) => (c.dataset[k] ? Number(c.dataset[k]) : null);
   const byPrice = (dir) => [...cards].sort((a, b) => {
     const x = num(a, 'price'), y = num(b, 'price');
@@ -207,6 +210,6 @@
   const sport = tools.querySelector('[data-sport-pick]');
   const sort = tools.querySelector('[data-sort-pick]');
   tools.hidden = false;
-  sort.addEventListener('change', () => order[sort.value]().forEach((c) => grid.appendChild(c)));
+  sort.addEventListener('change', () => place(order[sort.value]()));
   if (sport) sport.addEventListener('change', () => cards.forEach((c) => { c.hidden = !!sport.value && c.dataset.sport !== sport.value; }));
 })();

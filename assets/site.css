@@ -692,7 +692,9 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .recent-note { margin-top: 10px; font-size: 13px; }
 .detail-text .recent-signings { margin: 24px 0; }
 
-/* eBay affiliate band on league pages */
-.shop-box { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; background: var(--card); border: 1.5px solid var(--ink); border-radius: 16px; padding: 22px 24px; }
-.shop-box h2 { font-size: 24px; margin: 4px 0; }
+/* eBay affiliate card (league pages), same shape as the ad cards */
+.card.card-shop:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+.shop-art { flex-direction: column; gap: 6px; background: #fff; }
+.shop-logo { font: 700 64px/1 Arial, sans-serif; letter-spacing: -3px; }
+.shop-tag { font-family: var(--mono); text-transform: uppercase; font-size: 13px; color: var(--muted); }
 .shop-note { font-size: 13px; color: var(--muted); margin: 0; }
