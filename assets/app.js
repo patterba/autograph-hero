@@ -211,5 +211,10 @@
   const sort = tools.querySelector('[data-sort-pick]');
   tools.hidden = false;
   sort.addEventListener('change', () => place(order[sort.value]()));
-  if (sport) sport.addEventListener('change', () => cards.forEach((c) => { c.hidden = !!sport.value && c.dataset.sport !== sport.value; }));
+  const team = tools.querySelector('[data-team-pick]');
+  const filter = () => cards.forEach((c) => {
+    c.hidden = !!((sport && sport.value && c.dataset.sport !== sport.value) || (team && team.value && !(c.dataset.teams || '').split('|').includes(team.value)));
+  });
+  if (sport) sport.addEventListener('change', filter);
+  if (team) team.addEventListener('change', filter);
 })();

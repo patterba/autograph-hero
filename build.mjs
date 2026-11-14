@@ -514,7 +514,7 @@ function priceLine(s) {
 
 function card(s) {
   const q = [s.name, s.title, s.venue, s.city, s.state, s.sport, s.teamCity, ...s.teams, s.source].filter(Boolean).join(' ').toLowerCase();
-  return `<a class="card" href="${esc(link(`/signing/${s.slug}/`))}" data-q="${esc(q)}" data-sport="${esc(s.sport || '')}" data-cat="${esc(s.category || '')}" data-type="${esc(s.types.join(' '))}" data-state="${esc(s.state || '')}" data-price="${s.priceLow ?? ''}" data-added="${s.publishedAt || ''}">
+  return `<a class="card" href="${esc(link(`/signing/${s.slug}/`))}" data-q="${esc(q)}" data-sport="${esc(s.sport || '')}" data-cat="${esc(s.category || '')}" data-type="${esc(s.types.join(' '))}" data-state="${esc(s.state || '')}" data-teams="${esc([...new Set(s.teams.map((t) => FRANCHISE_OF[t] || t))].join('|'))}" data-price="${s.priceLow ?? ''}" data-added="${s.publishedAt || ''}">
   <div class="card-photo">${photo(s)}${badge(s)}</div>
   <div class="card-body">
     <div class="eyebrow">${esc([s.sport, s.primaryTeam].filter(Boolean).join(' · ') || 'Autographs')}</div>
@@ -2425,17 +2425,20 @@ function crumbsNav(trail) {
 }
 
 // Sort buttons over a hub page's upcoming grid (assets/app.js reorders the cards by data-price / data-added).
-function sortBar(list) {
+function sortBar(list, teams = null) {
   const counts = new Map();
   list.forEach((s) => s.sport && counts.set(s.sport, (counts.get(s.sport) || 0) + 1));
   const sports = [...counts].sort((a, b) => b[1] - a[1]);
   const sport = sports.length > 1
     ? `<label class="hub-pick"><span>Sport</span><select data-sport-pick><option value="">All sports</option>${sports.map(([n, c]) => `<option value="${esc(n)}">${esc(n)} (${c})</option>`).join('')}</select></label>`
     : '';
-  return `<div class="hub-picks" data-hub-tools hidden>${sport}<label class="hub-pick"><span>Sort</span><select data-sort-pick><option value="soon">Soonest</option><option value="recent">Recently added</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label></div>`;
+  const team = teams && teams.length
+    ? `<label class="hub-pick"><span>Team</span><select data-team-pick><option value="">All teams</option>${teams.map((t) => `<option value="${esc(t.name)}">${esc(t.name)}${t.list.length ? ` (${t.list.length})` : ''}</option>`).join('')}</select></label>`
+    : '';
+  return `<div class="hub-picks" data-hub-tools hidden>${team}${sport}<label class="hub-pick"><span>Sort</span><select data-sort-pick><option value="soon">Soonest</option><option value="recent">Recently added</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label></div>`;
 }
 
-function hubPage({ adsFor = null, pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', afterList = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
+function hubPage({ teams = null, adsFor = null, pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', afterList = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
   const cards = list.length
     ? `<div class="grid">${list.map((x, i) => (adsFor && i >= 7 && (i - 7) % 12 === 0 ? hubAd((i - 7) / 12, adsFor) : '') + card(x)).join('\n')}</div>`
     : `<div class="empty"><p><strong>Nothing is listed right now.</strong> Signings are added every week. Sign up and we'll email you when one is announced.</p></div>`;
@@ -2452,7 +2455,7 @@ ${crumbsNav(trail)}
 </section>
 ${intro}
 <section class="band band-tight hub-list">
-  <div class="section-head hub-list-head"><h2>Upcoming signings</h2>${list.length > 1 ? `<div class="hub-tools">${sortBar(list)}</div>` : ''}</div>
+  <div class="section-head hub-list-head"><h2>Upcoming signings</h2>${list.length > 1 ? `<div class="hub-tools">${sortBar(list, teams)}</div>` : ''}</div>
   ${cards}
 </section>
 ${afterList}
@@ -2635,13 +2638,10 @@ function leaguePage(lg, hubs) {
     eyebrow: `${lg.name} · Team signings`,
     h1: `${lg.name} Autograph Signings by Team`,
     lede: `Pick a team to see autograph signings with its current and former players.${n ? ` ${esc(plural(n, 'signing'))} with ${esc(lg.name)} players right now.${esc(nextLine(list))}` : ''} <a href="${esc(link(categoryPath('Sports')))}">All sports</a> · ${others.map((x) => `<a href="${esc(link(leaguePath(x)))}">${esc(x.name)}</a>`).join(' · ')}`,
-    intro: `<section class="band band-tight">
-  <div class="section-head"><h2>${esc(lg.name)} teams</h2></div>
-  <ul class="team-grid">${current.map((t) => `<li><a href="${esc(link(teamPath(t.slug)))}"><span>${esc(t.name)}</span>${t.list.length ? `<span class="chip-n">${t.list.length}</span>` : ''}</a></li>`).join('')}</ul>
-</section>`,
+    teams: current,
     adsFor: lg,
     list,
-    sections: [{ title: 'Former team names', items: former, path: (t) => teamPath(t.slug) }],
+    sections: [{ title: `All ${lg.name} team pages`, items: current, path: (t) => teamPath(t.slug) }, { title: 'Former team names', items: former, path: (t) => teamPath(t.slug) }],
     title: `${lg.name} Autograph Signings by Team ${THIS_YEAR}`,
     description: `${lg.name} autograph signings for all ${lg.teams.length} teams${n ? `: ${n} upcoming` : ''}. Pick your team to see signings with current and former players, with dates, prices and order deadlines.`,
   });
