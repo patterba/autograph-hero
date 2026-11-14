@@ -12,7 +12,8 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(ROOT, 'dist');
 // Google AdSense (publisher ca-pub-8886224668564234): loader in every public page's <head>, plus /ads.txt.
 const ADSENSE_CLIENT = 'ca-pub-8886224668564234';
-const ADSENSE_SLOT_HOME = '3448772835'; // in-article (fluid) unit, 8th spot in the home feed
+const ADSENSE_SLOT_HOME = '5644678416'; // in-feed unit "Home feed card" (image above), 8th spot in the home feed
+const ADSENSE_LAYOUT_HOME = '-6l+eq+17-71+9l';
 // Ad cards show unless ADS=off (AdSense approved the site 2026-11-11).
 const ADS_ON = (process.env.ADS || '').toLowerCase() !== 'off';
 const ADSENSE_SCRIPT = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}" crossorigin="anonymous"></script>`;
@@ -526,7 +527,7 @@ function card(s) {
 function adCard(slot) {
   return `<div class="card card-ad" aria-label="Advertisement">
   <span class="eyebrow">Sponsored</span>
-  <ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${slot}"></ins>
+  <ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="${ADSENSE_LAYOUT_HOME}" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${slot}"></ins>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>`;
 }

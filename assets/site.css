@@ -150,7 +150,7 @@ h1, h2, h3, p { margin: 0; }
 .card.card-ad { gap: 10px; padding: 18px 20px; justify-content: flex-start; }
 .card.card-ad:hover { transform: none; box-shadow: none; }
 .card.card-ad { min-width: 0; }
-.card-ad .adsbygoogle { flex: 1; display: flex !important; align-items: center; justify-content: center; width: 100% !important; max-width: 100%; min-width: 0; overflow: hidden; }
+.card-ad .adsbygoogle { flex: 1; width: 100%; max-width: 100%; min-width: 0; overflow: hidden; }
 /* Google sizes the fluid ad's frames on its own; keep them inside the card. */
 .card-ad .adsbygoogle iframe, .card-ad .adsbygoogle > div { max-width: 100% !important; }
 /* Until Google actually fills the ad, the card takes no space: a thin full-width row, no border or label. */
