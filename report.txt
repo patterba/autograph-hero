@@ -1,0 +1,129 @@
+Run: 2026-11-14T19:51:20Z
+## Build
+Read key: private
+Signings read: 1983
+Private key works: yes
+## Names in the FTP folder
+.
+..
+.deploy-manifest
+.ftpquota
+.htaccess
+.htaccess.phpupgrader.fed49690
+.htaccess.phpupgrader.initial
+.well-known
+404.html
+about
+account
+add
+admin
+ads.txt
+ah.zip
+app
+archive
+assets
+autograph_hero
+autographs
+categories
+cgi-bin
+contact
+error_log
+events
+faq
+google9017fd775e03a772.html
+index.html
+index.php
+indexnow_submit.py
+license.txt
+manifest.webmanifest
+new
+offline
+old
+photo-credits
+privacy
+readme.html
+reminder
+robots.txt
+signing
+signup
+sitemap.xml
+sports
+states
+sw.js
+teams
+terms
+unsubscribe
+wp-activate.php
+wp-admin
+wp-blog-header.php
+wp-cli.yml
+wp-comments-post.php
+wp-config-sample.php
+wp-config.php
+wp-content
+wp-cron.php
+wp-includes
+wp-links-opml.php
+## Is this the WordPress folder? (wp-config.php present)
+yes
+## / via origin
+HTTP/1.1 200 OK
+Cache-Control: no-cache, max-age=0, must-revalidate
+X-Endurance-Cache-Level: 0
+<title>Free Autograph Signing Tracker | Autograph Hero
+Updated Saturday, November 14, 2026
+wp-content mentions: 445
+## / via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
+## /terms/ via origin
+HTTP/1.1 200 OK
+Cache-Control: no-cache, max-age=0, must-revalidate
+X-Endurance-Cache-Level: 0
+<title>Terms of use | Autograph Hero
+Updated Saturday, November 14, 2026
+wp-content mentions: 0
+## /terms/ via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
+## /admin/ via origin
+HTTP/1.1 200 OK
+Cache-Control: no-cache, max-age=0, must-revalidate
+X-Endurance-Cache-Level: 0
+<title>Admin | Autograph Hero
+Updated Saturday, November 14, 2026
+wp-content mentions: 0
+## /admin/ via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
+## /new/ via origin
+HTTP/1.1 301 Moved Permanently
+Location: https://autographhero.com/
+<title>301 Moved Permanently
+wp-content mentions: 0
+## /new/ via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
+## /sitemap.xml via origin
+HTTP/1.1 200 OK
+wp-content mentions: 0
+## /sitemap.xml via cloudflare
+HTTP/2 403 
+<title>Just a moment...
+wp-content mentions: 0
+## autographhero.com/events/ as deploy-check
+HTTP/2 403 
+## autographhero.com/events/ as GPTBot
+HTTP/2 403 
+## autographhero.com/events/ as ChatGPT-User
+HTTP/2 403 
+## www.autographhero.com/events/ as deploy-check
+HTTP/2 403 
+## www.autographhero.com/events/ as GPTBot
+HTTP/2 403 
+## www.autographhero.com/events/ as ChatGPT-User
+HTTP/2 403 
