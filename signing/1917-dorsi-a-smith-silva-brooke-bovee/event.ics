@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1917@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261119
+DTEND;VALUE=DATE:20261120
+SUMMARY:Dorsía Smith Silva & Brooke Bovee autograph signing
+DESCRIPTION:Time: 6:30pm\nDetails: https://shop.booksandbooks.com/event/2026-11-19/evening-dorsia-smith-silva-and-brooke-bovee\nConfirm details with the organizer before you go.
+LOCATION:Books & Books Coral Gables\, 265 Aragon Ave\, Coral Gables\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Dorsía Smith Silva & Brooke Bovee autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

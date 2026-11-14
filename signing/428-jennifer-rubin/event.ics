@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-428@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270430
+DTEND;VALUE=DATE:20270501
+SUMMARY:Jennifer Rubin autograph signing
+DESCRIPTION:Details: https://crypticonseattle.com/guests/#jennifer-rubin\nConfirm details with the organizer before you go.
+LOCATION:DoubleTree by Hilton Hotel Seattle Airport\, 18740 International Blvd\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jennifer Rubin autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

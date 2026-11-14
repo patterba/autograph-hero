@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-360@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:Marie Darrieussecq autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://thirdplacebooks.com/event/marie-darrieussecq-with-anne-de-marcken\nConfirm details with the organizer before you go.
+LOCATION:Third Place Books Ravenna\, 6504 20th Ave NE\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Marie Darrieussecq autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

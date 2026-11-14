@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-909@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:Matthew Boyd autograph signing
+DESCRIPTION:Details: https://www.wscsportswi.com/P/12440/MatthewBoydSigning\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Matthew Boyd autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

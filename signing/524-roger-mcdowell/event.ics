@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-524@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261206
+DTEND;VALUE=DATE:20261207
+SUMMARY:Roger McDowell autograph signing
+DESCRIPTION:Time: 11am\nDetails: https://stlsportscollectors.com/product-category/autograph-tickets/rmcdowell_dec26/\nConfirm details with the organizer before you go.
+LOCATION:Orlando Gardens South County\, 4300 Hoffmeister Ave\, St. Louis\, MO
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Roger McDowell autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

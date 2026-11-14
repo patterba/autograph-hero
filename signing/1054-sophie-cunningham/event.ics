@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1054@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261117
+DTEND;VALUE=DATE:20261118
+SUMMARY:Order deadline: Sophie Cunningham autograph signing
+DESCRIPTION:Details: https://primetime12.com/products/sophie-cunningham-wnba-indiana-fever-star-mail-in-ticket-for-tba-26-private-signing-on-1-item-you-will-not-meet-sophie\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Sophie Cunningham
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2802@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270108
+DTEND;VALUE=DATE:20270109
+SUMMARY:Courtney Lin autograph signing
+DESCRIPTION:Details: https://sacanime.com/sacanime-winter-2027-welcomes-courtney-lin/\nConfirm details with the organizer before you go.
+LOCATION:SAFE Credit Union Convention Center\, Sacramento\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Courtney Lin autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

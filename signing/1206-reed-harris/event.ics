@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1206@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:Reed Harris autograph signing
+DESCRIPTION:Time: Time TBD\nDetails: https://www.collectiblesoncollege.com/store/p299/reedharris.html\nConfirm details with the organizer before you go.
+LOCATION:Phoenix Convention Center\, 100 N 3rd St\, Phoenix\, AZ
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Reed Harris autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

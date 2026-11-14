@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-441@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261122
+SUMMARY:Manny Pacquiao autograph signing
+DESCRIPTION:Order deadline: Friday\, November 13\, 2026\nDetails: https://powerssportsmemorabilia.com/products/manny-pacquiao-autograph-signing\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Manny Pacquiao autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1930@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:Thomas Rawls autograph signing
+DESCRIPTION:Time: Starts at 12 p.m.\nConfirm details with the organizer before you go.
+LOCATION:Galaxy Sports Lounge\, Muckleshoot Casino Resort\, Auburn\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Thomas Rawls autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

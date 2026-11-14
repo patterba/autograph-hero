@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2863@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261218
+DTEND;VALUE=DATE:20261219
+SUMMARY:Briana White autograph signing
+DESCRIPTION:Details: https://holidaymatsuri.com/guests/briana-white\nConfirm details with the organizer before you go.
+LOCATION:Orange County Convention Center\, Orlando\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Briana White autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

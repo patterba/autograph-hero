@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2389@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270520
+DTEND;VALUE=DATE:20270521
+SUMMARY:Nicolas Cage autograph signing
+DESCRIPTION:Details: https://fanexpohq.com/megaconorlando/nicolas-cage-live/\nConfirm details with the organizer before you go.
+LOCATION:Orange County Convention Center\, Orlando\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Nicolas Cage autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

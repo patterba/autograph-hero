@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2012@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261219
+DTEND;VALUE=DATE:20261220
+SUMMARY:Waka Flocka Flame autograph signing
+DESCRIPTION:Details: https://collectaconusa.com/los-angeles-2-special-guests/#waka-flocka-flame\nConfirm details with the organizer before you go.
+LOCATION:Los Angeles\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Waka Flocka Flame autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

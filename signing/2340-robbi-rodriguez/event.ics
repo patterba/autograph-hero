@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2340@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270528
+DTEND;VALUE=DATE:20270529
+SUMMARY:Robbi Rodriguez autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-oklahoma-city-guests#robbi-rodriguez\nConfirm details with the organizer before you go.
+LOCATION:Oklahoma City\, OK
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Robbi Rodriguez autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

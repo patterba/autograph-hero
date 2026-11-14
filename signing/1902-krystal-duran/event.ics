@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1902@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261129
+DTEND;VALUE=DATE:20261130
+SUMMARY:Krystal Duran autograph signing
+DESCRIPTION:Time: 4:00pm\nDetails: https://bookpeople.com/event/2026-11-29/krystal-duran-more-just-plant\nConfirm details with the organizer before you go.
+LOCATION:BookPeople\, 603 N Lamar Blvd\, Austin\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Krystal Duran autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

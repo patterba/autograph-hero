@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1076@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261125
+DTEND;VALUE=DATE:20261126
+SUMMARY:Order deadline: Ariana Richards autograph signing
+DESCRIPTION:Details: https://fenixautographs.com/products/ariana-richards-autograph-pre-order-gccmh26\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Ariana Richards
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

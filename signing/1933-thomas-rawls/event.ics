@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1933@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261218
+DTEND;VALUE=DATE:20261219
+SUMMARY:Thomas Rawls autograph signing
+DESCRIPTION:Time: 12p\nConfirm details with the organizer before you go.
+LOCATION:Galaxy Sports Lounge\, Auburn\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Thomas Rawls autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

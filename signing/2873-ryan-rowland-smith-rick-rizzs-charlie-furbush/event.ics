@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2873@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261205
+DTEND;VALUE=DATE:20261206
+SUMMARY:Ryan Rowland-Smith\, Rick Rizzs & Charlie Furbush autograph signing
+DESCRIPTION:Time: 10:00 AM for 1.5 hours\nConfirm details with the organizer before you go.
+LOCATION:DJ's Sportscards
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Ryan Rowland-Smith\, Rick Rizzs & Charlie Furbush autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

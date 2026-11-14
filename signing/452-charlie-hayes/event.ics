@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-452@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270102
+DTEND;VALUE=DATE:20270103
+SUMMARY:Charlie Hayes autograph signing
+DESCRIPTION:Order deadline: Monday\, December 28\, 2026\nDetails: https://www.wildertagautos.com/event-details-registration/charlie-hayes-mail-in-signing-items-due-12-28\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Charlie Hayes autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

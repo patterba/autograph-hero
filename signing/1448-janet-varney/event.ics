@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1448@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270820
+DTEND;VALUE=DATE:20270821
+SUMMARY:Janet Varney autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-san-jose-guests#janet-varney\nConfirm details with the organizer before you go.
+LOCATION:McEnery Convention Center\, 150 W San Carlos St\, San Jose\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Janet Varney autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

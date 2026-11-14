@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1920@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261129
+DTEND;VALUE=DATE:20261130
+SUMMARY:Sergio Castiglione autograph signing
+DESCRIPTION:Time: 5:00pm\nDetails: https://shop.booksandbooks.com/event/2026-11-29/segments-sergio-castiglione-conversation-victor-deupi\nConfirm details with the organizer before you go.
+LOCATION:Books & Books Coral Gables\, 265 Aragon Ave\, Coral Gables\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Sergio Castiglione autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

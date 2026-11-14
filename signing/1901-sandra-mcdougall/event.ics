@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1901@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261128
+DTEND;VALUE=DATE:20261129
+SUMMARY:Sandra McDougall autograph signing
+DESCRIPTION:Time: 10:30am-10:45am\nDetails: https://bookpeople.com/event/2026-11-28/special-author-storytime-sandra-mcdougall\nConfirm details with the organizer before you go.
+LOCATION:BookPeople\, 603 N Lamar Blvd\, Austin\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Sandra McDougall autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

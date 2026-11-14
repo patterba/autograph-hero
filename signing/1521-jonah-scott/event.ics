@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1521@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270910
+DTEND;VALUE=DATE:20270911
+SUMMARY:Jonah Scott autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-des-moines-guests#jonah-scott\nConfirm details with the organizer before you go.
+LOCATION:Des Moines\, IA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jonah Scott autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

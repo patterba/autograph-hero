@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1459@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270226
+DTEND;VALUE=DATE:20270227
+SUMMARY:Tyler Mane autograph signing
+DESCRIPTION:Time: Fri 6-11 PM\, Sat 11 AM-7 PM\, Sun 11 AM-5 PM\nDetails: https://madmonster.com/carolina-2027/#tyler-mane\nConfirm details with the organizer before you go.
+LOCATION:Embassy Suites by Hilton\, Concord\, NC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Tyler Mane autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

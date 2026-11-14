@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2713@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:Cam Cook autograph signing
+DESCRIPTION:Time: Sun.\, Nov. 22nd\, 12-1:30 PM\nDetails: https://pittsburghcardshow.com/upcoming-show-calendar#cam-cook\nConfirm details with the organizer before you go.
+LOCATION:Morgantown Mall & Expo Center\, Morgantown\, WV
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Cam Cook autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

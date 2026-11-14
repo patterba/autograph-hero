@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1622@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270924
+DTEND;VALUE=DATE:20270925
+SUMMARY:Mike Grell autograph signing
+DESCRIPTION:Time: Fri 1pm-7pm\, Sat 10am-7pm\, Sun 10am-5pm\nDetails: https://baltimorecomiccon.com/guest/mike-grell/\nConfirm details with the organizer before you go.
+LOCATION:Baltimore Convention Center\, Baltimore\, MD
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Mike Grell autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

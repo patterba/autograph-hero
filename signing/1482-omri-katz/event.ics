@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1482@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270129
+DTEND;VALUE=DATE:20270130
+SUMMARY:Omri Katz autograph signing
+DESCRIPTION:Details: https://fanexpohq.com/fanexpoportland/celebrities/#omri-katz\nConfirm details with the organizer before you go.
+LOCATION:Oregon Convention Center\, Portland\, OR
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Omri Katz autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

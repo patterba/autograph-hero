@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-609@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261117
+DTEND;VALUE=DATE:20261118
+SUMMARY:Evan Mobley autograph signing
+DESCRIPTION:Time: 7:00 PM\nDetails: https://primetime12.com/products/evan-mobley-11-17-26-at-great-northern-mall-pre-sale-ticket-for-autograph-signing-on-1-item\nConfirm details with the organizer before you go.
+LOCATION:Prime Time Sports\, 4954 Great Northern Blvd (Great Northern Mall)\, North Olmsted\, OH
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Evan Mobley autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

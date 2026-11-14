@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1934@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261127
+DTEND;VALUE=DATE:20261128
+SUMMARY:Shawn Kemp autograph signing
+DESCRIPTION:Time: Time TBA\nConfirm details with the organizer before you go.
+LOCATION:510 Occidental Ave\, Pioneer Square\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Shawn Kemp autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

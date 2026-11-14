@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1707@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270520
+DTEND;VALUE=DATE:20270521
+SUMMARY:David Tennant autograph signing
+DESCRIPTION:Details: https://fanexpohq.com/megaconorlando/all-guests/#david-tennant\nConfirm details with the organizer before you go.
+LOCATION:Orange County Convention Center\, Orlando\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: David Tennant autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

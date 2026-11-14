@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1907@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:Kevin Hartnett autograph signing
+DESCRIPTION:Time: 6:00pm\nDetails: https://www.harvard.com/event/kevin-hartnett\nConfirm details with the organizer before you go.
+LOCATION:Harvard Science Center\, Hall B\, 1 Oxford Street\, Cambridge\, MA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kevin Hartnett autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

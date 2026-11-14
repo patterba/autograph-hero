@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1560@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270108
+DTEND;VALUE=DATE:20270109
+SUMMARY:Maile Flanagan autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-raleigh-winter-edition-guests#maile-flanagan\nConfirm details with the organizer before you go.
+LOCATION:Raleigh\, NC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Maile Flanagan autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

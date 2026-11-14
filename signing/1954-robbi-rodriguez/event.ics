@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1954@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270820
+DTEND;VALUE=DATE:20270821
+SUMMARY:Robbi Rodriguez autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-san-jose-guests#robbi-rodriguez\nConfirm details with the organizer before you go.
+LOCATION:San Jose\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Robbi Rodriguez autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1002@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261122
+SUMMARY:Sterling Sharpe autograph signing
+DESCRIPTION:Time: 12:30-1:30pm\nDetails: https://chicagosportsspectacular.com/products/css26n-sharpe\nConfirm details with the organizer before you go.
+LOCATION:Donald E Stephens Convention Center\, 5555 N River Rd\, Rosemont\, IL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Sterling Sharpe autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

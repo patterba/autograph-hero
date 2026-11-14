@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-573@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:Jon Tenney autograph signing
+DESCRIPTION:Time: Appearing Saturday and Sunday\nDetails: https://motorcitycomiccon.com/guest/celebrity-guests/#popup-33\nConfirm details with the organizer before you go.
+LOCATION:Vibe Credit Union Showplace\, 46100 Grand River Ave\, Novi\, MI
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jon Tenney autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

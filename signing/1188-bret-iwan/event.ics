@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1188@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270310
+DTEND;VALUE=DATE:20270311
+SUMMARY:Order deadline: Bret Iwan autograph signing
+DESCRIPTION:Details: https://fenixautographs.com/products/bret-iwan-autograph-pre-order-gcric27\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Bret Iwan
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

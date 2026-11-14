@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1899@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261117
+DTEND;VALUE=DATE:20261118
+SUMMARY:Bonnie Garmus autograph signing
+DESCRIPTION:Time: 6:00pm\nDetails: https://bookpeople.com/event/2026-11-17/bonnie-garmus-peck-peck\nConfirm details with the organizer before you go.
+LOCATION:BookPeople\, 603 N Lamar Blvd\, Austin\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Bonnie Garmus autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

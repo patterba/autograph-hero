@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2617@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261230
+DTEND;VALUE=DATE:20261231
+SUMMARY:Order deadline: Paul Sun-Hyung Lee autograph signing
+DESCRIPTION:Details: https://fenixautographs.com/products/paul-sun-hyung-lee-autograph-pre-order-gcric27a\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Paul Sun-Hyung Lee
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1038@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:Larry Romano autograph signing
+DESCRIPTION:Details: https://chicagosportsspectacular.com/products/css26n-romano\nConfirm details with the organizer before you go.
+LOCATION:Donald E Stephens Convention Center\, 5555 N River Rd\, Rosemont\, IL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Larry Romano autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

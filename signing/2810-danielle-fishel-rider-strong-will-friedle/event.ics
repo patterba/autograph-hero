@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2810@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261116
+DTEND;VALUE=DATE:20261117
+SUMMARY:Danielle Fishel\, Rider Strong & Will Friedle autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://booksoup.com/event/2026-11-16/danielle-fishel-rider-strong-will-friedle\nConfirm details with the organizer before you go.
+LOCATION:First Congregational Church of Los Angeles\, Los Angeles\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Danielle Fishel\, Rider Strong & Will Friedle autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

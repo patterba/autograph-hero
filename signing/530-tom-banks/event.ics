@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-530@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261219
+DTEND;VALUE=DATE:20261220
+SUMMARY:Order deadline: Tom Banks autograph signing
+DESCRIPTION:Details: https://stlsportscollectors.com/product-category/autograph-tickets/tbanks_dec26/\nConfirm details with the organizer before you go.
+LOCATION:St. Louis\, MO
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Tom Banks
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

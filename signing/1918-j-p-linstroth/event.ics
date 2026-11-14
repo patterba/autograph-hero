@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1918@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261124
+DTEND;VALUE=DATE:20261125
+SUMMARY:J.P. Linstroth autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://shop.booksandbooks.com/event/2026-11-24/evening-jp-linstroth\nConfirm details with the organizer before you go.
+LOCATION:Books & Books Coral Gables\, 265 Aragon Ave\, Coral Gables\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: J.P. Linstroth autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

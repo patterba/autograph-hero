@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1440@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270729
+DTEND;VALUE=DATE:20270730
+SUMMARY:Kenn Scott autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-raleigh-guests#kenn-scott\nConfirm details with the organizer before you go.
+LOCATION:Atlantic Union Bank Convention Center\, 500 S Salisbury St\, Raleigh\, NC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kenn Scott autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1919@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261127
+DTEND;VALUE=DATE:20261128
+SUMMARY:Kyle MacLachlan autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://shop.booksandbooks.com/event/2026-11-27/fictional-selves-evening-kyle-maclachlan-conversation-rene-rodriguez\nConfirm details with the organizer before you go.
+LOCATION:Bill Cosford Cinema\, 5030 Brunson Dr\, Coral Gables\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kyle MacLachlan autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

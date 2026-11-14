@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1516@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270910
+DTEND;VALUE=DATE:20270911
+SUMMARY:Nolan North autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-des-moines-guests#nolan-north\nConfirm details with the organizer before you go.
+LOCATION:Des Moines\, IA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Nolan North autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

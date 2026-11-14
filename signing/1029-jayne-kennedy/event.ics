@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1029@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:Jayne Kennedy autograph signing
+DESCRIPTION:Details: https://chicagosportsspectacular.com/products/css26n-kennedy\nConfirm details with the organizer before you go.
+LOCATION:Donald E Stephens Convention Center\, 5555 N River Rd\, Rosemont\, IL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jayne Kennedy autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

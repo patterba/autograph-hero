@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2803@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:Jennifer Millikin autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://changinghands.com/event/2026-11-20/jennifer-millikin-goode-tidings\nConfirm details with the organizer before you go.
+LOCATION:Changing Hands Bookstore - Tempe\, 6428 S McClintock Dr.\, Tempe\, AZ
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jennifer Millikin autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

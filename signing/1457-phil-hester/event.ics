@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1457@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270402
+DTEND;VALUE=DATE:20270403
+SUMMARY:Phil Hester autograph signing
+DESCRIPTION:Time: Friday\, Saturday\, Sunday\nDetails: https://planetcomicon.com/phil-hester/\nConfirm details with the organizer before you go.
+LOCATION:Kansas City Convention Center (Bartle Hall)\, 301 West 13th Street\, Kansas City\, MO
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Phil Hester autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

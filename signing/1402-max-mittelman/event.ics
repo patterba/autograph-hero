@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1402@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270318
+DTEND;VALUE=DATE:20270319
+SUMMARY:Max Mittelman autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-richmond-guests#max-mittelman\nConfirm details with the organizer before you go.
+LOCATION:Greater Richmond Convention Center\, 403 N 3rd St\, Richmond\, VA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Max Mittelman autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

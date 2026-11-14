@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-416@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261205
+DTEND;VALUE=DATE:20261206
+SUMMARY:Order deadline: Andrew Walker autograph signing
+DESCRIPTION:Details: https://eastcoastcollectorsservice.com/andrew-walker-pre-order-autograph/\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Andrew Walker
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

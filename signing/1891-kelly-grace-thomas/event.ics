@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1891@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:Kelly Grace Thomas autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://vromansbookstore.com/event/2026-11-20/kelly-grace-thomas\nConfirm details with the organizer before you go.
+LOCATION:Vroman's Bookstore\, 695 E. Colorado Blvd\, Pasadena\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kelly Grace Thomas autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

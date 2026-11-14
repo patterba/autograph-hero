@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1935@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:Tara Sands autograph signing
+DESCRIPTION:Time: TBA\nConfirm details with the organizer before you go.
+LOCATION:Going Twice Sports Cards & Collectibles (G2)\, 510 Occidental Ave\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Tara Sands autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1883@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261211
+DTEND;VALUE=DATE:20261212
+SUMMARY:Yakov Trenin autograph signing
+DESCRIPTION:Time: 6:45-7:15 PM (subject to change)\nDetails: https://fanhqstore.com/collections/mystery-guest-in-person-event-nov-26\nConfirm details with the organizer before you go.
+LOCATION:Fan HQ Ridgedale\, 12667 Wayzata Blvd\, Minnetonka\, MN
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Yakov Trenin autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

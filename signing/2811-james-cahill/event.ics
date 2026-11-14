@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2811@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261117
+DTEND;VALUE=DATE:20261118
+SUMMARY:James Cahill autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://booksoup.com/event/2026-11-17/james-cahill\nConfirm details with the organizer before you go.
+LOCATION:Book Soup\, West Hollywood\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: James Cahill autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

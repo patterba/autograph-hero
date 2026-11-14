@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2712@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261122
+SUMMARY:Kevin Pittsnogle autograph signing
+DESCRIPTION:Time: Sat.\, Nov. 21st\, 2-4 PM\nDetails: https://pittsburghcardshow.com/upcoming-show-calendar#kevin-pittsnogle\nConfirm details with the organizer before you go.
+LOCATION:Morgantown Mall & Expo Center\, Morgantown\, WV
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kevin Pittsnogle autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1887@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:Lauren Glass & Lydia Glass autograph signing
+DESCRIPTION:Time: 11:00am\nDetails: https://vromansbookstore.com/event/2026-11-14/lauren-glass-lydia-glass\nConfirm details with the organizer before you go.
+LOCATION:Vroman's Bookstore\, 695 E. Colorado Blvd\, Pasadena\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Lauren Glass & Lydia Glass autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2813@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261119
+DTEND;VALUE=DATE:20261120
+SUMMARY:Saskia Wilson-Brown autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://booksoup.com/event/2026-11-19/saskia-wilson-brown\nConfirm details with the organizer before you go.
+LOCATION:Book Soup\, West Hollywood\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Saskia Wilson-Brown autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

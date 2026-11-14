@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-701@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261204
+DTEND;VALUE=DATE:20261205
+SUMMARY:Jonathan Frakes autograph signing
+DESCRIPTION:Time: Fri\, Sat\, Sun\nDetails: https://www.steelcitycon.com/schedule/#15483\nConfirm details with the organizer before you go.
+LOCATION:Monroeville Convention Center\, Monroeville\, PA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jonathan Frakes autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

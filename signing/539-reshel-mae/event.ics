@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-539@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:Reshel Mae autograph signing
+DESCRIPTION:Details: https://sandiegoanimecon.com/voice-actors-and-guests/#reshel-mae\nConfirm details with the organizer before you go.
+LOCATION:DoubleTree by Hilton San Diego Mission Valley\, San Diego\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Reshel Mae autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

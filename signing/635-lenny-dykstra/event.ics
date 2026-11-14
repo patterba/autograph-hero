@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-635@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:Lenny Dykstra autograph signing
+DESCRIPTION:Details: https://www.palmbeachautographs.com/products/lenny-dykstra-philadelphia-phillies-in-person-autograph-event-at-palm-beach-card-show-public-signing-event-november-15th-2026\nConfirm details with the organizer before you go.
+LOCATION:Palm Beach County Convention Center\, 650 Okeechobee Blvd\, West Palm Beach\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Lenny Dykstra autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

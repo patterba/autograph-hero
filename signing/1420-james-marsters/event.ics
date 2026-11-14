@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1420@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270731
+DTEND;VALUE=DATE:20270801
+SUMMARY:James Marsters autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-raleigh-guests#james-marsters\nConfirm details with the organizer before you go.
+LOCATION:Atlantic Union Bank Convention Center\, 500 S Salisbury St\, Raleigh\, NC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: James Marsters autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

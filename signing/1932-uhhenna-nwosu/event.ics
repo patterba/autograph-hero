@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1932@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:UHHENNA Nwosu autograph signing
+DESCRIPTION:Time: 4pm\nConfirm details with the organizer before you go.
+LOCATION:Lucky 7 Bar and Grill\, Kirkland\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: UHHENNA Nwosu autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

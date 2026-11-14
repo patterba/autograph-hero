@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1576@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261204
+DTEND;VALUE=DATE:20261205
+SUMMARY:Haneen Oriqat & Ream Shukairy autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://mystgalaxy.com/12426Oriqat\nConfirm details with the organizer before you go.
+LOCATION:Mysterious Galaxy Books\, 3555 Rosecrans St\, Suite 107A\, San Diego\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Haneen Oriqat & Ream Shukairy autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

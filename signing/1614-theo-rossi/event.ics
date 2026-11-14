@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1614@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270813
+DTEND;VALUE=DATE:20270814
+SUMMARY:Theo Rossi autograph signing
+DESCRIPTION:Time: Fri 1PM-8PM\, Sat 10AM-7PM\, Sun 10AM-5PM\nDetails: https://terrificon.com/media-guests-1.html#theo-rossi\nConfirm details with the organizer before you go.
+LOCATION:Mohegan Sun Expo Center\, Uncasville\, CT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Theo Rossi autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

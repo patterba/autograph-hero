@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2270@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270219
+DTEND;VALUE=DATE:20270220
+SUMMARY:Joey Lawrence autograph signing
+DESCRIPTION:Details: https://www.pensacon.com/guest/joey-lawrence/\nConfirm details with the organizer before you go.
+LOCATION:Pensacola\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Joey Lawrence autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

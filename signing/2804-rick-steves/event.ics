@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2804@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270201
+DTEND;VALUE=DATE:20270202
+SUMMARY:Rick Steves autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://changinghands.com/event/2027-02-01/rick-steves-rick-steves-italy-food-lovers\nConfirm details with the organizer before you go.
+LOCATION:The Madison\, 5601 North 16th Street\, Phoenix\, AZ
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Rick Steves autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

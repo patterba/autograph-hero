@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-931@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:Johnny Bench autograph signing
+DESCRIPTION:Time: 6:00 PM\nDetails: https://513autographs.com/events#johnny-bench\nConfirm details with the organizer before you go.
+LOCATION:CEI Sports\, Blue Ash\, OH
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Johnny Bench autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

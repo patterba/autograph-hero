@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1465@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270325
+DTEND;VALUE=DATE:20270326
+SUMMARY:Colleen Clinkenbeard autograph signing
+DESCRIPTION:Time: Friday-Sunday\nDetails: https://www.lexingtoncomiccon.com/#colleen-clinkenbeard\nConfirm details with the organizer before you go.
+LOCATION:Central Bank Center\, 300 W Vine St\, Lexington\, KY
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Colleen Clinkenbeard autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

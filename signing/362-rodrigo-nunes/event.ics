@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-362@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261123
+DTEND;VALUE=DATE:20261124
+SUMMARY:Rodrigo Nunes autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://thirdplacebooks.com/event/rodrigo-nunes\nConfirm details with the organizer before you go.
+LOCATION:Third Place Books Seward Park\, 5041 Wilson Ave S\, Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Rodrigo Nunes autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1578@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270118
+DTEND;VALUE=DATE:20270119
+SUMMARY:Neal Shusterman autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://mystgalaxy.com/11827shusterman\nConfirm details with the organizer before you go.
+LOCATION:Mysterious Galaxy Books\, 3555 Rosecrans St\, Suite 107A\, San Diego\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Neal Shusterman autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

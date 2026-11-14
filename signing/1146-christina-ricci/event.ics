@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1146@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261125
+DTEND;VALUE=DATE:20261126
+SUMMARY:Order deadline: Christina Ricci autograph signing
+DESCRIPTION:Details: https://fenixautographs.com/products/christina-ricci-autograph-pre-order-scc26c\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Christina Ricci
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

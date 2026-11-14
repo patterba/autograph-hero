@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1671@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270129
+DTEND;VALUE=DATE:20270130
+SUMMARY:Colin O'Donoghue autograph signing
+DESCRIPTION:Details: https://fanexpohq.com/fanexpoportland/celebrities/#colin-o-donoghue\nConfirm details with the organizer before you go.
+LOCATION:Oregon Convention Center\, Portland\, OR
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Colin O'Donoghue autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

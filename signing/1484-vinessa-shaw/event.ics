@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1484@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20270129
+DTEND;VALUE=DATE:20270130
+SUMMARY:Vinessa Shaw autograph signing
+DESCRIPTION:Details: https://fanexpohq.com/fanexpoportland/celebrities/#vinessa-shaw\nConfirm details with the organizer before you go.
+LOCATION:Oregon Convention Center\, Portland\, OR
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Vinessa Shaw autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

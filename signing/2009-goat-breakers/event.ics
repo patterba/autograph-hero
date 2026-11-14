@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2009@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261122
+SUMMARY:Goat Breakers autograph signing
+DESCRIPTION:Details: https://collectaconusa.com/new-jersey-2-special-guests/#goat-breakers\nConfirm details with the organizer before you go.
+LOCATION:NJ
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Goat Breakers autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

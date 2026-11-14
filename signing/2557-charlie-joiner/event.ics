@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2557@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:Charlie Joiner autograph signing
+DESCRIPTION:Order deadline: Sunday\, October 25\, 2026\nDetails: https://primetime12.com/products/charlie-joiner-mail-in-ticket-for-private-signing-on-1-item-you-will-not-meet-charlie-joiner\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Charlie Joiner autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

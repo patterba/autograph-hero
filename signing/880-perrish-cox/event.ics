@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-880@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261213
+DTEND;VALUE=DATE:20261214
+SUMMARY:Perrish Cox autograph signing
+DESCRIPTION:Time: 10:30 AM - 11:30 AM\nDetails: https://www.trifectacollectibles.com/event/perrish-cox-autograph-event-end-zone-tailgate/\nConfirm details with the organizer before you go.
+LOCATION:End Zone Tailgate Party\, Hilton Santa Clara\, 4949 Great America Pkwy\, Santa Clara\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Perrish Cox autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-1585@autographhero.com
+DTSTAMP:20261114T000000Z
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261122
+SUMMARY:Kevin Thorn autograph signing
+DESCRIPTION:Time: Saturday\, Nov 21\, time TBA\nDetails: https://www.northeastcardexpo.com/quincy-nov-2026#kevin-thorn\nConfirm details with the organizer before you go.
+LOCATION:Marriott Boston Quincy\, 1000 Marriott Dr\, Quincy\, MA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kevin Thorn autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR
