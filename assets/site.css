@@ -149,7 +149,10 @@ h1, h2, h3, p { margin: 0; }
 .card-more-arrow svg { width: 24px; height: 24px; }
 .card.card-ad { gap: 10px; padding: 18px 20px; justify-content: flex-start; }
 .card.card-ad:hover { transform: none; box-shadow: none; }
-.card-ad .adsbygoogle { flex: 1; }
+.card.card-ad { min-width: 0; }
+.card-ad .adsbygoogle { flex: 1; display: flex !important; align-items: center; justify-content: center; width: 100% !important; max-width: 100%; min-width: 0; overflow: hidden; }
+/* Google sizes the fluid ad's frames on its own; keep them inside the card. */
+.card-ad .adsbygoogle iframe, .card-ad .adsbygoogle > div { max-width: 100% !important; }
 /* Until Google actually fills the ad, the card takes no space: a thin full-width row, no border or label. */
 .card.card-ad:not(:has(ins[data-ad-status="filled"])) { grid-column: 1 / -1; height: 0; padding: 0; border: 0; overflow: hidden; margin-bottom: -24px; }
 .card { display: flex; flex-direction: column; background: var(--card); border: 1.5px solid var(--ink); border-radius: 16px; overflow: hidden; text-decoration: none; color: var(--ink); transition: transform 0.12s ease, box-shadow 0.12s ease; }
