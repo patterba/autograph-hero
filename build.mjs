@@ -48,7 +48,7 @@ const CF_ANALYTICS_TOKEN = process.env.ANALYTICS === 'off' ? '' : (process.env.C
 // Contact address shown on the Terms and Privacy pages (GitHub variable CONTACT_EMAIL).
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 // Date the Terms and Privacy pages were last changed. Update it when you edit them.
-const POLICY_DATE = '2026-11-11';
+const POLICY_DATE = '2026-11-14';
 // Our own cookie-free unique visitor count (supabase/functions/site-visit). VISIT_COUNT=off turns it off.
 const COUNT_VISITS = process.env.VISIT_COUNT !== 'off';
 // Browsers where the admin page has been logged into (localStorage 'ah-nocount') send nothing.
@@ -1935,6 +1935,7 @@ function privacyPage() {
       <li><strong>Unique visitor count:</strong> to count how many different people visit each day, each page sends us your IP address and browser name, which we immediately scramble together with a random code that changes every day. We keep only the scrambled result, which can't be turned back into your IP address or linked from one day to the next. No cookies are used.</li>
       <li><strong>New or returning, and state:</strong> your browser keeps the date of your first visit in its own storage (not a cookie) and only tells us yes or no: have you been here on an earlier day. Before scrambling your IP address we also look up which US state it belongs to in a table kept on our own server (IP location data by <a href="https://db-ip.com">DB-IP</a>, CC BY 4.0), and keep only the state name. Your IP address isn't sent anywhere else. Clearing your browser's site data resets the yes/no.</li>
       <li><strong>Ads:</strong> some pages show ads from Google AdSense, marked "Sponsored". Google and its partners use cookies and similar technology to show ads and measure them, which can include ads based on your visits to this and other websites. You can turn off personalized ads at <a href="https://adssettings.google.com">Google's Ads Settings</a> (or for many ad companies at <a href="https://www.aboutads.info/choices/">aboutads.info</a>), and read <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a>. We don't share your name, email or favorites with advertisers.</li>
+      <li><strong>Shopping links:</strong> some pages link to products on eBay through the eBay Partner Network. If you buy after clicking one, we may earn a commission at no extra cost to you, and eBay may use cookies to credit the sale. We don't send eBay any of your information.</li>
       <li><strong>Visit length:</strong> with the same scrambled code, we count how many pages you open in one visit and how long the pages are on your screen (when you leave or switch away from a page, it tells us the number of seconds). This shows us how long people stay, in total; it isn't linked to your account, your email or any other day.</li>
     </ul>`],
       ['What we don\'t do', `<p>We don't sell or rent your information, and our own statistics don't use cookies. We only email you about signings for the favorites you chose, and about your account (such as login links).</p>`],
@@ -1944,6 +1945,7 @@ function privacyPage() {
       <li><strong>Resend</strong>: sends the welcome email, login links and alert emails.</li>
       <li><strong>Cloudflare</strong>: site statistics and the spam check.</li>
       <li><strong>Google AdSense</strong>: the ads on some pages.</li>
+      <li><strong>eBay Partner Network</strong>: shopping links on some pages.</li>
       <li><strong>Bluehost</strong>: hosts the website.</li>
       <li><strong>Google Fonts, Wikimedia Commons and promoter websites</strong>: the site's fonts and some photos load from these services, so they receive your IP address when your browser fetches them, as with any website.</li>
     </ul>`],
@@ -2602,6 +2604,21 @@ function moreSportButtons(hubs) {
 }
 
 // /categories/sports/<league>/: every current team in the league, plus former team names we know.
+// eBay Partner Network links on league pages (affiliate: rel sponsored, labelled on the page and in the privacy policy).
+const LEAGUE_SHOP = {
+  nfl: { url: 'https://www.ebay.com/b/NFL-Fan-Apparel-Souvenirs/206/bn_2310770?mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339249901&customid=CategoryNFL&toolid=10001&mkevt=1', label: 'NFL fan gear & souvenirs' },
+};
+function shopBand(lg) {
+  const s = LEAGUE_SHOP[lg.key];
+  if (!s) return '';
+  return `<section class="band band-tight shop-band">
+  <div class="shop-box">
+    <div><span class="eyebrow">Shop on eBay</span><h2>${esc(s.label)}</h2><p class="shop-note">Affiliate link: Autograph Hero may earn a commission if you buy, at no extra cost to you.</p></div>
+    <a class="btn btn-ink" href="${esc(s.url)}" target="_blank" rel="sponsored nofollow noopener">Shop ${esc(lg.name)} gear ${ICON.arrow}</a>
+  </div>
+</section>`;
+}
+
 function leaguePage(lg, hubs) {
   const list = leagueList(lg, hubs);
   const n = list.length;
@@ -2617,7 +2634,7 @@ function leaguePage(lg, hubs) {
     intro: `<section class="band band-tight">
   <div class="section-head"><h2>${esc(lg.name)} teams</h2></div>
   <ul class="team-grid">${current.map((t) => `<li><a href="${esc(link(teamPath(t.slug)))}"><span>${esc(t.name)}</span>${t.list.length ? `<span class="chip-n">${t.list.length}</span>` : ''}</a></li>`).join('')}</ul>
-</section>`,
+</section>${shopBand(lg)}`,
     list,
     sections: [{ title: 'Former team names', items: former, path: (t) => teamPath(t.slug) }],
     title: `${lg.name} Autograph Signings by Team ${THIS_YEAR}`,

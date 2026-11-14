@@ -691,3 +691,8 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .recent-table .num { text-align: right; white-space: nowrap; font-weight: 600; }
 .recent-note { margin-top: 10px; font-size: 13px; }
 .detail-text .recent-signings { margin: 24px 0; }
+
+/* eBay affiliate band on league pages */
+.shop-box { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; background: var(--card); border: 1.5px solid var(--ink); border-radius: 16px; padding: 22px 24px; }
+.shop-box h2 { font-size: 24px; margin: 4px 0; }
+.shop-note { font-size: 13px; color: var(--muted); margin: 0; }
