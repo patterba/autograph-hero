@@ -14,7 +14,7 @@ const OUT = path.join(ROOT, 'dist');
 const ADSENSE_CLIENT = 'ca-pub-8886224668564234';
 // Display ad unit for the 8th spot in the home feed, sized to the card's photo box. Empty = no ad card.
 // (The in-feed unit 5644678416 sized itself and stretched the card.)
-const ADSENSE_SLOT_HOME = '';
+const ADSENSE_SLOT_HOME = '9482696125'; // Display unit "Home feed photo"
 // Ad cards show unless ADS=off (AdSense approved the site 2026-11-11).
 const ADS_ON = (process.env.ADS || '').toLowerCase() !== 'off';
 const ADSENSE_SCRIPT = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}" crossorigin="anonymous"></script>`;
