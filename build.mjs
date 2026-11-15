@@ -2071,10 +2071,11 @@ function articlesIndexPage(articles) {
 </section>
 <section class="band band-tight">
   <div class="article-list">
-    ${articles.map((a) => `<a class="article-item" href="${esc(link(`/articles/${a.slug}/`))}">
-      <div class="eyebrow">${esc(a.eyebrow || 'Article')} · ${esc(articleDate(a.date))}</div>
+    ${articles.map((a) => `<a class="article-item${a.image ? ' has-img' : ''}" href="${esc(link(`/articles/${a.slug}/`))}">
+      ${a.image ? `<img class="article-thumb" src="${esc(link(a.image))}" alt="" width="96" height="96" loading="lazy">` : ''}
+      <div class="article-text"><div class="eyebrow">${esc(a.eyebrow || 'Article')} · ${esc(articleDate(a.date))}</div>
       <h2>${esc(a.title)}</h2>
-      <p>${esc(a.description)}</p>
+      <p>${esc(a.description)}</p></div>
     </a>`).join('\n    ') || '<p class="muted">No articles yet.</p>'}
   </div>
 </section>`;
@@ -2092,6 +2093,7 @@ function articlePage(a) {
   const body = `
 <section class="page-head">
   ${crumbsNav([['Home', '/'], ['Articles', '/articles/'], [a.title, null]])}
+  ${a.image ? `<img class="article-hero-img" src="${esc(link(a.image))}" alt="" width="88" height="88">` : ''}
   <div class="eyebrow accent">${esc(a.eyebrow || 'Article')}</div>
   <h1>${esc(a.title)}</h1>
   <p class="muted small">By ${SITE_NAME} · <time datetime="${esc(a.date)}">${esc(articleDate(a.date))}</time></p>

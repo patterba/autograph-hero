@@ -705,4 +705,8 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .article-item h2 { font-family: var(--display); font-weight: 400; font-size: clamp(24px, 2.4vw, 30px); line-height: 1.05; text-transform: uppercase; margin: 6px 0 8px; }
 .article-item p { color: var(--ink-2); margin: 0; }
 .article-body h3 { font-size: 20px; font-weight: 700; margin-top: 10px; }
+.article-item.has-img { display: flex; gap: 18px; align-items: flex-start; }
+.article-thumb { flex: 0 0 auto; width: 96px; height: 96px; border-radius: 12px; }
+.article-hero-img { display: block; width: 88px; height: 88px; border-radius: 14px; margin: 4px 0 14px; }
+@media (max-width: 560px) { .article-thumb { width: 64px; height: 64px; } }
 .article-back { margin-top: 28px; }
