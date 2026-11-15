@@ -697,3 +697,12 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .card-ad .ebay-box { position: relative; display: block; background: #fff; overflow: hidden; }
 .ebay-fit { position: absolute; top: 50%; left: 50%; transform-origin: center; transform: translate(-50%, -50%) scale(var(--ebay-scale, 1)); }
 .shop-note { font-size: 13px; color: var(--muted); margin: 0; }
+
+/* Articles */
+.article-list { display: flex; flex-direction: column; gap: 16px; max-width: 80ch; }
+.article-item { display: block; text-decoration: none; color: var(--ink); border: 1.5px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+.article-item:hover { border-color: var(--ink); }
+.article-item h2 { font-family: var(--display); font-weight: 400; font-size: clamp(24px, 2.4vw, 30px); line-height: 1.05; text-transform: uppercase; margin: 6px 0 8px; }
+.article-item p { color: var(--ink-2); margin: 0; }
+.article-body h3 { font-size: 20px; font-weight: 700; margin-top: 10px; }
+.article-back { margin-top: 28px; }

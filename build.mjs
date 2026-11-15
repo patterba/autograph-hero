@@ -5,7 +5,7 @@
 import { mkdir, writeFile, rm, cp } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
@@ -792,7 +792,7 @@ ${pathname === '/add/' || admin ? '' : `<div class="submit-bar" hidden>
     <p>Autograph Hero is a passion project built by a lifelong autograph and sports card collector. I made it so fans can find every signing, meet &amp; greet and mail-in in one place, and never miss the chance to get something signed by the people they root for. <a href="${esc(link('/about/'))}">Read the story</a> · <a href="${esc(link('/contact/'))}">Contact us</a></p>
   </div>
   <p>Listings are gathered from promoter and shop websites and refreshed every week. Dates, prices and availability can change, so always confirm with the organizer before you order or travel.</p>
-  <p class="small footer-links"><a href="${esc(link('/about/'))}">About</a><a href="${esc(link('/contact/'))}">Contact</a><a href="${esc(link('/faq/'))}">FAQ</a><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/states/'))}">Signings by State</a><a href="${esc(link('/account/'))}" data-login-link data-login-short><span data-login-label>Log In</span></a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
+  <p class="small footer-links"><a href="${esc(link('/about/'))}">About</a><a href="${esc(link('/contact/'))}">Contact</a><a href="${esc(link('/faq/'))}">FAQ</a><a href="${esc(link('/articles/'))}">Articles</a><a href="${esc(link('/archive/'))}">Signing Archives</a><a href="${esc(link('/autographs/'))}">Signers A–Z</a><a href="${esc(link('/teams/'))}">Teams A–Z</a><a href="${esc(link('/states/'))}">Signings by State</a><a href="${esc(link('/account/'))}" data-login-link data-login-short><span data-login-label>Log In</span></a><a href="${esc(link('/app/'))}">Get the App</a><a href="${esc(link('/terms/'))}">Terms</a><a href="${esc(link('/privacy/'))}">Privacy</a><a href="${esc(link('/photo-credits/'))}">Photo credits</a></p>
   <p class="mono small">Updated ${esc(longDate(TODAY))}</p>
 </footer>
 ${script ? `<script src="${esc(asset('/assets/site.js'))}" defer></script>` : ''}
@@ -2041,6 +2041,80 @@ function contactPage() {
   });
 }
 
+// Articles (/articles/): hand-written posts in articles/<slug>.html. Each file starts with an HTML comment
+// holding JSON {title, description, date (YYYY-MM-DD), eyebrow}; the rest is trusted HTML whose root-relative
+// href="/..." links go through link(). Newest first; a date in the future stays unpublished.
+function loadArticles() {
+  const dir = path.join(ROOT, 'articles');
+  let files = [];
+  try { files = readdirSync(dir).filter((f) => f.endsWith('.html')); } catch { return []; }
+  const today = new Date().toISOString().slice(0, 10);
+  return files.map((f) => {
+    const raw = readFileSync(path.join(dir, f), 'utf8');
+    const m = raw.match(/^\s*<!--([\s\S]*?)-->/);
+    const meta = JSON.parse(m[1]);
+    const body = raw.slice(m[0].length).replace(/href="\/(?!\/)([^"]*)"/g, (_, rest) => `href="${esc(link('/' + rest))}"`);
+    return { ...meta, slug: f.replace(/\.html$/, ''), body };
+  }).filter((a) => a.date <= today).sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function articleDate(d) {
+  return new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+}
+
+function articlesIndexPage(articles) {
+  const body = `
+<section class="page-head">
+  <div class="eyebrow accent">Articles</div>
+  <h1>Autograph Hero Articles</h1>
+  <p class="lede">Signing deals, monthly roundups and tips for collectors.</p>
+</section>
+<section class="band band-tight">
+  <div class="article-list">
+    ${articles.map((a) => `<a class="article-item" href="${esc(link(`/articles/${a.slug}/`))}">
+      <div class="eyebrow">${esc(a.eyebrow || 'Article')} · ${esc(articleDate(a.date))}</div>
+      <h2>${esc(a.title)}</h2>
+      <p>${esc(a.description)}</p>
+    </a>`).join('\n    ') || '<p class="muted">No articles yet.</p>'}
+  </div>
+</section>`;
+  return page({
+    title: 'Articles',
+    description: 'Autograph Hero articles: the cheapest Hall of Fame autographs each month, signing roundups and collector tips.',
+    pathname: '/articles/',
+    body,
+    ld: [breadcrumbLd([['Home', '/'], ['Articles', '/articles/']])],
+  });
+}
+
+function articlePage(a) {
+  const p = `/articles/${a.slug}/`;
+  const body = `
+<section class="page-head">
+  ${crumbsNav([['Home', '/'], ['Articles', '/articles/'], [a.title, null]])}
+  <div class="eyebrow accent">${esc(a.eyebrow || 'Article')}</div>
+  <h1>${esc(a.title)}</h1>
+  <p class="muted small">By ${SITE_NAME} · <time datetime="${esc(a.date)}">${esc(articleDate(a.date))}</time></p>
+</section>
+<section class="band band-tight">
+  <article class="prose article-body">
+    ${a.body}
+  </article>
+  <p class="article-back"><a href="${esc(link('/articles/'))}">← All articles</a></p>
+</section>`;
+  return page({
+    title: a.title,
+    description: a.description,
+    pathname: p,
+    body,
+    ogType: 'article',
+    ld: [
+      breadcrumbLd([['Home', '/'], ['Articles', '/articles/'], [a.title, p]]),
+      { '@context': 'https://schema.org', '@type': 'Article', headline: a.title, description: a.description, datePublished: a.date, dateModified: a.date, mainEntityOfPage: abs(p), image: abs('/assets/social.png'), author: { '@type': 'Organization', name: SITE_NAME, url: abs('/') }, publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: abs('/assets/social.png') } } },
+    ],
+  });
+}
+
 // FAQ (/faq/): questions grouped by topic as <details> panels, plus FAQPage JSON-LD.
 // Answers are trusted HTML written here; internal links go through link().
 function faqGroups() {
@@ -2848,6 +2922,9 @@ async function main() {
   await put('about/index.html', aboutPage());
   await put('contact/index.html', contactPage());
   await put('faq/index.html', faqPage());
+  const articles = loadArticles();
+  await put('articles/index.html', articlesIndexPage(articles));
+  for (const a of articles) await put(`articles/${a.slug}/index.html`, articlePage(a));
   // Google Search Console ownership file (HTML file method). Keep it: removing it can lose Search Console access.
   await put('google9017fd775e03a772.html', 'google-site-verification: google9017fd775e03a772.html');
   await put('photo-credits/index.html', creditsPage([...list, ...archive]));
@@ -2911,7 +2988,7 @@ async function main() {
   const pages = [
     ['/', newest(list)], ['/events/', newest(list)], ['/archive/', newest(archive)],
     ['/autographs/', newest(list)], ['/teams/', newest(list)], ['/states/', newest(list)],
-    ...['/about/', '/contact/', '/faq/', '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/'].map((p) => [p, null]),
+    ...['/about/', '/contact/', '/faq/', '/articles/', ...articles.map((a) => `/articles/${a.slug}/`), '/add/', '/signup/', '/app/', '/terms/', '/privacy/', '/photo-credits/'].map((p) => [p, null]),
     ...live(hubs.sports).map((sp) => [sportPath(sp.name), newest(sp.list)]),
     ...LEAGUES.map((lg) => [leaguePath(lg), newest(leagueList(lg, hubs))]),
     ...CATEGORIES.map((c) => list.filter((s) => s.category === c)).filter((l) => l.length).map((l) => [categoryPath(l[0].category), newest(l)]),
