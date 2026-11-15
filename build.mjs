@@ -1935,7 +1935,7 @@ function privacyPage() {
       <li><strong>Unique visitor count:</strong> to count how many different people visit each day, each page sends us your IP address and browser name, which we immediately scramble together with a random code that changes every day. We keep only the scrambled result, which can't be turned back into your IP address or linked from one day to the next. No cookies are used.</li>
       <li><strong>New or returning, and state:</strong> your browser keeps the date of your first visit in its own storage (not a cookie) and only tells us yes or no: have you been here on an earlier day. Before scrambling your IP address we also look up which US state it belongs to in a table kept on our own server (IP location data by <a href="https://db-ip.com">DB-IP</a>, CC BY 4.0), and keep only the state name. Your IP address isn't sent anywhere else. Clearing your browser's site data resets the yes/no.</li>
       <li><strong>Ads:</strong> some pages show ads from Google AdSense, marked "Sponsored". Google and its partners use cookies and similar technology to show ads and measure them, which can include ads based on your visits to this and other websites. You can turn off personalized ads at <a href="https://adssettings.google.com">Google's Ads Settings</a> (or for many ad companies at <a href="https://www.aboutads.info/choices/">aboutads.info</a>), and read <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a>. We don't share your name, email or favorites with advertisers.</li>
-      <li><strong>Shopping links:</strong> the NFL, MLB, NBA and NHL league pages show a box of live eBay listings, loaded from eBay through the eBay Partner Network. eBay's code runs in that box and may use its own cookies to credit sales and pick listings; if you buy after clicking one, we may earn a commission at no extra cost to you. We don't send eBay any of your information.</li>
+      <li><strong>Shopping links:</strong> the NFL, MLB, NBA and NHL league pages and the Entertainment, Musicians, Authors and Artists category pages show a box of live eBay listings, loaded from eBay through the eBay Partner Network. eBay's code runs in that box and may use its own cookies to credit sales and pick listings; if you buy after clicking one, we may earn a commission at no extra cost to you. We don't send eBay any of your information.</li>
       <li><strong>Visit length:</strong> with the same scrambled code, we count how many pages you open in one visit and how long the pages are on your screen (when you leave or switch away from a page, it tells us the number of seconds). This shows us how long people stay, in total; it isn't linked to your account, your email or any other day.</li>
     </ul>`],
       ['What we don\'t do', `<p>We don't sell or rent your information, and our own statistics don't use cookies. We only email you about signings for the favorites you chose, and about your account (such as login links).</p>`],
@@ -2302,6 +2302,7 @@ function categoryPage(c, list, hubs) {
     h1: copy.h1,
     lede: n ? `${esc(plural(n, 'signing'))} with ${esc(copy.who)} (${esc(typeMix(list))}), soonest first.${esc(nextLine(list))}` : `No signings with ${esc(copy.who)} are listed right now.`,
     intro: c === 'Sports' ? leagueButtons(hubs) : '',
+    adsFor: c === 'Sports' ? null : { key: c, name: c },
     list,
     sections: [
       ...(sports.length ? [{ title: 'By sport', items: sports, path: (sp) => sportPath(sp.name) }] : []),
@@ -2610,19 +2611,30 @@ function moreSportButtons(hubs) {
 // eBay Partner Network Smart Placement banners on league pages (affiliate: labelled on the page and in the privacy policy).
 // One banner per league, set up in EPN > Tools > Smart Placements: 300x250, keywords "<League> autograph signed",
 // category Autographs-Original > <league>, "back up my keywords with category results" on; each league has its own campaign.
+// Category pages use the same card: key = category name, with their own campaigns and shop titles below.
 const LEAGUE_EBAY = {
   NFL: 'fff6cb8c2cd63c66f9f1d7c3', // campaign NFL Events 5339249901
   MLB: 'fff6d0c20efb3159606cb5ff', // campaign MLB Events 5339250072
   NBA: 'fff6d120c9a45822dd175067', // campaign NBA Events 5339250074
   NHL: 'fff6d16deb198c627b8f811d', // campaign NHL Events 5339250075
+  Entertainment: 'fff70db9eb198c627b8f811f', // campaign Entertainment Events 5339250312, "celebrity autograph signed", Entertainment Memorabilia > Autographs-Original
+  Musicians: 'fff70e012cd63c66f9f1d7c5', // campaign Musicians Events 5339250313, "signed album autograph", Music Memorabilia
+  Authors: 'fff70e47289aa126f8cfda23', // campaign Authors Events 5339250314, "signed book author", Books & Magazines > Books
+  Artists: 'fff70e8e2cd63c66f9f1d7c6', // campaign Artists Events 5339250315, "signed comic book", Collectibles > Comic Books & Memorabilia
+};
+const EBAY_SHOP_TITLE = {
+  Entertainment: 'Shop Celebrity Autographs',
+  Musicians: 'Shop Music Autographs',
+  Authors: 'Shop Signed Books',
+  Artists: 'Shop Signed Comics & Art',
 };
 // The eBay banner as a card in the signings grid, in the 4:3 photo box. eBay's 300x250 layout is a scrolling list
 // with a row every 100px, so the box is cut to 236px (exactly two rows), then scaled down to fit narrow cards
 // (never up). The ID must be on the <ins> before epn-smart-tools.js runs, so the card's script loads it.
 function shopCard(lg) {
-  return `<div class="card card-ad card-ebay" aria-label="Sponsored: ${esc(lg.name)} autographs on eBay">
+  return `<div class="card card-ad card-ebay" aria-label="Sponsored: ${esc(EBAY_SHOP_TITLE[lg.key] || `Shop ${lg.name} Autographs`)} on eBay">
   <div class="card-photo ad-box ebay-box"><div class="ebay-fit" style="width:300px;height:236px;overflow:hidden"><ins class="epn-placement" data-config-id="${esc(LEAGUE_EBAY[lg.key])}" style="display:block;width:300px;height:250px"></ins></div></div>
-  <div class="card-body"><div class="eyebrow">Sponsored · eBay</div><h3>Shop ${esc(lg.name)} Autographs</h3><p class="shop-note">Affiliate links: we may earn a commission, at no extra cost to you.</p></div>
+  <div class="card-body"><div class="eyebrow">Sponsored · eBay</div><h3>${esc(EBAY_SHOP_TITLE[lg.key] || `Shop ${lg.name} Autographs`)}</h3><p class="shop-note">Affiliate links: we may earn a commission, at no extra cost to you.</p></div>
   <div class="card-foot"><span class="mono">Live listings</span><span class="price">Browse on eBay ${ICON.arrow}</span></div>
   <script>(function(){var c=document.currentScript.parentNode,b=c.querySelector('.ebay-box'),f=c.querySelector('.ebay-fit');function fit(){f.style.setProperty('--ebay-scale',Math.min(1,b.clientWidth/300,b.clientHeight/236));}fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(b);else addEventListener('resize',fit);if(!window.ahEpn){window.ahEpn=1;var s=document.createElement('script');s.async=true;s.src='https://epnt.ebay.com/static/epn-smart-tools.js';document.head.appendChild(s);}})();</script>
 </div>`;
