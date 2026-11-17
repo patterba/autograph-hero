@@ -715,7 +715,6 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .ebay-top { padding: 16px var(--gutter) 0; }
 .ebay-wide { position: relative; max-width: 900px; height: 220px; margin: 0 auto; overflow: hidden; background: #fff; border: 1px solid var(--ink); border-radius: 12px; }
 .ebay-wide iframe { position: absolute; top: 0; left: 0; width: 900px; height: 220px; border: 0; transform-origin: 0 0; }
-.ebay-note { max-width: 900px; margin: 6px auto 0; font-size: 12px; color: var(--muted); }
 .sig-ads { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; }
 .sig-ad { flex: 0 0 auto; width: 300px; height: 236px; overflow: hidden; background: #fff; border: 1px solid var(--ink); border-radius: 12px; }
 .sig-ad-box iframe { display: block; width: 300px; height: 250px; border: 0; }
