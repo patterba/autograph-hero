@@ -1408,8 +1408,9 @@ function relatedSignings(s, list, n = 5) {
   for (const o of list) {
     if (o.id === s.id || o.past || o.names.some((x) => names.has(x))) continue;
     if ((o.category || '') !== (s.category || '')) continue;
-    const sameSport = s.sport && o.sport && o.sport.toLowerCase() === s.sport.toLowerCase();
-    if (s.category === 'Sports' && s.sport && o.sport && !sameSport) continue;
+    const sameSport = !!s.sportKnown && o.sportKnown === s.sportKnown;
+    // Athletes: a known sport must match exactly (no football players on a baseball page).
+    if (s.category === 'Sports' && s.sportKnown && !sameSport) continue;
     const shared = franchises(o.teams || []).filter((t) => mine.has(t)).length;
     const score = (shared ? 100 + shared : 0) + (sameSport ? 40 : 0) + (s.state && o.state === s.state ? 10 : 0);
     scored.push([score, o]);
@@ -2995,6 +2996,8 @@ async function main() {
   const all = rows.map((row) => shape(row, athletes)).filter((s) => s.sortDate);
   const sportyHosts = sportsHosts(all);
   for (const s of all) s.category = categoryOf(s, athletes, sportyHosts);
+  // Best-known sport per signing: the listing's own, else the signer's from public.athletes.
+  for (const s of all) s.sportKnown = (realSport(s.sport) ? s.sport : s.names.map((n) => (athletes.get(n.trim().toLowerCase()) || []).find((a) => realSport(a.sport))?.sport).find(Boolean) || '').toLowerCase();
   const list = all.filter((s) => !s.past).sort((a, b) => a.sortDate.localeCompare(b.sortDate) || a.id - b.id);
   // Signing Archives: newest first.
   const archive = all.filter((s) => s.past).sort((a, b) => b.sortDate.localeCompare(a.sortDate) || b.id - a.id);
