@@ -2472,7 +2472,7 @@ function categoryPage(c, list, hubs) {
     h1: copy.h1,
     lede: n ? `${esc(plural(n, 'signing'))} with ${esc(copy.who)} (${esc(typeMix(list))}), soonest first.${esc(nextLine(list))}` : `No signings with ${esc(copy.who)} are listed right now.`,
     intro: c === 'Sports' ? leagueButtons(hubs) : '',
-    adsFor: c === 'Sports' ? null : { key: c, name: c },
+    adsFor: { key: c, name: c }, // AdSense spots 8, 20, 32…; eBay card only where LEAGUE_EBAY has the key (not Sports)
     list,
     sections: [
       ...(sports.length ? [{ title: 'By sport', items: sports, path: (sp) => sportPath(sp.name) }] : []),
