@@ -1327,6 +1327,35 @@ function lastSignedText(p) {
   return p.priceLow != null ? `${date} · from $${Number(p.priceLow).toLocaleString('en-US')}` : date;
 }
 
+// eBay ads on signing pages (test: only the IDs in EBAY_SIGNING_TEST until the owner approves the layout).
+// Top: 900x220 eBay banner under the breadcrumb, "<name> autograph", scaled down to fit narrow screens.
+// Under the photo: eBay 300x250 ("<name> sports card" for athletes, else "<name> autograph") and, on desktop,
+// an AdSense 300x250 beside it. The eBay ads are iframes from epnt.ebay.com/placement with the search words in
+// `k`, so each page targets its own signer; cpid = the league's or category's EPN campaign (LEAGUE_EBAY notes).
+const EBAY_SIGNING_TEST = new Set([247]);
+const EBAY_CAMPAIGN = { NFL: '5339249901', MLB: '5339250072', NBA: '5339250074', NHL: '5339250075', Entertainment: '5339250312', Musicians: '5339250313', Authors: '5339250314', Artists: '5339250315' };
+const SPORT_LEAGUE = { football: 'NFL', baseball: 'MLB', basketball: 'NBA', hockey: 'NHL' };
+const EBAY_AUTOGRAPH_CAT = { NFL: '27274', MLB: '27259', NBA: '27267', NHL: '27283' }; // Autographs-Original > league
+const EBAY_SPORTS_CARDS_CAT = '212'; // Sports Mem, Cards & Fan Shop > Sports Trading Cards
+function ebaySrc(cpid, layout, words, cat) {
+  const q = new URLSearchParams({ st: 'ACTIVE', cpid, l: layout, ft: 'Open Sans, sans-serif;', tc: '#02A2AC', clp: 'true', mi: '10', k: words, mkpid: 'EBAY-US', ur: 'false', cts: 'false', sf: 'true', ad_v: '2' });
+  if (cat) q.set('ctids', cat);
+  return `https://epnt.ebay.com/placement?${q.toString().replace(/\+/g, '%20')}`; // eBay wants %20, not +
+}
+function signingEbay(s) {
+  if (!EBAY_SIGNING_TEST.has(s.id) || !s.names.length) return null;
+  const name = s.names[0];
+  const athlete = s.category === 'Sports';
+  const league = athlete ? SPORT_LEAGUE[(s.sport || '').toLowerCase()] : null;
+  const cpid = EBAY_CAMPAIGN[league] || EBAY_CAMPAIGN[s.category] || EBAY_CAMPAIGN.Entertainment;
+  const frame = (src, w, h, title, lazy = true) => `<iframe src="${esc(src)}" width="${w}" height="${h}" scrolling="no"${lazy ? ' loading="lazy"' : ''} title="${esc(title)}"></iframe>`;
+  const fit = (box, w, h) => `<script>(function(){var b=document.currentScript.parentNode.querySelector('${box}'),f=b.firstElementChild;function fit(){var s=Math.min(1,b.clientWidth/${w});f.style.transform='scale('+s+')';b.style.height=(${h}*s)+'px';}fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(b);else addEventListener('resize',fit);})();</script>`;
+  const top = `<div class="ebay-top"><div class="ebay-wide">${frame(ebaySrc(cpid, '900x220', `${name} autograph`, EBAY_AUTOGRAPH_CAT[league]), 900, 220, `${name} autographs on eBay`, false)}</div><p class="ebay-note">Sponsored · eBay · we may earn a commission</p>${fit('.ebay-wide', 900, 220)}</div>`;
+  const ebayBox = `<div class="sig-ad"><div class="sig-ad-box">${frame(ebaySrc(cpid, '300x250', `${name} ${athlete ? 'sports card' : 'autograph'}`, athlete ? EBAY_SPORTS_CARDS_CAT : null), 300, 250, `${name} on eBay`)}</div></div>`;
+  const adsense = ADS_ON && ADSENSE_SLOT_HOME ? `<div class="sig-ad sig-ad-google"><ins class="adsbygoogle" style="display:inline-block;width:300px;height:236px" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${ADSENSE_SLOT_HOME}"></ins><script>(function(){var i=document.currentScript.previousElementSibling;if(i.offsetWidth)(adsbygoogle=window.adsbygoogle||[]).push({});})();</script></div>` : '';
+  return { top, under: `<div class="sig-ads">${ebayBox}${adsense}</div>` };
+}
+
 function signingPage(s, list) {
   const cal = s.past ? null : calendarFor(s);
   // 5 related + the "See more" card = 6, which fills complete rows at 3, 2 or 1 per row.
@@ -1348,15 +1377,18 @@ function signingPage(s, list) {
     }),
     s.teams.length ? [s.teams.length === 1 ? 'Team' : 'Teams', { html: s.teams.map((t) => (hasTeamPage(t) ? `<a href="${esc(link(teamPath(slugify(t))))}">${esc(t)}</a>` : esc(t))).join(', ') }, 'wide'] : null,
   ].filter(Boolean);
+  const ebay = signingEbay(s);
   const trail = [['Home', '/'], ...(s.sport ? [[s.sport, sportPath(s.sport)]] : [['All signings', '/events/']]), [s.name, `/signing/${s.slug}/`]];
 
   const body = `
 ${crumbsNav(trail)}
+${ebay ? ebay.top : ''}
 <section class="detail">
   <div class="detail-main">
     <div class="detail-photo">
     ${photo(s, 'photo-large', 'main-photo')}
     ${credit}
+    ${ebay ? ebay.under : ''}
     </div>
     <div class="detail-text">
     <h2>How this signing works</h2>
@@ -1935,7 +1967,7 @@ function privacyPage() {
       <li><strong>Unique visitor count:</strong> to count how many different people visit each day, each page sends us your IP address and browser name, which we immediately scramble together with a random code that changes every day. We keep only the scrambled result, which can't be turned back into your IP address or linked from one day to the next. No cookies are used.</li>
       <li><strong>New or returning, and state:</strong> your browser keeps the date of your first visit in its own storage (not a cookie) and only tells us yes or no: have you been here on an earlier day. Before scrambling your IP address we also look up which US state it belongs to in a table kept on our own server (IP location data by <a href="https://db-ip.com">DB-IP</a>, CC BY 4.0), and keep only the state name. Your IP address isn't sent anywhere else. Clearing your browser's site data resets the yes/no.</li>
       <li><strong>Ads:</strong> some pages show ads from Google AdSense, marked "Sponsored". Google and its partners use cookies and similar technology to show ads and measure them, which can include ads based on your visits to this and other websites. You can turn off personalized ads at <a href="https://adssettings.google.com">Google's Ads Settings</a> (or for many ad companies at <a href="https://www.aboutads.info/choices/">aboutads.info</a>), and read <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a>. We don't share your name, email or favorites with advertisers.</li>
-      <li><strong>Shopping links:</strong> the NFL, MLB, NBA and NHL league pages and the Entertainment, Musicians, Authors and Artists category pages show a box of live eBay listings, loaded from eBay through the eBay Partner Network. eBay's code runs in that box and may use its own cookies to credit sales and pick listings; if you buy after clicking one, we may earn a commission at no extra cost to you. We don't send eBay any of your information.</li>
+      <li><strong>Shopping links:</strong> the NFL, MLB, NBA and NHL league pages, the Entertainment, Musicians, Authors and Artists category pages and some signing pages show boxes of live eBay listings, loaded from eBay through the eBay Partner Network. eBay's code runs in that box and may use its own cookies to credit sales and pick listings; if you buy after clicking one, we may earn a commission at no extra cost to you. We don't send eBay any of your information.</li>
       <li><strong>Visit length:</strong> with the same scrambled code, we count how many pages you open in one visit and how long the pages are on your screen (when you leave or switch away from a page, it tells us the number of seconds). This shows us how long people stay, in total; it isn't linked to your account, your email or any other day.</li>
     </ul>`],
       ['What we don\'t do', `<p>We don't sell or rent your information, and our own statistics don't use cookies. We only email you about signings for the favorites you chose, and about your account (such as login links).</p>`],
