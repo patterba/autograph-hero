@@ -1342,6 +1342,37 @@ function ebaySrc(cpid, layout, words, cat) {
   if (cat) q.set('ctids', cat);
   return `https://epnt.ebay.com/placement?${q.toString().replace(/\+/g, '%20')}`; // eBay wants %20, not +
 }
+// eBay answers a search it can't fill (few or no listings, common for authors and other non-athletes) with a
+// raw JSON error ({"code":20003|20005,...}) inside the iframe. The build asks eBay first and falls back through
+// broader words, then a category-wide search, so the page never shows that error. Network trouble = keep the ad.
+const EBAY_FALLBACK = { Authors: 'signed first edition book', Musicians: 'signed vinyl record', Artists: 'signed art print', Entertainment: 'signed photo autograph' };
+const EBAY_OK = new Map(); // url -> Promise<boolean>
+function ebayWorks(url) {
+  if (!EBAY_OK.has(url)) EBAY_OK.set(url, (async () => {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(10000), headers: { 'user-agent': 'Mozilla/5.0 (AutographHero build)' } });
+      const t = (await res.text()).trim();
+      if (!t.startsWith('{')) return true;
+      try { return !('code' in JSON.parse(t)); } catch { return true; }
+    } catch { return true; }
+  })());
+  return EBAY_OK.get(url);
+}
+// Picks the first words that return listings for each non-athlete signing; signingEbay() reads s.ebayWords.
+async function pickEbayWords(signings) {
+  const todo = signings.filter((s) => EBAY_SIGNING_ON && s.names.length && s.category !== 'Sports');
+  const one = async (s) => {
+    const name = s.names[0];
+    const cpid = EBAY_CAMPAIGN[s.category] || EBAY_CAMPAIGN.Entertainment;
+    const chain = [`${name} autograph`, `${name} signed`, name, EBAY_FALLBACK[s.category] || EBAY_FALLBACK.Entertainment];
+    s.ebayWords = {};
+    for (const layout of ['900x220', '300x250']) {
+      s.ebayWords[layout] = null; // null = no words work: leave that ad off
+      for (const w of chain) if (await ebayWorks(ebaySrc(cpid, layout, w, null))) { s.ebayWords[layout] = w; break; }
+    }
+  };
+  for (let i = 0; i < todo.length; i += 8) await Promise.all(todo.slice(i, i + 8).map(one));
+}
 function signingEbay(s) {
   if (!EBAY_SIGNING_ON || !s.names.length) return null;
   const name = s.names[0];
@@ -1350,10 +1381,13 @@ function signingEbay(s) {
   const cpid = EBAY_CAMPAIGN[league] || EBAY_CAMPAIGN[s.category] || EBAY_CAMPAIGN.Entertainment;
   const frame = (src, w, h, title, lazy = true) => `<iframe src="${esc(src)}" width="${w}" height="${h}" scrolling="no"${lazy ? ' loading="lazy"' : ''} title="${esc(title)}"></iframe>`;
   const fit = (box, w, h) => `<script>(function(){var b=document.currentScript.parentNode.querySelector('${box}'),f=b.firstElementChild;function fit(){var s=Math.min(1,b.clientWidth/${w});f.style.transform='scale('+s+')';b.style.height=(${h}*s)+'px';}fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(b);else addEventListener('resize',fit);})();</script>`;
-  const top = `<div class="ebay-top"><div class="ebay-wide">${frame(ebaySrc(cpid, '900x220', `${name} autograph`, EBAY_AUTOGRAPH_CAT[league]), 900, 220, `${name} autographs on eBay`, false)}</div>${fit('.ebay-wide', 900, 220)}</div>`;
-  const ebayBox = `<div class="sig-ad"><div class="sig-ad-box">${frame(ebaySrc(cpid, '300x250', `${name} ${athlete ? 'sports card' : 'autograph'}`, athlete ? EBAY_SPORTS_CARDS_CAT : null), 300, 250, `${name} on eBay`)}</div></div>`;
+  const words = (layout, def) => (s.ebayWords ? s.ebayWords[layout] : def);
+  const topWords = words('900x220', `${name} autograph`);
+  const boxWords = words('300x250', `${name} ${athlete ? 'sports card' : 'autograph'}`);
+  const top = !topWords ? '' : `<div class="ebay-top"><div class="ebay-wide">${frame(ebaySrc(cpid, '900x220', topWords, EBAY_AUTOGRAPH_CAT[league]), 900, 220, `${name} autographs on eBay`, false)}</div>${fit('.ebay-wide', 900, 220)}</div>`;
+  const ebayBox = !boxWords ? '' : `<div class="sig-ad"><div class="sig-ad-box">${frame(ebaySrc(cpid, '300x250', boxWords, athlete ? EBAY_SPORTS_CARDS_CAT : null), 300, 250, `${name} on eBay`)}</div></div>`;
   const adsense = ADS_ON && ADSENSE_SLOT_HOME ? `<div class="sig-ad sig-ad-google"><ins class="adsbygoogle" style="display:inline-block;width:300px;height:236px" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${ADSENSE_SLOT_HOME}"></ins><script>(function(){var i=document.currentScript.previousElementSibling;if(i.offsetWidth)(adsbygoogle=window.adsbygoogle||[]).push({});})();</script></div>` : '';
-  return { top, under: `<div class="sig-ads">${ebayBox}${adsense}</div>` };
+  return { top, under: ebayBox || adsense ? `<div class="sig-ads">${ebayBox}${adsense}</div>` : '' };
 }
 
 function signingPage(s, list) {
@@ -2942,6 +2976,7 @@ async function main() {
   await mkdir(OUT, { recursive: true });
   await cp(path.join(ROOT, 'assets'), path.join(OUT, 'assets'), { recursive: true });
 
+  await pickEbayWords(all);
   rememberLastSigned(archive);
   await put('index.html', homePage(list));
   await put('events/index.html', eventsPage(list));
