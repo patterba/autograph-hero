@@ -1327,12 +1327,12 @@ function lastSignedText(p) {
   return p.priceLow != null ? `${date} · from $${Number(p.priceLow).toLocaleString('en-US')}` : date;
 }
 
-// eBay ads on signing pages (test: only the IDs in EBAY_SIGNING_TEST until the owner approves the layout).
+// eBay ads on signing pages (all signings; set EBAY_SIGNING_ON = false to turn off).
 // Top: 900x220 eBay banner under the breadcrumb, "<name> autograph", scaled down to fit narrow screens.
 // Under the photo: eBay 300x250 ("<name> sports card" for athletes, else "<name> autograph") and, on desktop,
 // an AdSense 300x250 beside it. The eBay ads are iframes from epnt.ebay.com/placement with the search words in
 // `k`, so each page targets its own signer; cpid = the league's or category's EPN campaign (LEAGUE_EBAY notes).
-const EBAY_SIGNING_TEST = new Set([247]);
+const EBAY_SIGNING_ON = true; // every signing page (tested on 247 Jerry Rice first, approved 2026-11-17)
 const EBAY_CAMPAIGN = { NFL: '5339249901', MLB: '5339250072', NBA: '5339250074', NHL: '5339250075', Entertainment: '5339250312', Musicians: '5339250313', Authors: '5339250314', Artists: '5339250315' };
 const SPORT_LEAGUE = { football: 'NFL', baseball: 'MLB', basketball: 'NBA', hockey: 'NHL' };
 const EBAY_AUTOGRAPH_CAT = { NFL: '27274', MLB: '27259', NBA: '27267', NHL: '27283' }; // Autographs-Original > league
@@ -1343,7 +1343,7 @@ function ebaySrc(cpid, layout, words, cat) {
   return `https://epnt.ebay.com/placement?${q.toString().replace(/\+/g, '%20')}`; // eBay wants %20, not +
 }
 function signingEbay(s) {
-  if (!EBAY_SIGNING_TEST.has(s.id) || !s.names.length) return null;
+  if (!EBAY_SIGNING_ON || !s.names.length) return null;
   const name = s.names[0];
   const athlete = s.category === 'Sports';
   const league = athlete ? SPORT_LEAGUE[(s.sport || '').toLowerCase()] : null;
