@@ -1398,10 +1398,29 @@ function signingEbay(s) {
   return { top, under: ebayBox || adsense ? `<div class="sig-ads">${ebayBox}${adsense}</div>` : '' };
 }
 
+// "More like this": same kind of signer first. Only signings in the same category
+// (Sports, Authors, Musicians…) qualify; within it, shared team/franchise > same sport >
+// same state, then soonest. Never pads with other categories (an NBA page won't show authors).
+function relatedSignings(s, list, n = 5) {
+  const mine = new Set(franchises(s.teams || []));
+  const names = new Set(s.names);
+  const scored = [];
+  for (const o of list) {
+    if (o.id === s.id || o.past || o.names.some((x) => names.has(x))) continue;
+    if ((o.category || '') !== (s.category || '')) continue;
+    const sameSport = s.sport && o.sport && o.sport.toLowerCase() === s.sport.toLowerCase();
+    if (s.category === 'Sports' && s.sport && o.sport && !sameSport) continue;
+    const shared = franchises(o.teams || []).filter((t) => mine.has(t)).length;
+    const score = (shared ? 100 + shared : 0) + (sameSport ? 40 : 0) + (s.state && o.state === s.state ? 10 : 0);
+    scored.push([score, o]);
+  }
+  return scored.sort((a, b) => b[0] - a[0]).slice(0, n).map(([, o]) => o);
+}
+
 function signingPage(s, list) {
   const cal = s.past ? null : calendarFor(s);
   // 5 related + the "See more" card = 6, which fills complete rows at 3, 2 or 1 per row.
-  const more = list.filter((o) => o.id !== s.id && ((s.sport && o.sport === s.sport) || (s.state && o.state === s.state))).slice(0, 5);
+  const more = relatedSignings(s, list);
   const mapUrl = s.location && !s.mailOnly ? `https://www.google.com/maps/search/?${new URLSearchParams({ api: '1', query: s.location })}` : null;
   const credit = creditLine(s.photo, 'credit-main') + creditLine(s.photoFallback, 'credit-fb', true);
   const rows = [
