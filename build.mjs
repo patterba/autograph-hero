@@ -2189,7 +2189,7 @@ function articlesIndexPage(articles) {
 function articleAd(where) {
   const slot = ADSENSE_SLOTS_ARTICLE[where];
   if (!ADS_ON || !slot) return '';
-  return `<div class="article-ad article-ad-${where}"><div class="article-ad-label">Advertisement</div><ins class="adsbygoogle" style="display:block" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${slot}" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>`;
+  return `<div class="article-ad article-ad-${where}"><div class="article-ad-label">Advertisement</div><ins class="adsbygoogle" style="display:block" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${slot}" data-ad-format="auto" data-full-width-responsive="false"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>`;
 }
 
 // Puts the middle ad before the <h2> nearest the middle of the article (else after the middle </p>).
