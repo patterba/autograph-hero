@@ -2442,7 +2442,7 @@ function categoryOf(s, athletes, sportyHosts) {
     if (c) return c;
   }
   const where = [s.venue, s.host, s.source].filter(Boolean).join(' ');
-  if (/book|librar/i.test(where) || /\b(book signing|author)\b/i.test(s.title || '')) return 'Authors';
+  if (/(?<!face)book|librar/i.test(where) || /\b(book signing|author)\b/i.test(s.title || '')) return 'Authors';
   if (realSport(s.sport)) return 'Sports';
   if (/\b(musician|concert|album|vinyl signing)\b/i.test(s.title || '')) return 'Musicians';
   if (/\b(artist|illustrator|cartoonist)\b/i.test(s.title || '')) return 'Artists';
