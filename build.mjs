@@ -18,6 +18,9 @@ const ADSENSE_SLOT_HOME = '9482696125'; // Display unit "Home feed photo"
 // /events/ display units: spot 8, spot 20, then spot 32 and every 12 after.
 const ADSENSE_SLOTS_EVENTS = ['8907981051', '7594899382', '2763364208'];
 // Spot 44 and below take turns: Home feed photo, Event 1, Event 2, Event 3, then again.
+// Article ads (top banner, middle unit, bottom banner). Using the Event display units until dedicated
+// "Article top/middle/bottom" units are made in AdSense; swap the IDs here.
+const ADSENSE_SLOTS_ARTICLE = { top: '8907981051', mid: '7594899382', bottom: '2763364208' };
 const eventsAdSlot = (k) => k < 3 ? ADSENSE_SLOTS_EVENTS[k] : [ADSENSE_SLOT_HOME, ...ADSENSE_SLOTS_EVENTS][(k - 3) % 4];
 // Ad cards show unless ADS=off (AdSense approved the site 2026-11-11).
 const ADS_ON = (process.env.ADS || '').toLowerCase() !== 'off';
@@ -2182,6 +2185,28 @@ function articlesIndexPage(articles) {
   });
 }
 
+// A responsive AdSense display unit in the article column; hidden if Google leaves it unfilled.
+function articleAd(where) {
+  const slot = ADSENSE_SLOTS_ARTICLE[where];
+  if (!ADS_ON || !slot) return '';
+  return `<div class="article-ad article-ad-${where}"><div class="article-ad-label">Advertisement</div><ins class="adsbygoogle" style="display:block" data-ad-client="${ADSENSE_CLIENT}" data-ad-slot="${slot}" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>`;
+}
+
+// Puts the middle ad before the <h2> nearest the middle of the article (else after the middle </p>).
+function withMidAd(body) {
+  const ad = articleAd('mid');
+  if (!ad) return body;
+  const at = (re) => [...body.matchAll(re)].map((m) => m.index);
+  const h2 = at(/<h2[\s>]/g).filter((i) => i > 0);
+  const half = body.length / 2;
+  const near = (xs) => xs.reduce((b, x) => Math.abs(x - half) < Math.abs(b - half) ? x : b);
+  if (h2.length >= 2) { const i = near(h2.slice(1)); return body.slice(0, i) + ad + body.slice(i); }
+  const ps = at(/<\/p>/g).map((i) => i + 4);
+  if (ps.length < 3) return body;
+  const i = near(ps.slice(0, -1));
+  return body.slice(0, i) + ad + body.slice(i);
+}
+
 function articlePage(a) {
   const p = `/articles/${a.slug}/`;
   const body = `
@@ -2193,9 +2218,11 @@ function articlePage(a) {
   <p class="muted small">By ${SITE_NAME} · <time datetime="${esc(a.date)}">${esc(articleDate(a.date))}</time></p>
 </section>
 <section class="band band-tight">
+  ${articleAd('top')}
   <article class="prose article-body">
-    ${a.body}
+    ${withMidAd(a.body)}
   </article>
+  ${articleAd('bottom')}
   <p class="article-back"><a href="${esc(link('/articles/'))}">← All articles</a></p>
 </section>`;
   return page({
