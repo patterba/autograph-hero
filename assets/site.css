@@ -730,3 +730,13 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .article-ad .adsbygoogle, .article-ad iframe { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; left: 0 !important; }
 .article-ad-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3, #888); margin-bottom: 4px; }
 .article-ad:has(ins[data-ad-status="unfilled"]) { display: none; }
+
+/* Rare signers (rare-signers.mjs): status box, how-to and FAQ on their signer pages */
+.rare-signer { max-width: 760px; }
+.rare-signer h2 { margin-top: 28px; }
+.rare-signer ul { padding-left: 20px; }
+.rare-signer li { margin: 6px 0; }
+.rare-status { border: 1.5px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 16px 18px; }
+.rare-status p { margin: 0 0 12px; }
+.rare-status p:last-child { margin-bottom: 0; }
+.rare-signer .faq-item p { margin: 0 0 16px; }

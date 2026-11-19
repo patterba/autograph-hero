@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { RARE_SIGNERS } from './rare-signers.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(ROOT, 'dist');
@@ -2566,6 +2567,7 @@ function buildHubs(list, athletes, archive = []) {
   };
 
   for (const rows of athletes.values()) for (const a of rows) if (typeof a.name === 'string') signer(a.name, a.sport);
+  for (const r of RARE_SIGNERS) signer(r.name, r.sport);
   for (const lg of LEAGUES) for (const t of lg.teams) team(t);
   for (const s of list) {
     for (const n of new Set(s.names)) signer(n, s.sport)?.list.push(s);
@@ -2636,7 +2638,7 @@ function sortBar(list, teams = null) {
   return `<div class="hub-picks" data-hub-tools hidden>${team}${sport}<label class="hub-pick"><span>Sort</span><select data-sort-pick><option value="soon">Soonest</option><option value="recent">Recently added</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label></div>`;
 }
 
-function hubPage({ teams = null, adsFor = null, pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', afterList = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
+function hubPage({ indexed = false, extraLd = [], teams = null, adsFor = null, pathname, trail, eyebrow, h1, lede, photo: pic, favorite, alertText, intro = '', afterList = '', list, past = [], pastLimit = 8, pastTitle = 'Past signings', pastMore = null, sections = [], title, description }) {
   const cards = list.length
     ? `<div class="grid">${list.map((x, i) => (adsFor && i >= 7 && (i - 7) % 12 === 0 ? hubAd((i - 7) / 12) : '') + (adsFor && LEAGUE_EBAY[adsFor.key] && i === 2 ? shopCard(adsFor) : '') + card(x)).join('\n')}${adsFor && LEAGUE_EBAY[adsFor.key] && list.length < 3 ? shopCard(adsFor) : ''}</div>`
     : `<div class="empty"><p><strong>Nothing is listed right now.</strong> Signings are added every week. Sign up and we'll email you when one is announced.</p></div>`;
@@ -2671,7 +2673,7 @@ ${sections.filter((x) => x && x.items.length).map((x) => `<section class="band b
     pathname,
     body,
     // Indexed when it lists any signing, upcoming or past; an empty page stays out of search results.
-    noindex: list.length || past.length ? false : 'follow',
+    noindex: indexed || list.length || past.length ? false : 'follow',
     image: pic?.url || list.find((s) => s.photo)?.photo.url || null,
     imageAlt: h1,
     ld: [
@@ -2682,6 +2684,7 @@ ${sections.filter((x) => x && x.items.length).map((x) => `<section class="band b
         name: h1,
         itemListElement: list.map((s, i) => ({ '@type': 'ListItem', position: i + 1, url: abs(`/signing/${s.slug}/`), name: signingMeta(s).title })),
       } : null,
+      ...extraLd,
     ],
   });
 }
@@ -2738,8 +2741,46 @@ function signingHistory(s) {
   return lastSigningsTable(name, before, { heading: n === 1 ? `${name}'s last signing` : `${name}'s last ${n} signings`, note });
 }
 
+// Rare signers (rare-signers.mjs): signing status, how to get the autograph now, and an FAQ.
+const RARE_BY_SLUG = new Map(RARE_SIGNERS.map((r) => [slugify(r.name), r]));
+function rareFaq(r, h) {
+  const first = r.name.split(' ')[0] === r.name ? r.name : r.name.split(' ').slice(-1)[0];
+  const n = h.list.length;
+  return [
+    [`Does ${r.name} do autograph signings?`, r.pattern === 'occasional'
+      ? `Yes, but not often. ${r.name} does public or private signings now and then, and they usually sell out quickly. ${n ? `There ${n === 1 ? 'is' : 'are'} ${n} listed on Autograph Hero right now.` : 'None are listed right now.'}`
+      : `Very rarely. ${r.name} almost never does public signings; most authentic autographs come through exclusive memorabilia and card deals. ${n ? `There ${n === 1 ? 'is' : 'are'} ${n} listed on Autograph Hero right now.` : 'None are listed right now.'}`],
+    [`How can I find out when ${r.name} has a signing?`, `Sign up for a free Autograph Hero alert for ${r.name}. We check promoter and shop websites every week and email you when a ${first} signing or meet & greet is announced.`],
+    [`How can I get a ${r.name} autograph now?`, `${r.tip} Buy only items with authentication from a recognized company such as PSA, JSA or Beckett, or a certified hologram from the signing's promoter.`],
+    [`Does ${r.name} do mail-in signings?`, `Sometimes, when a private signing is announced: promoters may take mail-in orders before the date. If one is announced, it will appear on this page with the order deadline.`],
+  ];
+}
+function rareBlock(r, h) {
+  const n = h.list.length;
+  const status = n
+    ? `<strong>${esc(r.name)} has ${esc(plural(n, 'signing'))} listed.</strong> See the dates and order deadlines below; ${r.pattern === 'rare' ? 'signings like this are rare and sell out fast.' : 'they often sell out.'}`
+    : `<strong>No public ${esc(r.name)} signings are scheduled right now.</strong> ${r.pattern === 'rare' ? `${esc(r.name)} rarely signs for the public, so when a signing opens it goes fast.` : `${esc(r.name)} signs now and then, and slots go quickly.`} Get an email the day one is announced.`;
+  const faq = rareFaq(r, h);
+  return `<section class="band band-tight rare-signer">
+  <div class="rare-status"><p>${status}</p><p><a class="btn btn-accent" href="${esc(link(`/signup/?fav=${encodeURIComponent(r.name)}`))}">${ICON.bell}Get a ${esc(r.name)} signing alert</a></p></div>
+  <h2>How to get a ${esc(r.name)} autograph</h2>
+  <p>${esc(r.name)} is ${esc(r.known)}, and one of the hardest autographs to get in person. ${esc(r.tip)}</p>
+  <ul>
+    <li><strong>Watch for a signing:</strong> sign up for an alert above and we'll email you when promoters announce one, in person or by mail.</li>
+    <li><strong>Buy certified:</strong> look for authentication from PSA, JSA or Beckett, or a hologram from the signing's promoter.</li>
+    <li><strong>Check past prices:</strong> past ${esc(r.name)} signings we've listed are below, with what they cost.</li>
+  </ul>
+  <h2>${esc(r.name)} autograph FAQ</h2>
+  ${faq.map(([q, a]) => `<details class="faq-item"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('\n  ')}
+</section>`;
+}
+function rareLd(r, h) {
+  return { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: rareFaq(r, h).map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) };
+}
+
 function signerPage(h) {
   const n = h.list.length;
+  const rare = RARE_BY_SLUG.get(h.slug);
   // Every team they played for, including ones without a team page.
   const teamText = h.allTeams?.length ? `${h.name} has played for the ${joinNames(h.allTeams)}.` : '';
   const lede = n
@@ -2756,6 +2797,9 @@ function signerPage(h) {
     lede: lede + last + (teamText ? ` ${esc(teamText)}` : ''),
     photo: h.photo,
     favorite: h.name,
+    intro: rare ? rareBlock(rare, h) : '',
+    indexed: !!rare,
+    extraLd: rare ? [rareLd(rare, h)] : [],
     afterList: recentSignings(h),
     list: h.list,
     past: h.past,
@@ -2766,6 +2810,7 @@ function signerPage(h) {
     title: `${h.name} Autograph Signings ${THIS_YEAR}${n ? ` (${n} upcoming)` : ''}`,
     description: n
       ? `${h.name} autograph signings and meet & greets: ${typeMix(h.list)}.${nextLine(h.list)} Prices, order deadlines and email alerts.`
+      : rare ? `Is ${h.name} doing an autograph signing? See signing status, past signings and prices, how to get a certified ${h.name} autograph, and get an email the day a signing is announced.`
       : `Get an email when ${h.name} has an autograph signing or meet & greet. Autograph Hero lists signings from promoters and shops every week.`,
   });
 }
@@ -3118,7 +3163,7 @@ async function main() {
     ...live(hubs.sports).map((sp) => [sportPath(sp.name), newest(sp.list)]),
     ...LEAGUES.map((lg) => [leaguePath(lg), newest(leagueList(lg, hubs))]),
     ...CATEGORIES.map((c) => list.filter((s) => s.category === c)).filter((l) => l.length).map((l) => [categoryPath(l[0].category), newest(l)]),
-    ...live(hubs.signers).map((h) => [signerPath(h.slug), newest(h.list, h.past)]),
+    ...[...hubs.signers.values()].filter((h) => h.list.length || h.past.length || RARE_BY_SLUG.has(h.slug)).map((h) => [signerPath(h.slug), newest(h.list, h.past)]),
     ...live(hubs.teams).map((t) => [teamPath(t.slug), newest(t.list, t.past)]),
     ...[...hubs.teams.values()].filter((t) => t.past.length).map((t) => [teamArchivePath(t.slug), newest(t.past)]),
     ...live(hubs.states).map((st) => [statePath(st.code), newest(st.list, st.past)]),
