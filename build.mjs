@@ -832,7 +832,7 @@ function homePage(list) {
   const stat = (n, label) => `<div class="pass-stat"><span class="pass-num">${n}</span><span class="pass-label">${label}</span></div>`;
   const feature = `<div class="feature pass">
       <div class="pass-top">
-        <span class="badge badge-public">Fan pass</span>
+        <span class="badge badge-public">Free fan pass</span>
         <div class="pass-stats">
           ${stat(list.length, `Upcoming signing${list.length === 1 ? '' : 's'}`)}
           ${stat(addedCount, 'Added this week')}
@@ -842,7 +842,7 @@ function homePage(list) {
       <div class="tear"></div>
       <form class="feature-body pass-form" action="${esc(link('/signup/'))}" method="get">
         <div class="feature-name">Never Miss A Signing</div>
-        <p class="muted">Tell us who you collect. We'll email you when they sign.</p>
+        <p class="muted">Tell us who you collect. We'll email you when they sign. <strong>No Subscription Needed!</strong></p>
         <label class="sr-only" for="pass-fav">Favorite team, player or person</label>
         <input class="pass-input" id="pass-fav" name="fav" type="text" list="pass-fav-list" placeholder="Team, player or person" autocomplete="off" maxlength="80">
         <label class="sr-only" for="pass-email">Email address</label>
