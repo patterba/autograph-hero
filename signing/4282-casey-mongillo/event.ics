@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4282@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20270826
+DTEND;VALUE=DATE:20270827
+SUMMARY:Casey Mongillo autograph signing
+DESCRIPTION:Details: https://animenyc.com/autographs/paid-autographs/#casey-mongillo\nConfirm details with the organizer before you go.
+LOCATION:Javits Center\, New York\, NY
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Casey Mongillo autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

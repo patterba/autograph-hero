@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4150@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261122
+SUMMARY:Ann Patchett autograph signing
+DESCRIPTION:Time: 4:00pm-5:00pm\nDetails: https://parnassusbooks.net/event/2026-11-21/ann-patchett-holiday-office-hours\nConfirm details with the organizer before you go.
+LOCATION:Parnassus Books\, 3900 Hillsboro Pike\, Suite 14\, Nashville\, TN
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Ann Patchett autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

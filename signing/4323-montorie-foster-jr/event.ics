@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4323@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20261123
+DTEND;VALUE=DATE:20261124
+SUMMARY:Montorie Foster Jr autograph signing
+DESCRIPTION:Time: 5:30pm-6:30pm\nConfirm details with the organizer before you go.
+LOCATION:Safeway\, 630 228th Ave NE\, Sammamish\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Montorie Foster Jr autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3141@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20261206
+DTEND;VALUE=DATE:20261207
+SUMMARY:Kayla Thornton autograph signing
+DESCRIPTION:Time: 6:00 PM - 7:30 PM\nDetails: https://www.trifectacollectibles.com/event/kayla-thornton-autograph-event-public-signing/\nConfirm details with the organizer before you go.
+LOCATION:Lefty's Sports Cards\, 1859 El Camino Real\, Burlingame\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kayla Thornton autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

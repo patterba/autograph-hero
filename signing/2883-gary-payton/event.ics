@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2883@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20261127
+DTEND;VALUE=DATE:20261128
+SUMMARY:Gary Payton autograph signing
+DESCRIPTION:Order deadline: Friday\, November 27\, 2026\nDetails: https://www.facebook.com/groups/1600210163581817/?notif_id=1794844510362168&notif_t=group_request_to_participate_approved&ref=notif\nConfirm details with the organizer before you go.
+LOCATION:Accelerate Celebrity Services\, Bourbonnais\, IL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Gary Payton autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

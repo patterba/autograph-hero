@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3942@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20270813
+DTEND;VALUE=DATE:20270814
+SUMMARY:Ranea Jacobs autograph signing
+DESCRIPTION:Details: https://terrificon.com/media-guests-1.html#ranea-jacobs\nConfirm details with the organizer before you go.
+LOCATION:Mohegan Sun Expo Center\, Uncasville\, CT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Ranea Jacobs autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

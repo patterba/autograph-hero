@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3289@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20261212
+DTEND;VALUE=DATE:20261213
+SUMMARY:Lamar "Bo" Jackson autograph signing
+DESCRIPTION:Order deadline: Wednesday\, December 9\, 2026\nDetails: https://primetime12.com/products/mail-in-or-drop-off-for-lamar-bo-jackson-autograph-signing-1\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Lamar "Bo" Jackson autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

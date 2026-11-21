@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4304@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20270108
+DTEND;VALUE=DATE:20270109
+SUMMARY:Taylor Gray autograph signing
+DESCRIPTION:Details: https://sacanime.com/sacanime-winter-2027-welcomes-taylor-gray/\nConfirm details with the organizer before you go.
+LOCATION:SAFE Credit Union Convention Center\, 1401 K Street\, Sacramento\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Taylor Gray autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4240@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20270514
+DTEND;VALUE=DATE:20270515
+SUMMARY:Pierre Larouche autograph signing
+DESCRIPTION:Details: https://www.mainlineautographs.com/pittsburgh-show/#pierre-larouche\nConfirm details with the organizer before you go.
+LOCATION:Monroeville Convention Center\, North Hall\, 209 Mall Blvd\, Monroeville\, PA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Pierre Larouche autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

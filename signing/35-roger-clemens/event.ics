@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-35@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20261204
+DTEND;VALUE=DATE:20261205
+SUMMARY:Order deadline: Roger Clemens autograph signing
+DESCRIPTION:Details: https://powerssportsmemorabilia.com/products/roger-clemens-autograph-signing\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Roger Clemens
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

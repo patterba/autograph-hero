@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3312@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20270205
+DTEND;VALUE=DATE:20270206
+SUMMARY:Fred McGriff autograph signing
+DESCRIPTION:Details: https://www.tristarproductions.com/schedule.html#houston-fred-mcgriff\nConfirm details with the organizer before you go.
+LOCATION:Houston\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Fred McGriff autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

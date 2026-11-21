@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3089@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20261127
+DTEND;VALUE=DATE:20261128
+SUMMARY:Cooper Pratt autograph signing
+DESCRIPTION:Order deadline: Saturday\, November 14\, 2026\nDetails: https://www.wscsportswi.com/P/12740/CooperPrattPrivateAutographPreOrderSigning\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Cooper Pratt autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4272@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261122
+SUMMARY:Jonathan Aranda autograph signing
+DESCRIPTION:Details: https://www.palmbeachautographs.com/products/jonathan-aranda-tampa-bay-rays-in-person-autograph-event-at-tampa-tgc-takeover-public-signing-event-november-21st-2026\nConfirm details with the organizer before you go.
+LOCATION:Tampa TGC Takeover\, Tampa\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jonathan Aranda autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2998@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20270625
+DTEND;VALUE=DATE:20270626
+SUMMARY:Jamie Kennedy autograph signing
+DESCRIPTION:Details: http://www.flashbackweekend.com/celeb.html#jamie-kennedy\nConfirm details with the organizer before you go.
+LOCATION:Hyatt Regency O'Hare Chicago\, Rosemont\, IL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jamie Kennedy autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3934@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20270521
+DTEND;VALUE=DATE:20270522
+SUMMARY:Shaun Weiss autograph signing
+DESCRIPTION:Details: https://detroitsportsspectacular.com/pages/all-guests#shaun-weiss\nConfirm details with the organizer before you go.
+LOCATION:Vibe Credit Union Showplace\, 46100 Grand River Ave\, Novi\, MI
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Shaun Weiss autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

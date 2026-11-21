@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4290@autographhero.com
+DTSTAMP:20261121T000000Z
+DTSTART;VALUE=DATE:20270826
+DTEND;VALUE=DATE:20270827
+SUMMARY:Maile Flanagan autograph signing
+DESCRIPTION:Details: https://animenyc.com/autographs/paid-autographs/#maile-flanagan\nConfirm details with the organizer before you go.
+LOCATION:Javits Center\, New York\, NY
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Maile Flanagan autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR
