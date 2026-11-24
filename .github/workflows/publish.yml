@@ -169,6 +169,17 @@ jobs:
           cp new-manifest dist/.deploy-manifest
           ftp "put dist/.deploy-manifest -o .deploy-manifest;"
 
+      # Tells Bing (and other IndexNow engines) which pages this upload changed, so they re-crawl
+      # them right away. Skipped on a full upload (no manifest), which would send every page.
+      - name: Ping IndexNow
+        if: steps.login.outputs.ready == 'true'
+        continue-on-error: true
+        env:
+          INDEXNOW_KEY: ${{ vars.INDEXNOW_KEY }}
+        run: |
+          [ -f changed ] || { echo "Full upload: IndexNow skipped"; exit 0; }
+          node scripts/indexnow.mjs changed removed
+
       # Writes a short report to the "deploy-check" branch: which top-level names are in
       # the FTP folder, and what the site returns from Bluehost directly (skipping
       # Cloudflare) and through Cloudflare. No logins, paths or IP addresses are written.

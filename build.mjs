@@ -83,6 +83,10 @@ const ORIGIN = (process.env.SITE_ORIGIN || 'https://autographhero.com').replace(
 // These codes are public: they only prove who owns the site. GitHub variables can override them.
 const GOOGLE_VERIFY = (process.env.GOOGLE_SITE_VERIFICATION || '').trim();
 const BING_VERIFY = (process.env.BING_SITE_VERIFICATION || '').trim();
+// IndexNow (Bing, Yandex, Seznam, Naver): the build writes /<key>.txt and the publish workflow
+// sends changed URLs (scripts/indexnow.mjs). The key is public by design; it only proves the site
+// owns the submissions. A GitHub variable INDEXNOW_KEY can replace it (8-128 letters, digits or -).
+const INDEXNOW_KEY = (process.env.INDEXNOW_KEY || '50ef44119e63bde18290c2a7944e0969').trim();
 const US_STATES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ');
 const SPORT_CHOICES = ['Football', 'Baseball', 'Basketball', 'Hockey', 'Soccer', 'Wrestling', 'MMA', 'Golf', 'Racing', 'Entertainment', 'Other'];
 
@@ -3199,6 +3203,7 @@ async function main() {
     '',
   ].join('\n'));
   if (!NOINDEX) {
+    await put(`${INDEXNOW_KEY}.txt`, INDEXNOW_KEY);
     await put('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(([p, mod]) => `  <url><loc>${esc(ORIGIN + link(p))}</loc>${mod ? `<lastmod>${mod}</lastmod>` : ''}</url>`).join('\n')}\n</urlset>\n`);
   }
   // Once the site lives at the domain root, the old /new preview folder sends people to the same page at the root.
