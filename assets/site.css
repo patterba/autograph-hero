@@ -740,3 +740,8 @@ details.stat-connect[open] summary { margin-bottom: 12px; }
 .rare-status p { margin: 0 0 12px; }
 .rare-status p:last-child { margin-bottom: 0; }
 .rare-signer .faq-item p { margin: 0 0 16px; }
+
+/* Article tables */
+.article-body .article-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 15px; display: block; overflow-x: auto; }
+.article-body .article-table th, .article-body .article-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line, #e5e5e5); }
+.article-body .article-table th { font-weight: 700; }
