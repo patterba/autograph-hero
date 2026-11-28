@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3304@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270205
+DTEND;VALUE=DATE:20270206
+SUMMARY:Kody Clemens autograph signing
+DESCRIPTION:Details: https://www.tristarproductions.com/schedule.html#houston-kody-clemens\nConfirm details with the organizer before you go.
+LOCATION:Houston\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kody Clemens autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5405@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261205
+DTEND;VALUE=DATE:20261206
+SUMMARY:Mark Johnson autograph signing
+DESCRIPTION:Time: 10:30-11:15 AM\nOrder deadline: Tuesday\, December 1\, 2026\nDetails: https://fanhqstore.com/collections/mark-johnson-in-person-event\nConfirm details with the organizer before you go.
+LOCATION:Crowne Plaza Suites MSP Airport - Mall of America\, 3 Appletree Square\, Bloomington\, MN
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Mark Johnson autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

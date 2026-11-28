@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-6188@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270104
+DTEND;VALUE=DATE:20270105
+SUMMARY:Order deadline: Neil Smith autograph signing
+DESCRIPTION:Details: https://powerssportsmemorabilia.com/products/neil-smith-autograph-signing\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Neil Smith
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

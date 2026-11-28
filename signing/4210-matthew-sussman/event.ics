@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4210@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270108
+DTEND;VALUE=DATE:20270109
+SUMMARY:Matthew Sussman autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-raleigh-winter-edition-guests#matthew-sussman\nConfirm details with the organizer before you go.
+LOCATION:Raleigh\, NC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Matthew Sussman autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

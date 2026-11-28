@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3914@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270521
+DTEND;VALUE=DATE:20270522
+SUMMARY:Adrian Peterson autograph signing
+DESCRIPTION:Details: https://detroitsportsspectacular.com/pages/all-guests#adrian-peterson\nConfirm details with the organizer before you go.
+LOCATION:Vibe Credit Union Showplace\, 46100 Grand River Ave\, Novi\, MI
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Adrian Peterson autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

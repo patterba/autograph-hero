@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4853@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270423
+DTEND;VALUE=DATE:20270424
+SUMMARY:Richard Dean Anderson autograph signing
+DESCRIPTION:Time: Appearing Fri\, Sat\, Sun\nDetails: https://awesome-con.com/guests/#richard-dean-anderson\nConfirm details with the organizer before you go.
+LOCATION:Walter E. Washington Convention Center\, 801 Allen Y. Lew Pl NW\, Washington\, DC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Richard Dean Anderson autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

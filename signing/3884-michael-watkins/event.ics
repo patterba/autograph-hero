@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3884@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261204
+DTEND;VALUE=DATE:20261205
+SUMMARY:Michael Watkins autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-columbus-guests#michael-watkins\nConfirm details with the organizer before you go.
+LOCATION:Columbus\, OH
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Michael Watkins autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-627@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261209
+DTEND;VALUE=DATE:20261210
+SUMMARY:Thurman Thomas autograph signing
+DESCRIPTION:Details: https://www.palmbeachautographs.com/products/thurman-thomas-buffalo-bills-in-person-autograph-event-at-palm-beach-card-show-public-signing-event-november-14th-2026\nConfirm details with the organizer before you go.
+LOCATION:Palm Beach Autographs\, 10300 Forest Hill Blvd #118\, Wellington\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Thurman Thomas autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

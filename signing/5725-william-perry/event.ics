@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5725@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261214
+DTEND;VALUE=DATE:20261215
+SUMMARY:William Perry autograph signing
+DESCRIPTION:Time: 11:00 AM - 3:00 PM\nOrder deadline: Monday\, December 14\, 2026\nDetails: https://www.wildertagautos.com/event-details-registration/william-perry-mail-in-signing-items-due-12-14\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: William Perry autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

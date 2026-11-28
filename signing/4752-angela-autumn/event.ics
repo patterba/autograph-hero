@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4752@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261202
+DTEND;VALUE=DATE:20261203
+SUMMARY:Angela Autumn autograph signing
+DESCRIPTION:Time: 4:00 PM - 5:00 PM\nDetails: https://www.grimeys.com/events/angela-autumn-believer\nConfirm details with the organizer before you go.
+LOCATION:Grimey's New and Preloved Music\, 1060 East Trinity Lane\, Nashville\, TN 37216\, Nashville\, TN
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Angela Autumn autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

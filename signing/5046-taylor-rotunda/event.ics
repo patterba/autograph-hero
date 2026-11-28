@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5046@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270318
+DTEND;VALUE=DATE:20270319
+SUMMARY:Taylor Rotunda autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-richmond-guests#taylor-rotunda\nConfirm details with the organizer before you go.
+LOCATION:Richmond\, VA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Taylor Rotunda autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

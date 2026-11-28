@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5751@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20271022
+DTEND;VALUE=DATE:20271023
+SUMMARY:JR De Bard autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/animate-raleigh-guests#jr-de-bard\nConfirm details with the organizer before you go.
+LOCATION:Raleigh\, NC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: JR De Bard autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

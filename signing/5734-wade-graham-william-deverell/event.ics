@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5734@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261203
+DTEND;VALUE=DATE:20261204
+SUMMARY:Wade Graham & William Deverell autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://vromansbookstore.com/event/2026-12-03/wade-graham-william-deverell-ezra-rawitsch\nConfirm details with the organizer before you go.
+LOCATION:Vroman's Bookstore\, 695 E. Colorado Blvd\, Pasadena\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Wade Graham & William Deverell autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

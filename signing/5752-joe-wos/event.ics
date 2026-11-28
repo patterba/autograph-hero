@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5752@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20271022
+DTEND;VALUE=DATE:20271023
+SUMMARY:Joe Wos autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/animate-raleigh-guests#joe-wos\nConfirm details with the organizer before you go.
+LOCATION:Raleigh\, NC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Joe Wos autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

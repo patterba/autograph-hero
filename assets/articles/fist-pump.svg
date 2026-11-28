@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="A happy collector pumping his fist">
+  <rect width="120" height="120" rx="16" fill="#C2410C"/>
+  <circle cx="60" cy="60" r="44" fill="#F6F1E7" opacity=".14"/>
+  <!-- body -->
+  <path d="M34 120 C34 92 44 82 60 82 C76 82 86 92 86 120 Z" fill="#16181D"/>
+  <!-- raised arm -->
+  <path d="M76 90 L90 58" stroke="#16181D" stroke-width="12" stroke-linecap="round"/>
+  <!-- fist -->
+  <rect x="82" y="38" width="20" height="22" rx="7" fill="#F2C9A0" stroke="#16181D" stroke-width="2.5"/>
+  <path d="M84 45 H100 M84 51 H100" stroke="#16181D" stroke-width="2" stroke-linecap="round"/>
+  <!-- other arm -->
+  <path d="M42 92 L36 112" stroke="#16181D" stroke-width="11" stroke-linecap="round"/>
+  <!-- head -->
+  <circle cx="58" cy="60" r="17" fill="#F2C9A0" stroke="#16181D" stroke-width="2.5"/>
+  <!-- cap -->
+  <path d="M41 57 C41 42 75 42 75 57 Z" fill="#FFFDF8" stroke="#16181D" stroke-width="2.5"/>
+  <path d="M73 56 H84" stroke="#16181D" stroke-width="3" stroke-linecap="round"/>
+  <!-- face -->
+  <path d="M51 62 l3 -2 l3 2 M60 62 l3 -2 l3 2" fill="none" stroke="#16181D" stroke-width="2" stroke-linecap="round"/>
+  <path d="M51 67 Q58 76 66 67 Z" fill="#16181D"/>
+  <!-- motion marks -->
+  <path d="M92 30 l3 -7 M104 34 l6 -5 M80 32 l-3 -7" stroke="#FFFDF8" stroke-width="3" stroke-linecap="round"/>
+</svg>

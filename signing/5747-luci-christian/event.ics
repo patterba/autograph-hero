@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5747@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20271022
+DTEND;VALUE=DATE:20271023
+SUMMARY:Luci Christian autograph signing
+DESCRIPTION:Time: All 3 Days\nDetails: https://galaxycon.com/pages/animate-raleigh-guests#luci-christian\nConfirm details with the organizer before you go.
+LOCATION:Raleigh\, NC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Luci Christian autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

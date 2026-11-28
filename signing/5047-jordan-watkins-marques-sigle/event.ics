@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5047@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:Jordan Watkins & Marques Sigle autograph signing
+DESCRIPTION:Time: 6:30 PM - 7:15 PM\nDetails: https://www.trifectacollectibles.com/event/jordan-watkins-marques-sigle-autograph-event-public-signing/\nConfirm details with the organizer before you go.
+LOCATION:Lefty's Sports Cards\, Burlingame Plaza\, 1859 El Camino Real\, Burlingame\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jordan Watkins & Marques Sigle autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

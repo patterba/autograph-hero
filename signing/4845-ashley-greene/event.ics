@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4845@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270423
+DTEND;VALUE=DATE:20270424
+SUMMARY:Ashley Greene autograph signing
+DESCRIPTION:Time: Appearing Fri\, Sat\nDetails: https://awesome-con.com/guests/#ashley-greene\nConfirm details with the organizer before you go.
+LOCATION:Walter E. Washington Convention Center\, 801 Allen Y. Lew Pl NW\, Washington\, DC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Ashley Greene autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

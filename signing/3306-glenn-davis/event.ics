@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3306@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270205
+DTEND;VALUE=DATE:20270206
+SUMMARY:Glenn Davis autograph signing
+DESCRIPTION:Details: https://www.tristarproductions.com/schedule.html#houston-glenn-davis\nConfirm details with the organizer before you go.
+LOCATION:Houston\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Glenn Davis autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

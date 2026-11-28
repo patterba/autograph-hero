@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4268@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+SUMMARY:Jordan Morris autograph signing
+DESCRIPTION:Time: 7:00 pm\nDetails: https://booksoup.com/event/2026-11-30/jordan-morris\nConfirm details with the organizer before you go.
+LOCATION:Book Soup\, 8818 Sunset Blvd\, West Hollywood\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Jordan Morris autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5470@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261228
+DTEND;VALUE=DATE:20261229
+SUMMARY:Glenn Hubbard autograph signing
+DESCRIPTION:Time: 11:00 AM - 3:00 PM\nOrder deadline: Sunday\, December 20\, 2026\nDetails: https://www.wildertagautos.com/event-details-registration/glenn-hubbard-mail-in-signing-items-due-12-20\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Glenn Hubbard autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

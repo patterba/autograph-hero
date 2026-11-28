@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4136@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261211
+DTEND;VALUE=DATE:20261212
+SUMMARY:William Contreras autograph signing
+DESCRIPTION:Order deadline: Wednesday\, December 2\, 2026\nDetails: https://www.wscsportswi.com/P/12812/ContrerasPrivateDec2026\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: William Contreras autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

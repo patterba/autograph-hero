@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3468@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270902
+DTEND;VALUE=DATE:20270903
+SUMMARY:Don Aguillo autograph signing
+DESCRIPTION:Details: https://www.dragoncon.org/people-to-see-2/guests/#don-aguillo\nConfirm details with the organizer before you go.
+LOCATION:Atlanta\, GA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Don Aguillo autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4279@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270826
+DTEND;VALUE=DATE:20270827
+SUMMARY:Mackenyu autograph signing
+DESCRIPTION:Details: https://fgsautographs.com/collections/mackenyu\nConfirm details with the organizer before you go.
+LOCATION:Javits Center\, New York\, NY
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Mackenyu autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

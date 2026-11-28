@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3953@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270128
+DTEND;VALUE=DATE:20270129
+SUMMARY:Lilly Lu autograph signing
+DESCRIPTION:Time: 7:00pm\nDetails: https://mystgalaxy.com/12827Lu\nConfirm details with the organizer before you go.
+LOCATION:Mysterious Galaxy Books\, 3555 Rosecrans St\, Suite 107A\, San Diego\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Lilly Lu autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

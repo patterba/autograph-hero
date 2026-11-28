@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-3950@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270729
+DTEND;VALUE=DATE:20270730
+SUMMARY:Liana Kangas autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-raleigh-guests#liana-kangas\nConfirm details with the organizer before you go.
+LOCATION:Raleigh\, NC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Liana Kangas autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5674@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20271001
+DTEND;VALUE=DATE:20271002
+SUMMARY:Joe Wos autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/galaxycon-philadelphia-guests#joe-wos\nConfirm details with the organizer before you go.
+LOCATION:Philadelphia\, PA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Joe Wos autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

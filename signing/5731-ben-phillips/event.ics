@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5731@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261206
+DTEND;VALUE=DATE:20261207
+SUMMARY:Ben Phillips autograph signing
+DESCRIPTION:Time: Sun\nDetails: https://animefrontier.com/autographs/paid-autographs/#ben-phillips\nConfirm details with the organizer before you go.
+LOCATION:Fort Worth\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Ben Phillips autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

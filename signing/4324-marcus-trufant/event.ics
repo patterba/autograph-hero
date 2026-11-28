@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4324@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261128
+DTEND;VALUE=DATE:20261129
+SUMMARY:Marcus Trufant autograph signing
+DESCRIPTION:Time: 1pm-3pm\nConfirm details with the organizer before you go.
+LOCATION:120th Ave NE\, Unit B (street number partially illegible\, possibly 699)\, Bellevue\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Marcus Trufant autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

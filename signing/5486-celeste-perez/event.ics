@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5486@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261204
+DTEND;VALUE=DATE:20261205
+SUMMARY:Celeste Perez autograph signing
+DESCRIPTION:Time: Fri\nDetails: https://animefrontier.com/autographs/paid-autographs/#celeste-perez\nConfirm details with the organizer before you go.
+LOCATION:Fort Worth\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Celeste Perez autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

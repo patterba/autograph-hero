@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5711@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270813
+DTEND;VALUE=DATE:20270814
+SUMMARY:Deonna Purrazzo autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/animate-orlando-guests#deonna-purrazzo\nConfirm details with the organizer before you go.
+LOCATION:Orlando\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Deonna Purrazzo autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

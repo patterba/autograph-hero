@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2876@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+SUMMARY:Order deadline: Howie Long autograph signing
+DESCRIPTION:Details: https://www.sagautographs.com/product-page/howie-long-autograph-signing\nConfirm details with the organizer before you go.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Howie Long
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

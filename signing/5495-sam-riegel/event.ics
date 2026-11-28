@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5495@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261205
+DTEND;VALUE=DATE:20261206
+SUMMARY:Sam Riegel autograph signing
+DESCRIPTION:Time: Sat\, Sun\nDetails: https://animefrontier.com/autographs/paid-autographs/#sam-riegel\nConfirm details with the organizer before you go.
+LOCATION:Fort Worth\, TX
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Sam Riegel autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

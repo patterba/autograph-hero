@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4857@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270423
+DTEND;VALUE=DATE:20270424
+SUMMARY:Tracie Ching autograph signing
+DESCRIPTION:Time: Appearing Fri\, Sat\, Sun\nDetails: https://awesome-con.com/guests/#tracie-ching\nConfirm details with the organizer before you go.
+LOCATION:Walter E. Washington Convention Center\, 801 Allen Y. Lew Pl NW\, Washington\, DC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Tracie Ching autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

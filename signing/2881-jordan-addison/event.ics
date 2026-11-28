@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-2881@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+SUMMARY:Order deadline: Jordan Addison autograph signing
+DESCRIPTION:Time: 6:30-7:15 PM (subject to change)\nDetails: https://fanhqstore.com/collections/jordan-addison-in-person-event\nConfirm details with the organizer before you go.
+LOCATION:Fan HQ Ridgedale\, 12667 Wayzata Blvd\, Minnetonka\, MN
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Order deadline tomorrow: Jordan Addison
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

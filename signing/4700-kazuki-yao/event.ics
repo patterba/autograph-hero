@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4700@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261219
+DTEND;VALUE=DATE:20261220
+SUMMARY:Kazuki Yao autograph signing
+DESCRIPTION:Details: https://holidaymatsuri.com/guests/kazuki-yao\nConfirm details with the organizer before you go.
+LOCATION:Orange County Convention Center\, Orlando\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kazuki Yao autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

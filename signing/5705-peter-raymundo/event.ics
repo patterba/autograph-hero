@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5705@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270813
+DTEND;VALUE=DATE:20270814
+SUMMARY:Peter Raymundo autograph signing
+DESCRIPTION:Details: https://galaxycon.com/pages/animate-orlando-guests#peter-raymundo\nConfirm details with the organizer before you go.
+LOCATION:Orlando\, FL
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Peter Raymundo autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

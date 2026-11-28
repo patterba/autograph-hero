@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4849@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270423
+DTEND;VALUE=DATE:20270424
+SUMMARY:Kellan Lutz autograph signing
+DESCRIPTION:Time: Appearing Fri\, Sat\, Sun\nDetails: https://awesome-con.com/guests/#kellan-lutz\nConfirm details with the organizer before you go.
+LOCATION:Walter E. Washington Convention Center\, 801 Allen Y. Lew Pl NW\, Washington\, DC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kellan Lutz autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

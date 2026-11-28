@@ -1,0 +1,98 @@
+{
+  "id": "/",
+  "name": "Autograph Hero",
+  "short_name": "Autograph Hero",
+  "description": "Autograph signings, meet & greets and mail-ins in one place. Never miss a signing.",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "background_color": "#F6F1E7",
+  "theme_color": "#F6F1E7",
+  "lang": "en-US",
+  "categories": [
+    "entertainment",
+    "sports",
+    "lifestyle"
+  ],
+  "icons": [
+    {
+      "src": "/assets/app/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/app/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/app/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "All Signings",
+      "url": "/events/?source=app",
+      "icons": [
+        {
+          "src": "/assets/app/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    },
+    {
+      "name": "In Person",
+      "url": "/events/?type=public&source=app",
+      "icons": [
+        {
+          "src": "/assets/app/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    },
+    {
+      "name": "Mail-In",
+      "url": "/events/?type=mail-in&source=app",
+      "icons": [
+        {
+          "src": "/assets/app/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    },
+    {
+      "name": "Submit A Signing",
+      "url": "/add/?source=app",
+      "icons": [
+        {
+          "src": "/assets/app/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    }
+  ]
+}

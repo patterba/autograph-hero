@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-6186@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261129
+DTEND;VALUE=DATE:20261130
+SUMMARY:Ricky Watters autograph signing
+DESCRIPTION:Time: 11am-12pm\nConfirm details with the organizer before you go.
+LOCATION:Hilton Santa Clara EndZone Tailgate Party\, 4949 Great America Pkwy\, Santa Clara\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Ricky Watters autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

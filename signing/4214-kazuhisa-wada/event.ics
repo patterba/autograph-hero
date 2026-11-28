@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-4214@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20270702
+DTEND;VALUE=DATE:20270703
+SUMMARY:Kazuhisa Wada autograph signing
+DESCRIPTION:Details: https://www.anime-expo.org/talent/kazuhisa-wada/\nConfirm details with the organizer before you go.
+LOCATION:Los Angeles Convention Center\, Los Angeles\, CA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Kazuhisa Wada autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

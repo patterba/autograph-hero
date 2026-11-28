@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Autograph Hero//EN
+BEGIN:VEVENT
+UID:signing-5665@autographhero.com
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261202
+DTEND;VALUE=DATE:20261203
+SUMMARY:Rick Rizz autograph signing
+DESCRIPTION:Time: 3pm\nOrder deadline: Wednesday\, December 2\, 2026\nConfirm details with the organizer before you go.
+LOCATION:The Neighbordhood Bar\, West Seattle\, WA
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Rick Rizz autograph signing
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR
